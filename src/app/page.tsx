@@ -63,9 +63,10 @@ function parseResponse(raw: { type: string; text?: string }[]): TreeNode[] | nul
     const text = raw.map((b) => (b.type === "text" ? b.text : "")).join("");
     const match = text!.match(/```(?:json)?\s*([\s\S]*?)```/) || text!.match(/(\{[\s\S]*\})/);
     if (!match) return null;
-    const trees = JSON.parse(match[1]).trees ?? null;
-    if (!trees || !Array.isArray(trees) || trees.length === 0) return null;
-    return trees;
+    const parsed = JSON.parse(match[1]);
+    const trees = parsed.trees;
+    if (!Array.isArray(trees)) return null;
+    return trees.length === 0 ? [] : trees;
   } catch {
     return null;
   }
@@ -556,9 +557,10 @@ REGLAS FINALES (NUNCA ROMPER)
       const res = await fetch("/api/chat", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({ model:"gpt-4o-mini", max_tokens:2000, system:sys, messages:[{ role:"user", content:msg }] }),
+        body:JSON.stringify({ model:"gpt-4o-mini", max_tokens:2500, system:sys, messages:[{ role:"user", content:msg }] }),
       });
       const data = await res.json();
+      console.log("API response:", data.content);
       const newTrees = parseResponse(data.content);
       if (!newTrees || newTrees.length === 0) {
         setChatLog((p) => [...p, { role:"ai", text:"No detecté tareas concretas. Intenta algo como: \"preparar informe, llamar cliente, revisar correos\"" }]);
