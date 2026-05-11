@@ -379,12 +379,13 @@ export default function ConejitasDashboard() {
 
 RESPONDE SOLO CON JSON entre backticks. Nada más.
 
-ESTRUCTURA:
+ESTRUCTURA JERÁRQUICA (hasta 4 niveles):
 - Nivel 0: Árbol raíz (área: Trabajo, Hogar, Salud, etc.)
 - Nivel 1: Tareas principales (verbo+objeto)
-- Nivel 2: Sub-tareas (solo si la tarea tiene 2-3 pasos claros)
+- Nivel 2: Sub-tareas (si la tarea tiene múltiples pasos)
+- Nivel 3: Tareas dentro de sub-tareas (si es muy compleja)
 
-EJEMPLO DE ESTRUCTURA CON SUBTAREAS:
+EJEMPLO COMPLETO CON 4 NIVELES:
 \`\`\`json
 {
   "trees":[{
@@ -392,12 +393,31 @@ EJEMPLO DE ESTRUCTURA CON SUBTAREAS:
     "icon":"💼",
     "children":[
       {
+        "title":"Campaña de marketing",
+        "icon":"📊",
+        "children":[
+          {
+            "title":"Coordinar con equipo de marketing",
+            "icon":"🤝",
+            "children":[
+              {"title":"Definir objetivos","icon":"🎯","children":[]},
+              {"title":"Establecer cronograma","icon":"📅","children":[]},
+              {"title":"Asignar responsabilidades","icon":"👥","children":[]}
+            ]
+          },
+          {
+            "title":"Preparar materiales publicitarios",
+            "icon":"🎨",
+            "children":[]
+          }
+        ]
+      },
+      {
         "title":"Preparar presentación",
         "icon":"📊",
         "children":[
           {"title":"Diseñar slides","icon":"🎨","children":[]},
-          {"title":"Agregar gráficos","icon":"📈","children":[]},
-          {"title":"Revisar contenido","icon":"✅","children":[]}
+          {"title":"Agregar gráficos","icon":"📈","children":[]}
         ]
       },
       {
@@ -410,23 +430,22 @@ EJEMPLO DE ESTRUCTURA CON SUBTAREAS:
 }
 \`\`\`
 
-REGLAS:
-1. AGRUPA tareas similares en UN SOLO árbol
-2. Tareas simple → sin children (children: [])
-3. Tareas complejas → con 2-3 subtareas en children
+REGLAS CRÍTICAS:
+1. AGRUPA tareas similares en UN SOLO árbol (no separes por tarea)
+2. Tareas complejas → desglosa en subtareas, y esas subtareas pueden tener más tareas
+3. Tareas simples → sin children (children: [])
 4. VERBO + OBJETO en títulos ("Preparar presentación", no "Presentación")
 5. 1 emoji por nodo. Sin emojis en títulos
-6. Max 3 niveles profundidad
+6. Max 4 niveles profundidad
 7. Si no hay tareas: {"trees":[]}
 
-CUÁNDO CREAR SUBTAREAS:
-- "Preparar presentación" → subtareas: diseñar, agregar gráficos, revisar
-- "Preparar informe" → subtareas: recopilar datos, escribir, revisar
-- "Hacer seguimiento logística" → subtareas: contactar proveedores, verificar envíos, actualizar estado
-- Tareas simples como "revisar correos" → SIN subtareas
+CUÁNDO CREAR MÚLTIPLES NIVELES:
+- "Campaña de marketing" (compleja) → subtarea "Coordinar con equipo" → tareas internas "Definir objetivos", "Establecer cronograma", "Asignar responsabilidades"
+- "Preparar presentación" (media) → subtareas "Diseñar slides", "Agregar gráficos"
+- "Revisar correos" (simple) → sin subtareas
 
 AGRUPACIÓN:
-- Todas tareas trabajo → 1 árbol "Trabajo" con múltiples tareas (algunas con subtareas)
+- Todas tareas trabajo → 1 árbol "Trabajo"
 - Todas tareas hogar → 1 árbol "Hogar"
 - Tareas de áreas distintas → múltiples árboles
 
