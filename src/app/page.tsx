@@ -180,7 +180,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
           </span>
         )}
         <button
-          onClick={(e) => { e.stopPropagation(); onDelete(node.id); }}
+          onClick={(e) => { e.stopPropagation(); if (window.confirm("¿Eliminar esta tarea?")) onDelete(node.id); }}
           style={{ background:"rgba(255,0,0,0.15)", border:"none", borderRadius:6, padding:4, cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
         >
           <Trash2 size={13} color="#ff6b6b"/>
@@ -410,10 +410,16 @@ IMPORTANTE: NO repitas ni modifiques tareas de mensajes anteriores. Solo procesa
       const res = await fetch("/api/chat", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({ model:"gpt-4o-mini", max_tokens:1500, system:sys, messages:[{ role:"user", content:msg }] }),
+        body:JSON.stringify({ model:"gpt-4o-mini", max_tokens:2000, system:sys, messages:[{ role:"user", content:msg }] }),
       });
       const data = await res.json();
       const newTrees = parseResponse(data.content);
+      const isFallback = newTrees?.length === 1 && newTrees[0].title === "Sin tareas detectadas";
+      if (isFallback) {
+        setChatLog((p) => [...p, { role:"ai", text:"No detecté tareas concretas. Intenta algo como: \"preparar informe, llamar al cliente, revisar correos\"" }]);
+        setLoading(false);
+        return;
+      }
       if (newTrees && newTrees.length > 0) {
         const stamped = newTrees.map((t) => stampIds(t, 0));
         setTrees((prev) => [...prev, ...stamped]);
@@ -429,8 +435,9 @@ IMPORTANTE: NO repitas ni modifiques tareas de mensajes anteriores. Solo procesa
       } else {
         setChatLog((p) => [...p, { role:"ai", text:"No pude entender eso. Intenta de otra forma." }]);
       }
-    } catch {
-      setChatLog((p) => [...p, { role:"ai", text:"Error de conexión. Intenta de nuevo." }]);
+    } catch (e) {
+      const isNetwork = e instanceof TypeError && e.message.includes("fetch");
+      setChatLog((p) => [...p, { role:"ai", text: isNetwork ? "Sin conexión a internet. Revisa tu red e intenta de nuevo." : "Algo salió mal. Intenta de nuevo en unos segundos." }]);
     }
     setLoading(false);
   }
@@ -486,7 +493,7 @@ IMPORTANTE: NO repitas ni modifiques tareas de mensajes anteriores. Solo procesa
         </button>
         <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:28, padding:3 }}>
           {([{v:"dashboard",icon:"📊"},{v:"chat",icon:"💬"}] as const).map(({v,icon}) => (
-            <button key={v} onClick={() => setView(v)} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:22, padding:"5px 11px", color: view===v ? "#fff" : P.muted, fontSize:11, fontWeight:700, cursor:"pointer" }}>{icon}</button>
+            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:22, padding:"5px 11px", color: view===v ? "#fff" : P.muted, fontSize:11, fontWeight:700, cursor:"pointer" }}>{icon}</button>
           ))}
         </div>
         <button onClick={() => setMenuOpen((m) => !m)} style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:8, padding:7, color:P.txt, cursor:"pointer" }}>
@@ -602,6 +609,7 @@ IMPORTANTE: NO repitas ni modifiques tareas de mensajes anteriores. Solo procesa
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+              onInput={(e) => { const t = e.currentTarget; t.style.height="auto"; t.style.height=Math.min(t.scrollHeight,90)+"px"; }}
               placeholder='Escribe tus tareas... (ej: "preparar reunión, revisar informe")'
               rows={1}
               style={{ flex:1, background:"none", border:"none", outline:"none", color:P.txt, fontSize:12, resize:"none", lineHeight:1.5, maxHeight:90, overflowY:"auto" }}
