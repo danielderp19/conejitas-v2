@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback, memo } from "react";
 import {
   CheckCircle2, Circle, ChevronRight, Trash2,
   RefreshCw, Monitor, Smartphone, Cloud, Menu, X,
-  Send, Sparkles, RotateCcw, GripVertical,
+  Send, Sparkles, RotateCcw,
 } from "lucide-react";
 
 const P = {
@@ -58,32 +58,19 @@ function collectIds(n: TreeNode): string[] {
   return ids;
 }
 
-function moveNode(trees: TreeNode[], dragId: string, targetId: string, pos: "before" | "after"): TreeNode[] {
-  let dragged: TreeNode | null = null;
-
-  function remove(nodes: TreeNode[]): TreeNode[] {
-    return nodes.filter((n) => {
-      if (n.id === dragId) { dragged = n; return false; }
-      return true;
-    }).map((n) => ({ ...n, children: remove(n.children || []) }));
-  }
-
-  function insert(nodes: TreeNode[]): TreeNode[] {
-    const out: TreeNode[] = [];
-    for (const n of nodes) {
-      if (n.id === targetId) {
-        if (pos === "before") out.push(dragged!, n);
-        else out.push(n, dragged!);
-      } else {
-        out.push({ ...n, children: insert(n.children || []) });
-      }
+function shiftNode(trees: TreeNode[], id: string, dir: -1 | 1): TreeNode[] {
+  function shift(nodes: TreeNode[]): TreeNode[] {
+    const idx = nodes.findIndex((n) => n.id === id);
+    if (idx !== -1) {
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= nodes.length) return nodes;
+      const arr = [...nodes];
+      [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+      return arr;
     }
-    return out;
+    return nodes.map((n) => ({ ...n, children: shift(n.children || []) }));
   }
-
-  const without = remove(trees);
-  if (!dragged) return trees;
-  return insert(without);
+  return shift(trees);
 }
 
 function parseResponse(raw: { type: string; text?: string }[]): TreeNode[] | null {
@@ -141,14 +128,10 @@ interface NodeProps {
   onToggle: (id: string) => void;
   onExpand: (id: string) => void;
   onDelete: (id: string) => void;
-  dragOverId: string | null;
-  dragOverPos: "before" | "after" | null;
-  onDragStart: (id: string) => void;
-  onDragOver: (id: string, pos: "before" | "after") => void;
-  onDrop: () => void;
+  onShift: (id: string, dir: -1 | 1) => void;
 }
 
-const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExpand, onDelete, dragOverId, dragOverPos, onDragStart, onDragOver, onDrop }: NodeProps) {
+const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExpand, onDelete, onShift }: NodeProps) {
   const isExp = expanded[node.id];
   const isDone = done[node.id];
   const hasKids = (node.children || []).length > 0;
@@ -157,7 +140,6 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
   const lPct = kTotal ? Math.round((kDone / kTotal) * 100) : isDone ? 100 : 0;
   const isComplete = hasKids && lPct === 100;
 
-  // Animación pop solo cuando isDone cambia a true
   const [popping, setPopping] = useState(false);
   const prevDone = useRef(isDone);
   useEffect(() => {
@@ -169,39 +151,20 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
     prevDone.current = isDone;
   }, [isDone]);
 
-  const isOver = dragOverId === node.id;
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    const el = document.elementFromPoint(touch.clientX, touch.clientY);
-    const nodeEl = el?.closest("[data-nodeid]") as HTMLElement | null;
-    if (nodeEl) {
-      const targetId = nodeEl.dataset.nodeid;
-      if (targetId && targetId !== node.id) {
-        const rect = nodeEl.getBoundingClientRect();
-        onDragOver(targetId, touch.clientY < rect.top + rect.height / 2 ? "before" : "after");
-      }
-    }
+  const btnStyle: React.CSSProperties = {
+    background: "rgba(255,255,255,0.12)",
+    border: "none",
+    borderRadius: 6,
+    padding: "3px 5px",
+    cursor: "pointer",
+    color: "#fff",
+    fontSize: 11,
+    lineHeight: 1,
+    flexShrink: 0,
   };
 
   return (
-    <div
-      data-nodeid={node.id}
-      style={{ marginLeft: node.level * (desktop ? 20 : 14), marginBottom: 6 }}
-      draggable
-      onDragStart={(e) => { e.stopPropagation(); onDragStart(node.id); }}
-      onDragOver={(e) => {
-        e.preventDefault(); e.stopPropagation();
-        const rect = e.currentTarget.getBoundingClientRect();
-        onDragOver(node.id, e.clientY < rect.top + rect.height / 2 ? "before" : "after");
-      }}
-      onDragEnd={() => onDrop()}
-      onDrop={(e) => { e.preventDefault(); e.stopPropagation(); onDrop(); }}
-    >
-      {isOver && dragOverPos === "before" && (
-        <div style={{ height: 3, background: `linear-gradient(90deg, ${P.p1}, ${P.p3})`, borderRadius: 2, marginBottom: 4, boxShadow: `0 0 10px ${P.p1}` }}/>
-      )}
+    <div style={{ marginLeft: node.level * (desktop ? 20 : 14), marginBottom: 6 }}>
       <div
         onClick={() => hasKids && onExpand(node.id)}
         style={{
@@ -216,15 +179,12 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
           animation: popping ? "pop 0.35s ease" : `slideInStagger 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${node.level * 0.08}s both`,
         }}
       >
-        <div
-          style={{ color:"rgba(255,255,255,0.55)", flexShrink:0, cursor:"grab", lineHeight:0, padding:"2px 4px", touchAction:"none" }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => { e.stopPropagation(); onDragStart(node.id); }}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={(e) => { e.stopPropagation(); onDrop(); }}
-        >
-          <GripVertical size={16}/>
+        {/* Botones de orden ▲▼ */}
+        <div style={{ display:"flex", flexDirection:"column", gap:2, flexShrink:0 }} onClick={(e) => e.stopPropagation()}>
+          <button style={btnStyle} onClick={(e) => { e.stopPropagation(); onShift(node.id, -1); }}>▲</button>
+          <button style={btnStyle} onClick={(e) => { e.stopPropagation(); onShift(node.id, 1); }}>▼</button>
         </div>
+
         {hasKids
           ? <div style={{ color:"#fff", transform: isExp ? "rotate(90deg)" : "rotate(0)", flexShrink:0, transition:"transform 0.25s ease" }}><ChevronRight size={14}/></div>
           : <div style={{ width:14, flexShrink:0 }}/>
@@ -255,20 +215,17 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
         )}
         <button
           onClick={(e) => { e.stopPropagation(); if (window.confirm("¿Eliminar esta tarea?")) onDelete(node.id); }}
-          style={{ background:"rgba(239,68,68,0.3)", border:"none", borderRadius:6, padding:"6px 8px", cursor:"pointer", display:"flex", alignItems:"center", gap:4, flexShrink:0, transition:"all 0.2s" }}
+          style={{ background:"rgba(239,68,68,0.3)", border:"none", borderRadius:6, padding:"6px 8px", cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
           onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.5)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.3)"; }}
         >
           <Trash2 size={14} color="#fca5a5"/>
         </button>
       </div>
-      {isOver && dragOverPos === "after" && (
-        <div style={{ height: 2, background: `linear-gradient(90deg, ${P.p1}, ${P.p3})`, borderRadius: 2, marginTop: 4, boxShadow: `0 0 8px ${P.p1}` }}/>
-      )}
       {isExp && hasKids && (
         <div>
           {node.children.map((c) => (
-            <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDelete} dragOverId={dragOverId} dragOverPos={dragOverPos} onDragStart={onDragStart} onDragOver={onDragOver} onDrop={onDrop}/>
+            <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDelete} onShift={onShift}/>
           ))}
         </div>
       )}
@@ -286,14 +243,10 @@ interface TreeCardProps {
   onExpand: (id: string) => void;
   onDeleteNode: (id: string) => void;
   onDeleteTree: (id: string) => void;
-  dragOverId: string | null;
-  dragOverPos: "before" | "after" | null;
-  onDragStart: (id: string) => void;
-  onDragOver: (id: string, pos: "before" | "after") => void;
-  onDrop: () => void;
+  onShift: (id: string, dir: -1 | 1) => void;
 }
 
-const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggle, onExpand, onDeleteNode, onDeleteTree, dragOverId, dragOverPos, onDragStart, onDragOver, onDrop }: TreeCardProps) {
+const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggle, onExpand, onDeleteNode, onDeleteTree, onShift }: TreeCardProps) {
   const tTotal = totalNodes(tree);
   const tDone = doneNodes(tree, done);
   const tPct = tTotal ? Math.round((tDone / tTotal) * 100) : 0;
@@ -346,7 +299,7 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggl
         </svg>
       </div>
       {(tree.children || []).map((c) => (
-        <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDeleteNode} dragOverId={dragOverId} dragOverPos={dragOverPos} onDragStart={onDragStart} onDragOver={onDragOver} onDrop={onDrop}/>
+        <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDeleteNode} onShift={onShift}/>
       ))}
     </div>
   );
@@ -367,9 +320,6 @@ export default function ConejitasDashboard() {
   const [desktop, setDesktop] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle"|"saving"|"saved"|"error">("idle");
   const [hydrated, setHydrated] = useState(false);
-  const [dragId, setDragId] = useState<string | null>(null);
-  const [dragOverId, setDragOverId] = useState<string | null>(null);
-  const [dragOverPos, setDragOverPos] = useState<"before" | "after" | null>(null);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatEnd = useRef<HTMLDivElement>(null);
@@ -426,14 +376,9 @@ export default function ConejitasDashboard() {
   const toggle = useCallback((id: string) => setDone((p) => ({ ...p, [id]: !p[id] })), []);
   const expandToggle = useCallback((id: string) => setExpanded((p) => ({ ...p, [id]: !p[id] })), []);
 
-  const handleDragStart = useCallback((id: string) => { setDragId(id); }, []);
-  const handleDragOver = useCallback((id: string, pos: "before" | "after") => { setDragOverId(id); setDragOverPos(pos); }, []);
-  const handleDrop = useCallback(() => {
-    if (dragId && dragOverId && dragId !== dragOverId && dragOverPos) {
-      setTrees((prev) => moveNode(prev, dragId, dragOverId, dragOverPos));
-    }
-    setDragId(null); setDragOverId(null); setDragOverPos(null);
-  }, [dragId, dragOverId, dragOverPos]);
+  const handleShift = useCallback((id: string, dir: -1 | 1) => {
+    setTrees((prev) => shiftNode(prev, id, dir));
+  }, []);
 
   const deleteNode = useCallback((nodeId: string) => {
     function find(nodes: TreeNode[]): TreeNode | null {
@@ -734,8 +679,7 @@ CRÍTICO:
               trees.map((tree) => (
                 <TreeCard key={tree.id} tree={tree} done={done} expanded={expanded} desktop={desktop}
                   onToggle={toggle} onExpand={expandToggle} onDeleteNode={deleteNode} onDeleteTree={deleteTree}
-                  dragOverId={dragOverId} dragOverPos={dragOverPos}
-                  onDragStart={handleDragStart} onDragOver={handleDragOver} onDrop={handleDrop}/>
+                  onShift={handleShift}/>
               ))
             )}
           </div>
