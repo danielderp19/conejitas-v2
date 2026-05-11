@@ -19,11 +19,11 @@ const P = {
 };
 
 const LVL = [
-  { from: "#a855f7", to: "#7c3aed" },
-  { from: "#7c3aed", to: "#6d28d9" },
-  { from: "#9333ea", to: "#db2777" },
-  { from: "#db2777", to: "#f59e0b" },
-  { from: "#f59e0b", to: "#ef4444" },
+  { from: "#d8b4fe", to: "#c084fc" },
+  { from: "#c084fc", to: "#a855f7" },
+  { from: "#fbbf24", to: "#f97316" },
+  { from: "#f97316", to: "#ea580c" },
+  { from: "#ea580c", to: "#dc2626" },
 ];
 
 const lvlGrad = (l: number) => {
@@ -149,7 +149,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
           opacity: isDone ? 0.65 : 1,
           border: isDone ? "1px solid rgba(134,239,172,0.4)" : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
           transition: "opacity 0.3s, border-color 0.3s, background 0.3s",
-          animation: popping ? "pop 0.35s ease" : `slideInStagger 0.4s ease-out ${node.level * 0.05}s both`,
+          animation: popping ? "pop 0.35s ease" : `slideInStagger 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${node.level * 0.08}s both`,
         }}
       >
         {hasKids
@@ -182,9 +182,11 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
         )}
         <button
           onClick={(e) => { e.stopPropagation(); if (window.confirm("¿Eliminar esta tarea?")) onDelete(node.id); }}
-          style={{ background:"rgba(255,0,0,0.15)", border:"none", borderRadius:6, padding:4, cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
+          style={{ background:"rgba(239,68,68,0.3)", border:"none", borderRadius:6, padding:"6px 8px", cursor:"pointer", display:"flex", alignItems:"center", gap:4, flexShrink:0, transition:"all 0.2s", hover:{background:"rgba(239,68,68,0.5)"} }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.5)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.3)"; }}
         >
-          <Trash2 size={13} color="#ff6b6b"/>
+          <Trash2 size={14} color="#fca5a5"/>
         </button>
       </div>
       {isExp && hasKids && (
@@ -225,7 +227,7 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggl
       borderRadius:16, padding: desktop ? 18 : 14, marginBottom:12,
       position:"relative", overflow:"hidden",
       transition:"border-color 0.5s, background 0.5s",
-      animation:"slideIn 0.5s ease-out",
+      animation:"slideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
     }}>
       {isComplete && <Confetti/>}
       <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12, paddingBottom:10, borderBottom:`1px solid ${isComplete ? "rgba(134,239,172,0.2)" : P.border}` }}>
@@ -240,9 +242,12 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggl
             {isComplete ? "✅ ¡Completado!" : `${tDone}/${tTotal} tareas`}
           </div>
         </div>
-        <button onClick={() => onDeleteTree(tree.id)} style={{ background:"rgba(255,0,0,0.15)", border:"none", borderRadius:8, padding:"5px 9px", cursor:"pointer", display:"flex", alignItems:"center", gap:4 }}>
-          <Trash2 size={13} color="#ff6b6b"/>
-          <span style={{ fontSize:10, color:"#ff6b6b", fontWeight:700 }}>Árbol</span>
+        <button onClick={() => onDeleteTree(tree.id)} style={{ background:"rgba(239,68,68,0.35)", border:"1px solid rgba(239,68,68,0.4)", borderRadius:8, padding:"6px 12px", cursor:"pointer", display:"flex", alignItems:"center", gap:4, transition:"all 0.2s" }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.5)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.35)"; }}
+        >
+          <Trash2 size={13} color="#fca5a5"/>
+          <span style={{ fontSize:10, color:"#fca5a5", fontWeight:700 }}>Árbol</span>
         </button>
         <svg width={40} height={40} viewBox="0 0 42 42" style={{ flexShrink:0 }}>
           <circle cx={21} cy={21} r={circleR} fill="none" stroke="rgba(168,85,247,0.15)" strokeWidth={4}/>
@@ -540,8 +545,9 @@ CRÍTICO:
         @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.2)}70%{transform:scale(0.95)}100%{transform:scale(1)}}
         @keyframes shimmer{0%,100%{opacity:0.7}50%{opacity:1}}
         @keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-90px) rotate(720deg);opacity:0}}
-        @keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes slideInStagger{0%{opacity:0;transform:translateY(15px)}100%{opacity:1;transform:translateY(0)}}
+        @keyframes slideIn{from{opacity:0;transform:translateY(30px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes slideInStagger{0%{opacity:0;transform:translateX(-20px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
+        @keyframes fadeGlow{from{box-shadow:0 0 0 0 rgba(168,85,247,0.5)}to{box-shadow:0 0 0 8px rgba(168,85,247,0)}}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         textarea,input{font-family:'Poppins',sans-serif;}
         ::-webkit-scrollbar{width:4px;}
