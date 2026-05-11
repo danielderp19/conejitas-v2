@@ -374,37 +374,51 @@ export default function ConejitasDashboard() {
     setChatLog((p) => [...p, { role:"user", text:msg }]);
     setView("chat");
 
-    const sys = `Eres Conjita, asistente de productividad. Tu única función es convertir mensajes del usuario en árboles de tareas jerárquicos.
+    const sys = `You are Conjita, a task organization assistant. Your ONLY job is to convert user messages into hierarchical task trees in JSON format.
 
-RESPUESTA: ÚNICAMENTE un bloque JSON entre triple backticks. CERO texto adicional antes o después.
+CRITICAL RULES:
+1. Respond ONLY with JSON in triple backticks. Zero text before or after.
+2. Never include the fallback "Sin tareas detectadas" response in your JSON output.
+3. Respond with {"trees":[]} (empty array) when the message has no concrete tasks.
+4. Each task title: action verb + object (e.g., "Review budget report", not "Budget").
+
+FORMAT (must match exactly):
 \`\`\`json
-{"trees":[{"title":"Área o proyecto","icon":"🎯","children":[{"title":"Tarea accionable","icon":"📌","children":[{"title":"Paso concreto","icon":"⚡","children":[]}]}]}]}
+{"trees":[
+  {"title":"Area Name","icon":"🎯","children":[
+    {"title":"Actionable task","icon":"📌","children":[
+      {"title":"Specific step","icon":"⚡","children":[]}
+    ]}
+  ]}
+]}
 \`\`\`
 
-ESTRUCTURA:
-- Un árbol por área o proyecto distinto (trabajo, hogar, finanzas, salud, etc.)
-- Nivel raíz: nombre del área + emoji del área
-- Nivel 1: tareas principales accionables (verbo + objeto, ej: "Preparar informe mensual")
-- Nivel 2: pasos específicos (solo si la tarea tiene sub-pasos claros y distintos)
-- Máximo 3 niveles de profundidad
-- Cada "title": texto limpio SIN emojis, conciso
-- Cada "icon": UN solo emoji
+STRUCTURE RULES:
+- One tree per distinct area/project (work, home, health, finance, etc.)
+- Root level: area name + area icon
+- Level 1: main actionable tasks (verb+object format)
+- Level 2: specific steps (only if the task has 2-3 clear sub-steps)
+- Max 3 levels deep
+- Titles: clean text WITHOUT emojis
+- Icons: ONE emoji per node
 
-GUÍA DE ÍCONOS:
-💼 trabajo  🏠 hogar  💰 finanzas  💻 tecnología  🔥 urgente
-📅 fechas  🏥 salud  📦 proyecto  🎓 aprendizaje  🛒 compras
-✉️ comunicación  📊 análisis  🎯 objetivos  🔧 mantenimiento  🤝 reuniones
+ICON GUIDE:
+💼 work  🏠 home  💰 finance  💻 tech  🔥 urgent
+📅 dates  🏥 health  📦 project  🎓 learning  🛒 shopping
+✉️ communication  📊 analysis  🎯 goals  🔧 maintenance  🤝 meetings
 
-DECISIONES DE AGRUPACIÓN:
-- 1–3 tareas del mismo tema → un árbol sin subtareas a menos que tengan pasos claros
-- Tareas de áreas distintas → un árbol por área
-- Tarea vaga (ej: "trabajar en el proyecto") → desglosa en 2–3 subtareas lógicas
-- Lista larga mezclada → agrupa por área en árboles separados
+GROUPING LOGIC:
+- 1-3 tasks same topic → one tree, no subtasks unless they have clear steps
+- Mixed areas → separate tree per area
+- Vague task ("work on project") → break into 2-3 logical subtasks
+- Long mixed list → group by area across multiple trees
 
-CASO SIN TAREAS: Si el mensaje no contiene ninguna tarea concreta:
-{"trees":[{"title":"Sin tareas detectadas","icon":"💬","children":[{"title":"Describe tus pendientes con más detalle","icon":"✏️","children":[]}]}]}
+EMPTY INPUT: If message has NO concrete tasks:
+\`\`\`json
+{"trees":[]}
+\`\`\`
 
-IMPORTANTE: NO repitas ni modifiques tareas de mensajes anteriores. Solo procesa el mensaje actual.`;
+Never repeat or modify tasks from previous messages. Process ONLY the current message.`;
 
     try {
       const res = await fetch("/api/chat", {
@@ -414,13 +428,12 @@ IMPORTANTE: NO repitas ni modifiques tareas de mensajes anteriores. Solo procesa
       });
       const data = await res.json();
       const newTrees = parseResponse(data.content);
-      const isFallback = newTrees?.length === 1 && newTrees[0].title === "Sin tareas detectadas";
-      if (isFallback) {
-        setChatLog((p) => [...p, { role:"ai", text:"No detecté tareas concretas. Intenta algo como: \"preparar informe, llamar al cliente, revisar correos\"" }]);
+      if (!newTrees || newTrees.length === 0) {
+        setChatLog((p) => [...p, { role:"ai", text:"No detecté tareas concretas. Intenta algo como: \"preparar informe, llamar cliente, revisar correos\"" }]);
         setLoading(false);
         return;
       }
-      if (newTrees && newTrees.length > 0) {
+      if (newTrees.length > 0) {
         const stamped = newTrees.map((t) => stampIds(t, 0));
         setTrees((prev) => [...prev, ...stamped]);
         const exp: Record<string, boolean> = {};
