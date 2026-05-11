@@ -379,38 +379,58 @@ export default function ConejitasDashboard() {
 
 RESPONDE SOLO CON JSON entre backticks. Nada más.
 
-FORMATO:
+ESTRUCTURA:
+- Nivel 0: Árbol raíz (área: Trabajo, Hogar, Salud, etc.)
+- Nivel 1: Tareas principales (verbo+objeto)
+- Nivel 2: Sub-tareas (solo si la tarea tiene 2-3 pasos claros)
+
+EJEMPLO DE ESTRUCTURA CON SUBTAREAS:
 \`\`\`json
-{"trees":[{"title":"Área/Proyecto","icon":"💼","children":[{"title":"Tarea 1","icon":"📌","children":[]},{"title":"Tarea 2","icon":"📌","children":[]}]}]}
+{
+  "trees":[{
+    "title":"Trabajo",
+    "icon":"💼",
+    "children":[
+      {
+        "title":"Preparar presentación",
+        "icon":"📊",
+        "children":[
+          {"title":"Diseñar slides","icon":"🎨","children":[]},
+          {"title":"Agregar gráficos","icon":"📈","children":[]},
+          {"title":"Revisar contenido","icon":"✅","children":[]}
+        ]
+      },
+      {
+        "title":"Revisar correos",
+        "icon":"✉️",
+        "children":[]
+      }
+    ]
+  }]
+}
 \`\`\`
 
-REGLAS CRÍTICAS:
-1. AGRUPA tareas similares en UN SOLO árbol (no separes por cada tarea)
-2. Si todas las tareas son del MISMO tema/área → UN árbol solamente
-3. Si hay tareas de DIFERENTES áreas (trabajo, hogar, salud) → varios árboles
-4. Títulos: VERBO + OBJETO ("Preparar presentación", no "Presentación")
+REGLAS:
+1. AGRUPA tareas similares en UN SOLO árbol
+2. Tareas simple → sin children (children: [])
+3. Tareas complejas → con 2-3 subtareas en children
+4. VERBO + OBJETO en títulos ("Preparar presentación", no "Presentación")
 5. 1 emoji por nodo. Sin emojis en títulos
-6. Max 3 niveles, máximo
-7. Si no hay tareas concretas: {"trees":[]}
+6. Max 3 niveles profundidad
+7. Si no hay tareas: {"trees":[]}
+
+CUÁNDO CREAR SUBTAREAS:
+- "Preparar presentación" → subtareas: diseñar, agregar gráficos, revisar
+- "Preparar informe" → subtareas: recopilar datos, escribir, revisar
+- "Hacer seguimiento logística" → subtareas: contactar proveedores, verificar envíos, actualizar estado
+- Tareas simples como "revisar correos" → SIN subtareas
 
 AGRUPACIÓN:
-- Tareas de trabajo juntas → 1 árbol "Trabajo"
-- Tareas de hogar juntas → 1 árbol "Hogar"
-- Tareas de salud juntas → 1 árbol "Salud"
-- NO separes por cada tarea individual
+- Todas tareas trabajo → 1 árbol "Trabajo" con múltiples tareas (algunas con subtareas)
+- Todas tareas hogar → 1 árbol "Hogar"
+- Tareas de áreas distintas → múltiples árboles
 
-EJEMPLO CORRECTO:
-Entrada: "Preparar presentación, revisar correos, llamar cliente, actualizar presupuesto, hacer seguimiento logística"
-Salida:
-\`\`\`json
-{"trees":[{"title":"Trabajo","icon":"💼","children":[{"title":"Preparar presentación","icon":"📊","children":[]},{"title":"Revisar correos","icon":"✉️","children":[]},{"title":"Llamar cliente","icon":"📞","children":[]},{"title":"Actualizar presupuesto","icon":"💰","children":[]},{"title":"Hacer seguimiento logística","icon":"📦","children":[]}]}]}
-\`\`\`
-
-EJEMPLO INCORRECTO (NO hagas esto):
-❌ Cada tarea en su propio árbol
-❌ Crear árboles para cada palabra
-
-CRÍTICO: Solo JSON entre backticks. Sin explicaciones. JSON válido.`;
+CRÍTICO: Solo JSON entre backticks. Sin explicaciones.`;
 
     try {
       const res = await fetch("/api/chat", {
