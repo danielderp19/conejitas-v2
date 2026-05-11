@@ -377,32 +377,40 @@ export default function ConejitasDashboard() {
 
     const sys = `Eres Conjita. Conviertes mensajes en árboles de tareas JSON.
 
-RESPONDE SOLO CON JSON. Nada más, solo JSON entre backticks.
+RESPONDE SOLO CON JSON entre backticks. Nada más.
 
 FORMATO:
 \`\`\`json
-{"trees":[{"title":"Área","icon":"💼","children":[{"title":"Tarea accionable","icon":"📌","children":[]}]}]}
+{"trees":[{"title":"Área/Proyecto","icon":"💼","children":[{"title":"Tarea 1","icon":"📌","children":[]},{"title":"Tarea 2","icon":"📌","children":[]}]}]}
 \`\`\`
 
-REGLAS:
-1. Títulos: VERBO + OBJETO ("Preparar presentación", no "Presentación")
-2. Emojis: 1 por nodo. Área: 💼🏠💰💻🔥 Tarea: 📌✉️📊🎯⚡
-3. Sin emojis en títulos
-4. Max 3 niveles profundidad
-5. Un árbol por área distinta
-6. Si no hay tareas: {"trees":[]}
+REGLAS CRÍTICAS:
+1. AGRUPA tareas similares en UN SOLO árbol (no separes por cada tarea)
+2. Si todas las tareas son del MISMO tema/área → UN árbol solamente
+3. Si hay tareas de DIFERENTES áreas (trabajo, hogar, salud) → varios árboles
+4. Títulos: VERBO + OBJETO ("Preparar presentación", no "Presentación")
+5. 1 emoji por nodo. Sin emojis en títulos
+6. Max 3 niveles, máximo
+7. Si no hay tareas concretas: {"trees":[]}
 
-EJEMPLOS:
-- Entrada: "preparar presentación, revisar correos, llamar cliente"
-  Salida: {"trees":[{"title":"Trabajo","icon":"💼","children":[{"title":"Preparar presentación","icon":"📊","children":[]},{"title":"Revisar correos","icon":"✉️","children":[]},{"title":"Llamar cliente","icon":"📞","children":[]}]}]}
+AGRUPACIÓN:
+- Tareas de trabajo juntas → 1 árbol "Trabajo"
+- Tareas de hogar juntas → 1 árbol "Hogar"
+- Tareas de salud juntas → 1 árbol "Salud"
+- NO separes por cada tarea individual
 
-- Entrada: "limpiar casa, ir al doctor"
-  Salida: {"trees":[{"title":"Hogar","icon":"🏠","children":[{"title":"Limpiar casa","icon":"🏠","children":[]}]},{"title":"Salud","icon":"🏥","children":[{"title":"Ir al doctor","icon":"🏥","children":[]}]}]}
+EJEMPLO CORRECTO:
+Entrada: "Preparar presentación, revisar correos, llamar cliente, actualizar presupuesto, hacer seguimiento logística"
+Salida:
+\`\`\`json
+{"trees":[{"title":"Trabajo","icon":"💼","children":[{"title":"Preparar presentación","icon":"📊","children":[]},{"title":"Revisar correos","icon":"✉️","children":[]},{"title":"Llamar cliente","icon":"📞","children":[]},{"title":"Actualizar presupuesto","icon":"💰","children":[]},{"title":"Hacer seguimiento logística","icon":"📦","children":[]}]}]}
+\`\`\`
 
-- Entrada: "hola"
-  Salida: {"trees":[]}
+EJEMPLO INCORRECTO (NO hagas esto):
+❌ Cada tarea en su propio árbol
+❌ Crear árboles para cada palabra
 
-CRÍTICO: Solo JSON. Sin explicaciones. Sin texto extra. JSON válido entre backticks.`;
+CRÍTICO: Solo JSON entre backticks. Sin explicaciones. JSON válido.`;
 
     try {
       const res = await fetch("/api/chat", {
