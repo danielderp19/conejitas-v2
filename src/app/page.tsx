@@ -171,21 +171,36 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
 
   const isOver = dragOverId === node.id;
 
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const nodeEl = el?.closest("[data-nodeid]") as HTMLElement | null;
+    if (nodeEl) {
+      const targetId = nodeEl.dataset.nodeid;
+      if (targetId && targetId !== node.id) {
+        const rect = nodeEl.getBoundingClientRect();
+        onDragOver(targetId, touch.clientY < rect.top + rect.height / 2 ? "before" : "after");
+      }
+    }
+  };
+
   return (
     <div
+      data-nodeid={node.id}
       style={{ marginLeft: node.level * (desktop ? 20 : 14), marginBottom: 6 }}
       draggable
       onDragStart={(e) => { e.stopPropagation(); onDragStart(node.id); }}
       onDragOver={(e) => {
         e.preventDefault(); e.stopPropagation();
         const rect = e.currentTarget.getBoundingClientRect();
-        const mid = rect.top + rect.height / 2;
-        onDragOver(node.id, e.clientY < mid ? "before" : "after");
+        onDragOver(node.id, e.clientY < rect.top + rect.height / 2 ? "before" : "after");
       }}
+      onDragEnd={() => onDrop()}
       onDrop={(e) => { e.preventDefault(); e.stopPropagation(); onDrop(); }}
     >
       {isOver && dragOverPos === "before" && (
-        <div style={{ height: 2, background: `linear-gradient(90deg, ${P.p1}, ${P.p3})`, borderRadius: 2, marginBottom: 4, boxShadow: `0 0 8px ${P.p1}` }}/>
+        <div style={{ height: 3, background: `linear-gradient(90deg, ${P.p1}, ${P.p3})`, borderRadius: 2, marginBottom: 4, boxShadow: `0 0 10px ${P.p1}` }}/>
       )}
       <div
         onClick={() => hasKids && onExpand(node.id)}
@@ -202,10 +217,13 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
         }}
       >
         <div
-          style={{ color:"rgba(255,255,255,0.4)", flexShrink:0, cursor:"grab", lineHeight:0, touchAction:"none" }}
+          style={{ color:"rgba(255,255,255,0.55)", flexShrink:0, cursor:"grab", lineHeight:0, padding:"2px 4px", touchAction:"none" }}
           onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => { e.stopPropagation(); onDragStart(node.id); }}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={(e) => { e.stopPropagation(); onDrop(); }}
         >
-          <GripVertical size={14}/>
+          <GripVertical size={16}/>
         </div>
         {hasKids
           ? <div style={{ color:"#fff", transform: isExp ? "rotate(90deg)" : "rotate(0)", flexShrink:0, transition:"transform 0.25s ease" }}><ChevronRight size={14}/></div>
