@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fondo degradado oscuro -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a0533"/>
+      <stop offset="100%" stop-color="#0f0a1e"/>
+    </linearGradient>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+
+  <!-- Oreja izquierda -->
+  <ellipse cx="175" cy="120" rx="38" ry="88" fill="#a855f7"/>
+  <ellipse cx="175" cy="120" rx="22" ry="68" fill="#ec4899"/>
+
+  <!-- Oreja derecha -->
+  <ellipse cx="337" cy="120" rx="38" ry="88" fill="#a855f7"/>
+  <ellipse cx="337" cy="120" rx="22" ry="68" fill="#ec4899"/>
+
+  <!-- Cuerpo -->
+  <ellipse cx="256" cy="370" rx="130" ry="115" fill="url(#bodyGrad)"/>
+
+  <!-- Cabeza -->
+  <ellipse cx="256" cy="240" rx="105" ry="98" fill="url(#bodyGrad)"/>
+
+  <!-- Mejillas -->
+  <ellipse cx="205" cy="268" rx="22" ry="14" fill="rgba(236,72,153,0.45)"/>
+  <ellipse cx="307" cy="268" rx="22" ry="14" fill="rgba(236,72,153,0.45)"/>
+
+  <!-- Ojos blancos -->
+  <ellipse cx="225" cy="235" rx="18" ry="20" fill="white"/>
+  <ellipse cx="287" cy="235" rx="18" ry="20" fill="white"/>
+
+  <!-- Pupilas -->
+  <circle cx="229" cy="238" r="11" fill="#1a0533"/>
+  <circle cx="291" cy="238" r="11" fill="#1a0533"/>
+
+  <!-- Brillos ojos -->
+  <circle cx="233" cy="233" r="4" fill="white"/>
+  <circle cx="295" cy="233" r="4" fill="white"/>
+
+  <!-- Nariz -->
+  <ellipse cx="256" cy="265" rx="10" ry="8" fill="#ec4899"/>
+
+  <!-- Boca -->
+  <path d="M244 275 Q256 287 268 275" stroke="#ec4899" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- Patitas -->
+  <ellipse cx="200" cy="462" rx="42" ry="22" fill="#c084fc"/>
+  <ellipse cx="312" cy="462" rx="42" ry="22" fill="#c084fc"/>
+
+  <!-- Bracitos -->
+  <ellipse cx="148" cy="365" rx="26" ry="42" fill="#c084fc" transform="rotate(-20 148 365)"/>
+  <ellipse cx="364" cy="365" rx="26" ry="42" fill="#c084fc" transform="rotate(20 364 365)"/>
+
+  <!-- Colita -->
+  <ellipse cx="256" cy="468" rx="20" ry="16" fill="white" opacity="0.85"/>
+
+  <!-- Estrellitas decorativas -->
+  <circle cx="410" cy="80" r="5" fill="#f0e6ff" opacity="0.8"/>
+  <circle cx="430" cy="65" r="3" fill="#ec4899" opacity="0.9"/>
+  <circle cx="390" cy="60" r="4" fill="#c084fc" opacity="0.7"/>
+  <circle cx="100" cy="80" r="4" fill="#f0e6ff" opacity="0.7"/>
+  <circle cx="82" cy="62" r="3" fill="#ec4899" opacity="0.8"/>
+</svg>
