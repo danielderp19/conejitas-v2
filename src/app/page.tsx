@@ -8,14 +8,14 @@ import {
 } from "lucide-react";
 
 const P = {
-  bg: "#0f0a1e",
-  card: "rgba(255,255,255,0.04)",
-  border: "rgba(168,85,247,0.18)",
-  borderHi: "rgba(168,85,247,0.55)",
-  p1: "#a855f7",
-  p3: "#ec4899",
-  txt: "#f0e6ff",
-  muted: "rgba(240,230,255,0.5)",
+  bg: "#0a0415",
+  card: "rgba(168,85,247,0.08)",
+  border: "rgba(168,85,247,0.25)",
+  borderHi: "rgba(168,85,247,0.7)",
+  p1: "#c084fc",
+  p3: "#f472b6",
+  txt: "#f3e8ff",
+  muted: "rgba(243,232,255,0.55)",
 };
 
 const LVL = [
@@ -149,7 +149,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
           opacity: isDone ? 0.65 : 1,
           border: isDone ? "1px solid rgba(134,239,172,0.4)" : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
           transition: "opacity 0.3s, border-color 0.3s, background 0.3s",
-          animation: popping ? "pop 0.35s ease" : "none",
+          animation: popping ? "pop 0.35s ease" : `slideInStagger 0.4s ease-out ${node.level * 0.05}s both`,
         }}
       >
         {hasKids
@@ -225,6 +225,7 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggl
       borderRadius:16, padding: desktop ? 18 : 14, marginBottom:12,
       position:"relative", overflow:"hidden",
       transition:"border-color 0.5s, background 0.5s",
+      animation:"slideIn 0.5s ease-out",
     }}>
       {isComplete && <Confetti/>}
       <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12, paddingBottom:10, borderBottom:`1px solid ${isComplete ? "rgba(134,239,172,0.2)" : P.border}` }}>
@@ -539,6 +540,8 @@ CRÍTICO:
         @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.2)}70%{transform:scale(0.95)}100%{transform:scale(1)}}
         @keyframes shimmer{0%,100%{opacity:0.7}50%{opacity:1}}
         @keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-90px) rotate(720deg);opacity:0}}
+        @keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes slideInStagger{0%{opacity:0;transform:translateY(15px)}100%{opacity:1;transform:translateY(0)}}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         textarea,input{font-family:'Poppins',sans-serif;}
         ::-webkit-scrollbar{width:4px;}
