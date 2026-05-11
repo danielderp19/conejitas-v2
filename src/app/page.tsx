@@ -375,81 +375,62 @@ export default function ConejitasDashboard() {
     setChatLog((p) => [...p, { role:"user", text:msg }]);
     setView("chat");
 
-    const sys = `Eres Conjita. Conviertes mensajes en árboles de tareas JSON.
+    const sys = `Eres Conjita. Conviertes mensajes en UN SOLO árbol de tareas JSON (o múltiples si son de áreas distintas).
 
-RESPONDE SOLO CON JSON entre backticks. Nada más.
+RESPONDE SOLO CON JSON entre backticks.
 
-ESTRUCTURA JERÁRQUICA (hasta 4 niveles):
-- Nivel 0: Árbol raíz (área: Trabajo, Hogar, Salud, etc.)
-- Nivel 1: Tareas principales (verbo+objeto)
-- Nivel 2: Sub-tareas (si la tarea tiene múltiples pasos)
-- Nivel 3: Tareas dentro de sub-tareas (si es muy compleja)
+REGLA #1: SI TODAS LAS TAREAS SON DEL MISMO TEMA (trabajo, hogar, etc.) → CREA UN SOLO ÁRBOL
+REGLA #2: SI HAY TAREAS DE TEMAS DISTINTOS → CREA UN ÁRBOL POR TEMA
 
-EJEMPLO COMPLETO CON 4 NIVELES:
+EJEMPLO: Tu entrada tiene 7 tareas de trabajo → UN SOLO árbol "Trabajo" con 7 tareas dentro
+
+ESTRUCTURA:
 \`\`\`json
 {
   "trees":[{
     "title":"Trabajo",
     "icon":"💼",
     "children":[
-      {
-        "title":"Campaña de marketing",
-        "icon":"📊",
-        "children":[
-          {
-            "title":"Coordinar con equipo de marketing",
-            "icon":"🤝",
-            "children":[
-              {"title":"Definir objetivos","icon":"🎯","children":[]},
-              {"title":"Establecer cronograma","icon":"📅","children":[]},
-              {"title":"Asignar responsabilidades","icon":"👥","children":[]}
-            ]
-          },
-          {
-            "title":"Preparar materiales publicitarios",
-            "icon":"🎨",
-            "children":[]
-          }
-        ]
-      },
-      {
-        "title":"Preparar presentación",
-        "icon":"📊",
-        "children":[
-          {"title":"Diseñar slides","icon":"🎨","children":[]},
-          {"title":"Agregar gráficos","icon":"📈","children":[]}
-        ]
-      },
-      {
-        "title":"Revisar correos",
-        "icon":"✉️",
-        "children":[]
-      }
+      {"title":"Tarea 1","icon":"📌","children":[]},
+      {"title":"Tarea 2","icon":"📌","children":[{"title":"Sub 1","icon":"⚡","children":[]},{"title":"Sub 2","icon":"⚡","children":[]}]},
+      {"title":"Tarea 3","icon":"📌","children":[]}
     ]
   }]
 }
 \`\`\`
 
-REGLAS CRÍTICAS:
-1. AGRUPA tareas similares en UN SOLO árbol (no separes por tarea)
-2. Tareas complejas → desglosa en subtareas, y esas subtareas pueden tener más tareas
-3. Tareas simples → sin children (children: [])
-4. VERBO + OBJETO en títulos ("Preparar presentación", no "Presentación")
-5. 1 emoji por nodo. Sin emojis en títulos
-6. Max 4 niveles profundidad
+REGLAS:
+1. UN ÁRBOL POR ÁREA (no uno por cada tarea)
+2. Todas tareas trabajo dentro del mismo árbol "Trabajo"
+3. Tareas simples: sin children
+4. Tareas complejas: con 2-3 subtareas en children
+5. VERBO+OBJETO en títulos
+6. 1 emoji por nodo, sin emojis en títulos
 7. Si no hay tareas: {"trees":[]}
 
-CUÁNDO CREAR MÚLTIPLES NIVELES:
-- "Campaña de marketing" (compleja) → subtarea "Coordinar con equipo" → tareas internas "Definir objetivos", "Establecer cronograma", "Asignar responsabilidades"
-- "Preparar presentación" (media) → subtareas "Diseñar slides", "Agregar gráficos"
-- "Revisar correos" (simple) → sin subtareas
+EJEMPLO CON TU TEXTO:
+Entrada: "Preparar presentación, revisar correos, llamar cliente, actualizar presupuesto, hacer seguimiento logística, preparar informe, coordinar marketing"
 
-AGRUPACIÓN:
-- Todas tareas trabajo → 1 árbol "Trabajo"
-- Todas tareas hogar → 1 árbol "Hogar"
-- Tareas de áreas distintas → múltiples árboles
+Salida (UN SOLO árbol):
+\`\`\`json
+{
+  "trees":[{
+    "title":"Trabajo",
+    "icon":"💼",
+    "children":[
+      {"title":"Preparar presentación","icon":"📊","children":[{"title":"Diseñar slides","icon":"🎨","children":[]},{"title":"Agregar datos","icon":"📈","children":[]}]},
+      {"title":"Revisar correos","icon":"✉️","children":[]},
+      {"title":"Llamar cliente","icon":"📞","children":[]},
+      {"title":"Actualizar presupuesto","icon":"💰","children":[]},
+      {"title":"Hacer seguimiento logística","icon":"📦","children":[]},
+      {"title":"Preparar informe","icon":"📄","children":[]},
+      {"title":"Coordinar con marketing","icon":"🤝","children":[]}
+    ]
+  }]
+}
+\`\`\`
 
-CRÍTICO: Solo JSON entre backticks. Sin explicaciones.`;
+CRÍTICO: Un árbol = una área. Todas las tareas de esa área van ADENTRO como children del árbol, NO como árboles separados.`;
 
     try {
       const res = await fetch("/api/chat", {
