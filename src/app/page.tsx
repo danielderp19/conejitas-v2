@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback, memo } from "react";
 import {
   CheckCircle2, Circle, ChevronRight, Trash2,
   RefreshCw, Monitor, Smartphone, Cloud, Menu, X,
-  Send, Sparkles, RotateCcw,
+  Send, Sparkles, RotateCcw, GripVertical,
 } from "lucide-react";
 
 const P = {
@@ -58,19 +58,19 @@ function collectIds(n: TreeNode): string[] {
   return ids;
 }
 
-function shiftNode(trees: TreeNode[], id: string, dir: -1 | 1): TreeNode[] {
-  function shift(nodes: TreeNode[]): TreeNode[] {
-    const idx = nodes.findIndex((n) => n.id === id);
-    if (idx !== -1) {
-      const newIdx = idx + dir;
-      if (newIdx < 0 || newIdx >= nodes.length) return nodes;
+function reorderSiblings(trees: TreeNode[], dragId: string, dropId: string): TreeNode[] {
+  function reorder(nodes: TreeNode[]): TreeNode[] {
+    const di = nodes.findIndex((n) => n.id === dragId);
+    const ti = nodes.findIndex((n) => n.id === dropId);
+    if (di !== -1 && ti !== -1) {
       const arr = [...nodes];
-      [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+      const [item] = arr.splice(di, 1);
+      arr.splice(ti, 0, item);
       return arr;
     }
-    return nodes.map((n) => ({ ...n, children: shift(n.children || []) }));
+    return nodes.map((n) => ({ ...n, children: reorder(n.children || []) }));
   }
-  return shift(trees);
+  return reorder(trees);
 }
 
 function parseResponse(raw: { type: string; text?: string }[]): TreeNode[] | null {
@@ -128,10 +128,10 @@ interface NodeProps {
   onToggle: (id: string) => void;
   onExpand: (id: string) => void;
   onDelete: (id: string) => void;
-  onShift: (id: string, dir: -1 | 1) => void;
+  onReorder: (dragId: string, dropId: string) => void;
 }
 
-const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExpand, onDelete, onShift }: NodeProps) {
+const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExpand, onDelete, onReorder }: NodeProps) {
   const isExp = expanded[node.id];
   const isDone = done[node.id];
   const hasKids = (node.children || []).length > 0;
@@ -141,6 +141,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
   const isComplete = hasKids && lPct === 100;
 
   const [popping, setPopping] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const prevDone = useRef(isDone);
   useEffect(() => {
     if (!prevDone.current && isDone) {
@@ -151,20 +152,19 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
     prevDone.current = isDone;
   }, [isDone]);
 
-  const btnStyle: React.CSSProperties = {
-    background: "rgba(255,255,255,0.12)",
-    border: "none",
-    borderRadius: 6,
-    padding: "3px 5px",
-    cursor: "pointer",
-    color: "#fff",
-    fontSize: 11,
-    lineHeight: 1,
-    flexShrink: 0,
-  };
-
   return (
-    <div style={{ marginLeft: node.level * (desktop ? 20 : 14), marginBottom: 6 }}>
+    <div
+      data-node-id={node.id}
+      style={{ marginLeft: node.level * (desktop ? 20 : 14), marginBottom: 6 }}
+      onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+      onDragLeave={() => setIsDragOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setIsDragOver(false);
+        const fromId = e.dataTransfer.getData("text/plain");
+        if (fromId && fromId !== node.id) onReorder(fromId, node.id);
+      }}
+    >
       <div
         onClick={() => hasKids && onExpand(node.id)}
         style={{
@@ -174,15 +174,27 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
           display: "flex", alignItems: "center", gap: 7,
           cursor: hasKids ? "pointer" : "default",
           opacity: isDone ? 0.65 : 1,
-          border: isDone ? "1px solid rgba(134,239,172,0.4)" : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
-          transition: "opacity 0.3s, border-color 0.3s, background 0.3s",
+          border: isDragOver ? "1px solid rgba(168,85,247,0.9)" : isDone ? "1px solid rgba(134,239,172,0.4)" : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
+          transition: "opacity 0.3s, border-color 0.2s, background 0.3s",
           animation: popping ? "pop 0.35s ease" : `slideInStagger 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${node.level * 0.08}s both`,
         }}
       >
-        {/* Botones de orden ▲▼ */}
-        <div style={{ display:"flex", flexDirection:"column", gap:2, flexShrink:0 }} onClick={(e) => e.stopPropagation()}>
-          <button style={btnStyle} onClick={(e) => { e.stopPropagation(); onShift(node.id, -1); }}>▲</button>
-          <button style={btnStyle} onClick={(e) => { e.stopPropagation(); onShift(node.id, 1); }}>▼</button>
+        {/* Grip handle */}
+        <div
+          draggable
+          onDragStart={(e) => {
+            e.stopPropagation();
+            e.dataTransfer.setData("text/plain", node.id);
+            e.dataTransfer.effectAllowed = "move";
+          }}
+          onClick={(e) => e.stopPropagation()}
+          style={{ cursor:"grab", flexShrink:0, display:"flex", alignItems:"center", opacity:0.45, touchAction:"none" }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            (e.currentTarget as HTMLElement).setAttribute("data-touch-drag", node.id);
+          }}
+        >
+          <GripVertical size={14} color="#fff"/>
         </div>
 
         {hasKids
@@ -225,7 +237,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
       {isExp && hasKids && (
         <div>
           {node.children.map((c) => (
-            <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDelete} onShift={onShift}/>
+            <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDelete} onReorder={onReorder}/>
           ))}
         </div>
       )}
@@ -243,10 +255,10 @@ interface TreeCardProps {
   onExpand: (id: string) => void;
   onDeleteNode: (id: string) => void;
   onDeleteTree: (id: string) => void;
-  onShift: (id: string, dir: -1 | 1) => void;
+  onReorder: (dragId: string, dropId: string) => void;
 }
 
-const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggle, onExpand, onDeleteNode, onDeleteTree, onShift }: TreeCardProps) {
+const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggle, onExpand, onDeleteNode, onDeleteTree, onReorder }: TreeCardProps) {
   const tTotal = totalNodes(tree);
   const tDone = doneNodes(tree, done);
   const tPct = tTotal ? Math.round((tDone / tTotal) * 100) : 0;
@@ -254,15 +266,33 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggl
   const circleR = 17;
   const circleC = 2 * Math.PI * circleR;
 
+  const [cardDragOver, setCardDragOver] = useState(false);
+
   return (
-    <div style={{
-      background: isComplete ? "rgba(134,239,172,0.06)" : P.card,
-      border: `1px solid ${isComplete ? "rgba(134,239,172,0.4)" : P.border}`,
-      borderRadius:16, padding: desktop ? 18 : 14, marginBottom:12,
-      position:"relative", overflow:"hidden",
-      transition:"border-color 0.5s, background 0.5s",
-      animation:"slideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-    }}>
+    <div
+      data-node-id={tree.id}
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", tree.id);
+        e.dataTransfer.effectAllowed = "move";
+      }}
+      onDragOver={(e) => { e.preventDefault(); setCardDragOver(true); }}
+      onDragLeave={() => setCardDragOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setCardDragOver(false);
+        const fromId = e.dataTransfer.getData("text/plain");
+        if (fromId && fromId !== tree.id) onReorder(fromId, tree.id);
+      }}
+      style={{
+        background: isComplete ? "rgba(134,239,172,0.06)" : P.card,
+        border: `1px solid ${cardDragOver ? "rgba(168,85,247,0.9)" : isComplete ? "rgba(134,239,172,0.4)" : P.border}`,
+        borderRadius:16, padding: desktop ? 18 : 14, marginBottom:12,
+        position:"relative", overflow:"hidden",
+        transition:"border-color 0.3s, background 0.5s",
+        animation:"slideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        cursor:"grab",
+      }}>
       {isComplete && <Confetti/>}
       <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12, paddingBottom:10, borderBottom:`1px solid ${isComplete ? "rgba(134,239,172,0.2)" : P.border}` }}>
         <span style={{ fontSize:22, animation: isComplete ? "shimmer 1.5s infinite" : "none" }}>
@@ -299,7 +329,7 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggl
         </svg>
       </div>
       {(tree.children || []).map((c) => (
-        <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDeleteNode} onShift={onShift}/>
+        <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDeleteNode} onReorder={onReorder}/>
       ))}
     </div>
   );
@@ -376,8 +406,8 @@ export default function ConejitasDashboard() {
   const toggle = useCallback((id: string) => setDone((p) => ({ ...p, [id]: !p[id] })), []);
   const expandToggle = useCallback((id: string) => setExpanded((p) => ({ ...p, [id]: !p[id] })), []);
 
-  const handleShift = useCallback((id: string, dir: -1 | 1) => {
-    setTrees((prev) => shiftNode(prev, id, dir));
+  const handleReorder = useCallback((dragId: string, dropId: string) => {
+    setTrees((prev) => reorderSiblings(prev, dragId, dropId));
   }, []);
 
   const deleteNode = useCallback((nodeId: string) => {
@@ -661,7 +691,7 @@ REGLAS:
               trees.map((tree) => (
                 <TreeCard key={tree.id} tree={tree} done={done} expanded={expanded} desktop={desktop}
                   onToggle={toggle} onExpand={expandToggle} onDeleteNode={deleteNode} onDeleteTree={deleteTree}
-                  onShift={handleShift}/>
+                  onReorder={handleReorder}/>
               ))
             )}
           </div>
