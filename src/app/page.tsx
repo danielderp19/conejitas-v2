@@ -419,108 +419,90 @@ export default function ConejitasDashboard() {
     setChatLog((p) => [...p, { role:"user", text:msg }]);
     setView("chat");
 
-    const sys = `Eres Conjita. Conviertes mensajes en árboles de tareas JSON jerárquicos.
+    const sys = `Eres Conjita, un asistente que extrae tareas de mensajes en lenguaje natural y los convierte en árboles JSON.
 
-RESPONDE SOLO CON JSON entre backticks.
+El usuario puede escribir de forma informal, conversacional, con errores, mezclar temas y usar referencias implícitas. Tu trabajo es INTERPRETAR el mensaje completo y extraer TODAS las tareas.
 
-REGLA FUNDAMENTAL:
-- UN árbol por ÁREA/CONTEXTO (trabajo, hogar, salud, etc.)
-- TODAS las tareas de esa área van ADENTRO del árbol como "children"
-- NUNCA crees un árbol por cada tarea
+RESPONDE SOLO CON JSON entre triple backticks. Nada más.
 
-ANÁLISIS DE TAREAS:
-- Tareas COMPLEJAS (preparar, organizar, coordinar, hacer seguimiento) → DEBEN tener 2-4 subtareas
-- Tareas SIMPLES (revisar, llamar, confirmar) → sin subtareas (children: [])
+PASOS PARA PROCESAR EL MENSAJE:
+1. Lee TODO el mensaje y extrae cada acción pendiente, sin importar cómo esté redactada
+2. Agrupa las tareas por área: Salud, Universidad, Trabajo, Personal, Hogar, Finanzas, etc.
+3. Crea UN árbol por área, con todas sus tareas adentro como children
+4. Para tareas complejas (que tienen varios pasos) → agrega 2-3 subtareas
+5. Para tareas simples (una sola acción) → sin subtareas
 
-ESTRUCTURA COMPLETA (4 NIVELES):
+EJEMPLO REAL de mensaje conversacional:
+Entrada: "Tengo que tomarme una pastilla a las 9, mirar el trabajo de riesgo en banca y enviarle al profe los comprobantes médicos, también al de Macros en excel y ver su clase de macros. Revisar los estados financieros de pacasmayo, preguntarle al profe de la asistencia y participación. Decirle que no me contestó el correo al profe de international finance y decirle que me ausente en el examen del sábado."
+
+Salida correcta:
 \`\`\`json
 {
-  "trees":[{
-    "title":"Trabajo",
-    "icon":"💼",
-    "children":[
-      {
-        "title":"Preparar presentación",
-        "icon":"📊",
-        "children":[
-          {"title":"Diseñar slides","icon":"🎨","children":[]},
-          {"title":"Agregar gráficos y datos","icon":"📈","children":[]},
-          {"title":"Revisar y ajustar contenido","icon":"✅","children":[]}
-        ]
-      },
-      {
-        "title":"Revisar correos pendientes",
-        "icon":"✉️",
-        "children":[]
-      },
-      {
-        "title":"Llamar cliente Sony",
-        "icon":"📞",
-        "children":[]
-      },
-      {
-        "title":"Actualizar presupuesto 2026",
-        "icon":"💰",
-        "children":[
-          {"title":"Recopilar datos de gastos","icon":"📊","children":[]},
-          {"title":"Ajustar proyecciones","icon":"📈","children":[]},
-          {"title":"Revisar y aprobar","icon":"✅","children":[]}
-        ]
-      },
-      {
-        "title":"Hacer seguimiento logística",
-        "icon":"📦",
-        "children":[
-          {"title":"Contactar proveedores","icon":"📞","children":[]},
-          {"title":"Verificar estados de envío","icon":"🔍","children":[]},
-          {"title":"Actualizar tracking","icon":"🔄","children":[]}
-        ]
-      },
-      {
-        "title":"Preparar informe semanal",
-        "icon":"📄",
-        "children":[
-          {"title":"Compilar datos de ventas","icon":"📊","children":[]},
-          {"title":"Crear gráficos","icon":"📈","children":[]},
-          {"title":"Escribir análisis","icon":"✍️","children":[]},
-          {"title":"Revisar y formatear","icon":"✅","children":[]}
-        ]
-      },
-      {
-        "title":"Coordinar con marketing",
-        "icon":"🤝",
-        "children":[
-          {"title":"Definir objetivos campaña","icon":"🎯","children":[]},
-          {"title":"Alinear creatividad y mensaje","icon":"🎨","children":[]},
-          {"title":"Establecer cronograma","icon":"📅","children":[]},
-          {"title":"Asignar responsabilidades","icon":"👥","children":[]}
-        ]
-      }
-    ]
-  }]
+  "trees": [
+    {
+      "title": "Salud",
+      "icon": "🏥",
+      "children": [
+        {"title": "Tomar pastilla a las 9am", "icon": "💊", "children": []}
+      ]
+    },
+    {
+      "title": "Universidad",
+      "icon": "🎓",
+      "children": [
+        {
+          "title": "Entregar trabajo de riesgo en banca",
+          "icon": "📊",
+          "children": [
+            {"title": "Revisar trabajo antes de enviar", "icon": "🔍", "children": []},
+            {"title": "Enviar al profesor", "icon": "✉️", "children": []}
+          ]
+        },
+        {
+          "title": "Enviar comprobantes médicos al profesor",
+          "icon": "📄",
+          "children": []
+        },
+        {
+          "title": "Pendientes con profesor de Macros Excel",
+          "icon": "💻",
+          "children": [
+            {"title": "Enviar tarea de Macros", "icon": "📤", "children": []},
+            {"title": "Ver clase de Macros para ponerse al día", "icon": "▶️", "children": []}
+          ]
+        },
+        {
+          "title": "Revisar estados financieros Pacasmayo",
+          "icon": "📈",
+          "children": []
+        },
+        {
+          "title": "Escribir al profesor sobre asistencia y participación",
+          "icon": "✉️",
+          "children": [
+            {"title": "Preguntar sobre asistencia y participación", "icon": "❓", "children": []},
+            {"title": "Mencionar que no respondió el correo anterior", "icon": "📧", "children": []}
+          ]
+        },
+        {
+          "title": "Escribir al profesor de International Finance",
+          "icon": "✉️",
+          "children": [
+            {"title": "Explicar ausencia en examen del sábado", "icon": "📝", "children": []}
+          ]
+        }
+      ]
+    }
+  ]
 }
 \`\`\`
 
-REGLAS CRÍTICAS:
-1. UN ÁRBOL POR ÁREA ÚNICAMENTE
-2. Tareas complejas (preparar, coordinar, hacer seguimiento, organizar, actualizar) → SIEMPRE con subtareas
-3. Tareas simples (revisar, llamar, confirmar) → SIN subtareas
-4. Cada subtarea es una ACCIÓN clara y específica
-5. VERBO+OBJETO en todos los títulos
-6. 1 emoji por nodo, sin emojis en títulos
-7. Si no hay tareas: {"trees":[]}
-
-IDENTIFICAR TAREAS COMPLEJAS:
-- "Preparar X" → desglosa en pasos (diseñar, agregar, revisar)
-- "Coordinar X" → desglosa en pasos (definir, alinear, establecer, asignar)
-- "Hacer seguimiento X" → desglosa en pasos (contactar, verificar, actualizar)
-- "Organizar X" → desglosa en pasos (recopilar, organizar, revisar)
-- "Actualizar X" → desglosa en pasos (recopilar, ajustar, revisar)
-
-CRÍTICO:
-- Un árbol = una área
-- Tareas complejas DEBEN tener subtareas
-- NO crees un árbol por cada tarea
+REGLAS:
+- Extrae TODAS las tareas aunque el mensaje sea informal o confuso
+- Un árbol por área (Salud, Universidad, Trabajo, etc.)
+- Títulos: VERBO + OBJETO, claros y concisos, sin emojis
+- 1 emoji por nodo
+- Si no hay tareas: {"trees":[]}
 - Solo JSON entre backticks`;
 
     try {
