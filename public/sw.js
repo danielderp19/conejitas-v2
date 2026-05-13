@@ -1,4 +1,4 @@
-const CACHE = "conjita-v3";
+const CACHE = "conjita-v4";
 const STATIC = ["/manifest.json", "/bunny-icon.svg"];
 
 self.addEventListener("install", (e) => {
@@ -21,7 +21,6 @@ self.addEventListener("fetch", (e) => {
 
   const url = new URL(e.request.url);
 
-  // HTML pages: network first, fallback to cache
   if (url.pathname === "/" || e.request.headers.get("accept")?.includes("text/html")) {
     e.respondWith(
       fetch(e.request)
@@ -35,7 +34,6 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Static assets (_next/static): cache first (they have content hashes)
   if (url.pathname.startsWith("/_next/static/")) {
     e.respondWith(
       caches.match(e.request).then((cached) => {
@@ -49,6 +47,102 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Everything else: network first
   e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+});
+
+// ─── Notificaciones ───────────────────────────────────────────────────────────
+let notifTrees = [];
+let notifDone = {};
+let notifEnabled = false;
+let notifTimer = null;
+
+self.addEventListener("message", (event) => {
+  const data = event.data;
+  if (!data) return;
+
+  if (data.type === "ENABLE_NOTIFICATIONS") {
+    notifTrees = data.trees || [];
+    notifDone = data.done || {};
+    notifEnabled = true;
+    startNotifTimer();
+    return;
+  }
+
+  if (data.type === "UPDATE_TASKS") {
+    notifTrees = data.trees || [];
+    notifDone = data.done || {};
+    return;
+  }
+
+  if (data.type === "DISABLE_NOTIFICATIONS") {
+    notifEnabled = false;
+    if (notifTimer) { clearInterval(notifTimer); notifTimer = null; }
+    return;
+  }
+});
+
+function hasPending(node, done) {
+  if (!node.children || node.children.length === 0) return !done[node.id];
+  return node.children.some((c) => hasPending(c, done));
+}
+
+function countPending(node, done) {
+  if (!node.children || node.children.length === 0) return done[node.id] ? 0 : 1;
+  return node.children.reduce((s, c) => s + countPending(c, done), 0);
+}
+
+function buildMessage(pending, done) {
+  const names = pending.map((t) => `"${t.title}"`).join(", ");
+  const total = pending.reduce((s, t) => s + countPending(t, done), 0);
+  const plural = total !== 1;
+  const useSpecial = Math.random() < 0.18;
+
+  if (useSpecial) {
+    return `💜 Recuerda hacer ${names}. Y recuerda: el que programó esto te ama 🐰`;
+  }
+
+  const opts = [
+    `¡Ey! Tienes ${total} tarea${plural ? "s" : ""} pendiente${plural ? "s" : ""} en ${names}. ¡Tú puedes! 💪`,
+    `✨ Pequeños pasos, grandes logros. Aún tienes ${names} por completar. ¡Vamos! 🌟`,
+    `🌸 No olvides ${names}. ${total} cosa${plural ? "s" : ""} esperando por ti. ¡Sí se puede!`,
+    `🎯 ${names} te espera${pending.length > 1 ? "n" : ""}. Solo ${total} tarea${plural ? "s" : ""} más. ¡Casi casi! 🚀`,
+    `🐰 Oye, ${names} sigue${pending.length > 1 ? "n" : ""} esperando. ¡No te rajes! 💫`,
+  ];
+
+  return opts[Math.floor(Math.random() * opts.length)];
+}
+
+function sendNotification() {
+  if (!notifEnabled) return;
+  const pending = notifTrees.filter((t) => hasPending(t, notifDone));
+  if (pending.length === 0) return;
+
+  const body = buildMessage(pending, notifDone);
+
+  self.registration.showNotification("Conjita's Dashboard 🐰", {
+    body,
+    icon: "/bunny-icon.svg",
+    badge: "/bunny-icon.svg",
+    tag: "conjita-reminder",
+    renotify: true,
+    vibrate: [200, 100, 200],
+  });
+}
+
+function startNotifTimer() {
+  if (notifTimer) clearInterval(notifTimer);
+  // Primera notificación a las 3 horas
+  notifTimer = setInterval(sendNotification, 3 * 60 * 60 * 1000);
+}
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: "window" }).then((list) => {
+      for (const client of list) {
+        if ("focus" in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow("/");
+    })
+  );
 });

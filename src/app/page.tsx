@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback, memo } from "react";
 import {
   CheckCircle2, Circle, ChevronRight, Trash2,
   RefreshCw, Monitor, Smartphone, Cloud, Menu, X,
-  Send, Sparkles, RotateCcw, GripVertical,
+  Send, Sparkles, RotateCcw, GripVertical, Bell, BellOff,
 } from "lucide-react";
 
 const P = {
@@ -350,6 +350,7 @@ export default function ConejitasDashboard() {
   const [desktop, setDesktop] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle"|"saving"|"saved"|"error">("idle");
   const [hydrated, setHydrated] = useState(false);
+  const [notifStatus, setNotifStatus] = useState<"idle"|"enabled"|"denied"|"unsupported">("idle");
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatEnd = useRef<HTMLDivElement>(null);
@@ -398,6 +399,51 @@ export default function ConejitasDashboard() {
   }, [trees, done, expanded, chatLog, hydrated, saveState]);
 
   useEffect(() => { chatEnd.current?.scrollIntoView({ behavior:"smooth" }); }, [chatLog]);
+
+  // ── Notificaciones ──────────────────────────────────────────────────────────
+  const sendSwMsg = useCallback((msg: object) => {
+    if (!("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.ready.then((reg) => {
+      reg.active?.postMessage(msg);
+    });
+  }, []);
+
+  // Detectar si ya tenía notificaciones activadas
+  useEffect(() => {
+    if (!("Notification" in window)) { setNotifStatus("unsupported"); return; }
+    if (Notification.permission === "granted") {
+      const saved = localStorage.getItem("conjita-notif");
+      if (saved === "enabled") setNotifStatus("enabled");
+    } else if (Notification.permission === "denied") {
+      setNotifStatus("denied");
+    }
+  }, []);
+
+  // Sincronizar tareas con el SW cuando cambian
+  useEffect(() => {
+    if (!hydrated || notifStatus !== "enabled") return;
+    sendSwMsg({ type: "UPDATE_TASKS", trees, done });
+  }, [trees, done, hydrated, notifStatus, sendSwMsg]);
+
+  const toggleNotifications = useCallback(async () => {
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+      setNotifStatus("unsupported"); return;
+    }
+    if (notifStatus === "enabled") {
+      sendSwMsg({ type: "DISABLE_NOTIFICATIONS" });
+      localStorage.removeItem("conjita-notif");
+      setNotifStatus("idle");
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm === "granted") {
+      sendSwMsg({ type: "ENABLE_NOTIFICATIONS", trees, done });
+      localStorage.setItem("conjita-notif", "enabled");
+      setNotifStatus("enabled");
+    } else {
+      setNotifStatus("denied");
+    }
+  }, [notifStatus, sendSwMsg, trees, done]);
 
   const totalT = trees.reduce((s, t) => s + totalNodes(t), 0);
   const doneT = trees.reduce((s, t) => s + doneNodes(t, done), 0);
@@ -620,6 +666,26 @@ REGLAS:
             {saveStatus === "saved" && <div style={{ fontSize:10, color:"#86efac", display:"flex", alignItems:"center", gap:3 }}><Cloud size={10}/>Guardado</div>}
           </div>
         </div>
+        {/* Botón de notificaciones */}
+        <button
+          onClick={toggleNotifications}
+          title={notifStatus === "enabled" ? "Desactivar recordatorios" : notifStatus === "denied" ? "Activa notificaciones en ajustes del navegador" : "Activar recordatorios cada 3h"}
+          style={{
+            background: notifStatus === "enabled" ? "linear-gradient(135deg,#9333ea,#db2777)" : "rgba(255,255,255,0.06)",
+            border: `1px solid ${notifStatus === "enabled" ? "transparent" : P.border}`,
+            borderRadius: 8, padding: 7, cursor: notifStatus === "denied" ? "not-allowed" : "pointer",
+            display: "flex", alignItems: "center", position: "relative",
+            opacity: notifStatus === "unsupported" ? 0.4 : 1,
+          }}
+        >
+          {notifStatus === "enabled"
+            ? <Bell size={15} color="#fff"/>
+            : <BellOff size={15} color={P.muted}/>
+          }
+          {notifStatus === "enabled" && (
+            <span style={{ position:"absolute", top:4, right:4, width:6, height:6, borderRadius:"50%", background:"#86efac", boxShadow:"0 0 4px #86efac" }}/>
+          )}
+        </button>
         <button onClick={() => setDesktop((d) => !d)} style={{ background:"rgba(255,255,255,0.06)", border:`1px solid ${P.border}`, borderRadius:8, padding:7, color:P.txt, cursor:"pointer", display:"flex", alignItems:"center" }}>
           {desktop ? <Smartphone size={15}/> : <Monitor size={15}/>}
         </button>
@@ -639,6 +705,19 @@ REGLAS:
           <div style={{ padding:"4px 12px 10px", fontSize:11, color:P.txt, borderBottom:`1px solid ${P.border}` }}>
             💾 Tus tareas se guardan automáticamente.
           </div>
+          <div style={{ padding:"8px 12px 4px", fontSize:10, color:P.muted, fontWeight:700 }}>RECORDATORIOS</div>
+          <button
+            onClick={() => { toggleNotifications(); setMenuOpen(false); }}
+            style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", color: notifStatus === "enabled" ? "#86efac" : P.txt, padding:"9px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:600 }}
+          >
+            {notifStatus === "enabled" ? <Bell size={13}/> : <BellOff size={13}/>}
+            {notifStatus === "enabled" ? "Desactivar recordatorios" : "Activar recordatorios (3h)"}
+          </button>
+          {notifStatus === "denied" && (
+            <div style={{ padding:"4px 12px 8px", fontSize:10, color:"#f87171" }}>
+              ⚠️ Activa notificaciones en los ajustes del navegador/iPhone.
+            </div>
+          )}
           <button onClick={reset} style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", color:"#f87171", padding:"9px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:600, marginTop:4 }}>
             <RotateCcw size={13}/> Borrar todo y memoria
           </button>
