@@ -1025,6 +1025,11 @@ REGLAS:
           </div>
         </div>
       )}
+
+      {/* Version tag */}
+      <div style={{ position:"fixed", bottom:8, right:10, fontSize:10, color:"rgba(240,230,255,0.25)", pointerEvents:"none", zIndex:9 }}>
+        v1.1
+      </div>
     </div>
   );
 }
