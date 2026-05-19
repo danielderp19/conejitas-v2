@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/bunny-icon.svg"/>
         <link rel="icon" href="/bunny-icon.svg" type="image/svg+xml"/>
       </head>
-      <body style={{ margin: 0, padding: 0, background: "#0d0a1a" }}>
+      <body style={{ margin: 0, padding: 0, background: "#ffffff" }}>
         <PWARegistrar />
         {children}
       </body>
