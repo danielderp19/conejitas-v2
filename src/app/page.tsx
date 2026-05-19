@@ -370,6 +370,14 @@ export default function ConejitasDashboard() {
     "¡Qué máquina! 🤩",
     "¡Lo sabía! 🌸",
     "¡Dios mío qué buena! 😍",
+    "정말 독특하다 🇰🇷✨",
+    "Ti amo, sei sempre il migliore 🇮🇹💜",
+    "Tu es toujours incroyable, n'en doute pas 🇫🇷🌟",
+    "Toma, te ganaste un tulipán 🌷",
+    "¡Eres una absoluta campeona! 🏆",
+    "¡Qué energía tan bonita la tuya! 🌈",
+    "¡El universo está orgulloso de ti! 🌌",
+    "¡Cada tarea cuenta, y tú las cuentas todas! 🥰",
   ];
   const [showCat, setShowCat] = useState(false);
   const [catMsg, setCatMsg] = useState("");
