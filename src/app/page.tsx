@@ -437,7 +437,7 @@ export default function ConejitasDashboard() {
     const pad = "=".repeat((4 - b64.length % 4) % 4);
     const base64 = (b64 + pad).replace(/-/g, "+").replace(/_/g, "/");
     const raw = atob(base64);
-    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+    return Uint8Array.from(Array.from(raw).map(c => c.charCodeAt(0)));
   }
 
   // Detectar estado guardado
