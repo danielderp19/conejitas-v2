@@ -8,14 +8,14 @@ import {
 } from "lucide-react";
 
 const P = {
-  bg: "#ffffff",
-  card: "rgba(168,85,247,0.07)",
-  border: "rgba(168,85,247,0.2)",
-  borderHi: "rgba(168,85,247,0.5)",
+  bg: "#0d0a1a",
+  card: "rgba(168,85,247,0.1)",
+  border: "rgba(168,85,247,0.25)",
+  borderHi: "rgba(168,85,247,0.6)",
   p1: "#9333ea",
   p3: "#db2777",
-  txt: "#1e0a3c",
-  muted: "rgba(30,10,60,0.45)",
+  txt: "#f0e6ff",
+  muted: "rgba(240,230,255,0.45)",
 };
 
 const LVL = [
@@ -211,7 +211,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
           }
         </button>
         <div style={{ flex:1, minWidth:0 }}>
-          <p style={{ margin:0, fontSize: desktop ? 13 : 12, fontWeight:600, color: isDone ? "#86efac" : "#fff", textDecoration: isDone ? "line-through" : "none", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", transition:"color 0.3s, text-decoration 0.3s" }}>
+          <p style={{ margin:0, fontSize: desktop ? 13 : 12, fontWeight:600, color: isDone ? "#86efac" : "#fff", textDecoration: isDone ? "line-through" : "none", whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.4, transition:"color 0.3s, text-decoration 0.3s" }}>
             {node.title}
           </p>
           {hasKids && (
@@ -299,7 +299,7 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggl
           {isComplete ? "🎉" : (tree.icon || "🌱")}
         </span>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize: desktop ? 15 : 13, color: isComplete ? "#86efac" : P.txt, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", transition:"color 0.4s" }}>
+          <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize: desktop ? 15 : 13, color: isComplete ? "#86efac" : P.txt, whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.3, transition:"color 0.4s" }}>
             {tree.title}
           </div>
           <div style={{ fontSize:10, color: isComplete ? "#86efac" : P.muted, marginTop:1, transition:"color 0.4s" }}>
@@ -653,7 +653,7 @@ REGLAS:
       `}</style>
 
       {/* Header */}
-      <header style={{ padding: desktop ? "14px 28px" : "14px 18px", background:"rgba(255,255,255,0.97)", borderBottom:`1px solid ${P.border}`, display:"flex", alignItems:"center", gap:10, position:"sticky", top:0, zIndex:100 }}>
+      <header style={{ padding: desktop ? "14px 28px" : "14px 18px", background:"rgba(13,10,26,0.97)", borderBottom:`1px solid ${P.border}`, display:"flex", alignItems:"center", gap:10, position:"sticky", top:0, zIndex:100 }}>
         <div style={{ flex:1 }}>
           <div style={{ fontFamily:"'Syne',sans-serif", fontSize: desktop ? 22 : 18, fontWeight:800, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
             Conjita&apos;s Dashboard
@@ -700,7 +700,7 @@ REGLAS:
       </header>
 
       {menuOpen && (
-        <div style={{ position:"fixed", top:62, right: desktop ? "calc(50% - 480px + 12px)" : 12, background:"rgba(255,255,255,0.98)", border:`1px solid ${P.border}`, borderRadius:14, padding:8, zIndex:200, minWidth:210, boxShadow:"0 12px 40px rgba(0,0,0,0.8)" }}>
+        <div style={{ position:"fixed", top:62, right: desktop ? "calc(50% - 480px + 12px)" : 12, background:"rgba(13,10,26,0.98)", border:`1px solid ${P.border}`, borderRadius:14, padding:8, zIndex:200, minWidth:210, boxShadow:"0 12px 40px rgba(0,0,0,0.8)" }}>
           <div style={{ padding:"8px 12px 6px", fontSize:10, color:P.muted, fontWeight:700 }}>MEMORIA</div>
           <div style={{ padding:"4px 12px 10px", fontSize:11, color:P.txt, borderBottom:`1px solid ${P.border}` }}>
             💾 Tus tareas se guardan automáticamente.
@@ -812,7 +812,7 @@ REGLAS:
       </main>
 
       {/* Input bar */}
-      <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:maxW, background:"rgba(255,255,255,0.97)", borderTop:`1px solid ${P.border}`, padding: desktop ? "12px 28px 18px" : "10px 14px 16px", zIndex:100 }}>
+      <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:maxW, background:"rgba(13,10,26,0.97)", borderTop:`1px solid ${P.border}`, padding: desktop ? "12px 28px 18px" : "10px 14px 16px", zIndex:100 }}>
         <div style={{ display:"flex", gap:8, alignItems:"flex-end" }}>
           <div style={{ flex:1, background:"rgba(255,255,255,0.05)", border:`1px solid ${P.borderHi}`, borderRadius:18, padding:"9px 14px", display:"flex", alignItems:"center", gap:7 }}>
             <Sparkles size={14} color={P.p1}/>
