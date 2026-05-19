@@ -4,12 +4,6 @@ import { put, list } from "@vercel/blob";
 
 export const runtime = "nodejs";
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || "mailto:conjita@app.com",
-  process.env.VAPID_PUBLIC_KEY || "",
-  process.env.VAPID_PRIVATE_KEY || ""
-);
-
 interface TreeNode {
   id: string;
   title: string;
@@ -51,6 +45,18 @@ export async function GET(req: NextRequest) {
   if (secret && authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // Configurar VAPID aquí (no en el módulo) para evitar error en build
+  const vapidPublic = process.env.VAPID_PUBLIC_KEY || "";
+  const vapidPrivate = process.env.VAPID_PRIVATE_KEY || "";
+  if (!vapidPublic || !vapidPrivate) {
+    return NextResponse.json({ error: "VAPID keys not configured" }, { status: 500 });
+  }
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT || "mailto:conjita@app.com",
+    vapidPublic,
+    vapidPrivate
+  );
 
   try {
     const { blobs } = await list({ prefix: "conjita-push-data" });
