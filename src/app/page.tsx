@@ -351,6 +351,8 @@ export default function ConejitasDashboard() {
   const [saveStatus, setSaveStatus] = useState<"idle"|"saving"|"saved"|"error">("idle");
   const [hydrated, setHydrated] = useState(false);
   const [notifStatus, setNotifStatus] = useState<"idle"|"enabled"|"denied"|"unsupported">("idle");
+  const [notifFreq, setNotifFreq] = useState(3); // horas
+  const [showFreqPicker, setShowFreqPicker] = useState(false);
 
   const CAT_MSGS = [
     "¡Te amo! 💜",
@@ -431,6 +433,8 @@ export default function ConejitasDashboard() {
   // Detectar si ya tenía notificaciones activadas
   useEffect(() => {
     if (!("Notification" in window)) { setNotifStatus("unsupported"); return; }
+    const savedFreq = localStorage.getItem("conjita-notif-freq");
+    if (savedFreq) setNotifFreq(Number(savedFreq));
     if (Notification.permission === "granted") {
       const saved = localStorage.getItem("conjita-notif");
       if (saved === "enabled") setNotifStatus("enabled");
@@ -445,7 +449,24 @@ export default function ConejitasDashboard() {
     sendSwMsg({ type: "UPDATE_TASKS", trees, done });
   }, [trees, done, hydrated, notifStatus, sendSwMsg]);
 
-  const toggleNotifications = useCallback(async () => {
+  const enableNotifications = useCallback(async (freq: number) => {
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+      setNotifStatus("unsupported"); return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm === "granted") {
+      setNotifFreq(freq);
+      sendSwMsg({ type: "ENABLE_NOTIFICATIONS", trees, done, freqMs: freq * 60 * 60 * 1000 });
+      localStorage.setItem("conjita-notif", "enabled");
+      localStorage.setItem("conjita-notif-freq", String(freq));
+      setNotifStatus("enabled");
+    } else {
+      setNotifStatus("denied");
+    }
+    setShowFreqPicker(false);
+  }, [sendSwMsg, trees, done]);
+
+  const toggleNotifications = useCallback(() => {
     if (!("Notification" in window) || !("serviceWorker" in navigator)) {
       setNotifStatus("unsupported"); return;
     }
@@ -455,15 +476,8 @@ export default function ConejitasDashboard() {
       setNotifStatus("idle");
       return;
     }
-    const perm = await Notification.requestPermission();
-    if (perm === "granted") {
-      sendSwMsg({ type: "ENABLE_NOTIFICATIONS", trees, done });
-      localStorage.setItem("conjita-notif", "enabled");
-      setNotifStatus("enabled");
-    } else {
-      setNotifStatus("denied");
-    }
-  }, [notifStatus, sendSwMsg, trees, done]);
+    setShowFreqPicker(true);
+  }, [notifStatus, sendSwMsg]);
 
   const totalT = trees.reduce((s, t) => s + totalNodes(t), 0);
   const doneT = trees.reduce((s, t) => s + doneNodes(t, done), 0);
@@ -743,7 +757,7 @@ REGLAS:
             style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", color: notifStatus === "enabled" ? "#86efac" : P.txt, padding:"9px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:600 }}
           >
             {notifStatus === "enabled" ? <Bell size={13}/> : <BellOff size={13}/>}
-            {notifStatus === "enabled" ? "Desactivar recordatorios" : "Activar recordatorios (3h)"}
+            {notifStatus === "enabled" ? `Desactivar (cada ${notifFreq < 1 ? "30 min" : notifFreq + "h"})` : "Activar recordatorios"}
           </button>
           {notifStatus === "denied" && (
             <div style={{ padding:"4px 12px 8px", fontSize:10, color:"#f87171" }}>
@@ -753,6 +767,77 @@ REGLAS:
           <button onClick={reset} style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", color:"#f87171", padding:"9px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:600, marginTop:4 }}>
             <RotateCcw size={13}/> Borrar todo y memoria
           </button>
+        </div>
+      )}
+
+      {/* Banner recordatorio de notificaciones */}
+      {notifStatus === "idle" && hydrated && (
+        <div style={{ padding: desktop ? "10px 28px" : "10px 14px", background:"rgba(168,85,247,0.08)", borderBottom:`1px solid ${P.border}`, display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:18 }}>🔔</span>
+          <div style={{ flex:1 }}>
+            <p style={{ margin:0, fontSize:11, fontWeight:600, color:P.txt }}>Activa los recordatorios</p>
+            <p style={{ margin:0, fontSize:10, color:P.muted }}>Te avisamos cada cierto tiempo para que no olvides tus tareas</p>
+          </div>
+          <button
+            onClick={() => setShowFreqPicker(true)}
+            style={{ background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:20, padding:"6px 14px", color:"#fff", fontSize:11, fontWeight:700, cursor:"pointer", flexShrink:0 }}
+          >
+            Activar
+          </button>
+        </div>
+      )}
+
+      {/* Modal selector de frecuencia */}
+      {showFreqPicker && (
+        <div
+          onClick={() => setShowFreqPicker(false)}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.6)", zIndex:300, display:"flex", alignItems:"flex-end", justifyContent:"center" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background:"#1a0f2e", border:`1px solid ${P.border}`, borderRadius:"24px 24px 0 0", padding:"24px 20px 36px", width:"100%", maxWidth:maxW, animation:"slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1)" }}
+          >
+            <div style={{ textAlign:"center", marginBottom:20 }}>
+              <div style={{ fontSize:28, marginBottom:6 }}>🔔</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:17, color:P.txt }}>¿Cada cuánto te recordamos?</div>
+              <div style={{ fontSize:12, color:P.muted, marginTop:4 }}>Solo te avisamos si tienes tareas pendientes</div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:20 }}>
+              {[
+                { label:"30 min", val:0.5 },
+                { label:"1 hora", val:1 },
+                { label:"2 horas", val:2 },
+                { label:"3 horas", val:3 },
+                { label:"4 horas", val:4 },
+                { label:"6 horas", val:6 },
+              ].map(({ label, val }) => (
+                <button
+                  key={val}
+                  onClick={() => setNotifFreq(val)}
+                  style={{
+                    background: notifFreq === val ? `linear-gradient(135deg,${P.p1},${P.p3})` : "rgba(168,85,247,0.1)",
+                    border: `1px solid ${notifFreq === val ? "transparent" : P.border}`,
+                    borderRadius:14, padding:"12px 8px", color: notifFreq === val ? "#fff" : P.txt,
+                    fontSize:13, fontWeight:700, cursor:"pointer", transition:"all 0.2s",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => enableNotifications(notifFreq)}
+              style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:16, padding:"14px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
+            >
+              Activar recordatorios ✨
+            </button>
+            <button
+              onClick={() => setShowFreqPicker(false)}
+              style={{ width:"100%", background:"none", border:"none", color:P.muted, fontSize:12, cursor:"pointer", marginTop:12, padding:8 }}
+            >
+              Ahora no
+            </button>
+          </div>
         </div>
       )}
 

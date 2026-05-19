@@ -55,6 +55,7 @@ let notifTrees = [];
 let notifDone = {};
 let notifEnabled = false;
 let notifTimer = null;
+let notifFreqMs = 3 * 60 * 60 * 1000;
 
 self.addEventListener("message", (event) => {
   const data = event.data;
@@ -64,6 +65,7 @@ self.addEventListener("message", (event) => {
     notifTrees = data.trees || [];
     notifDone = data.done || {};
     notifEnabled = true;
+    notifFreqMs = data.freqMs || 3 * 60 * 60 * 1000;
     startNotifTimer();
     return;
   }
@@ -131,8 +133,7 @@ function sendNotification() {
 
 function startNotifTimer() {
   if (notifTimer) clearInterval(notifTimer);
-  // Primera notificación a las 3 horas
-  notifTimer = setInterval(sendNotification, 3 * 60 * 60 * 1000);
+  notifTimer = setInterval(sendNotification, notifFreqMs);
 }
 
 self.addEventListener("notificationclick", (event) => {
