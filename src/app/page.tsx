@@ -352,9 +352,11 @@ export default function ConejitasDashboard() {
   const [hydrated, setHydrated] = useState(false);
   const [notifStatus, setNotifStatus] = useState<"idle"|"enabled"|"denied"|"unsupported">("idle");
 
+  const [showCat, setShowCat] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatEnd = useRef<HTMLDivElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const catTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     try {
@@ -449,7 +451,18 @@ export default function ConejitasDashboard() {
   const doneT = trees.reduce((s, t) => s + doneNodes(t, done), 0);
   const pct = totalT ? Math.round((doneT / totalT) * 100) : 0;
 
-  const toggle = useCallback((id: string) => setDone((p) => ({ ...p, [id]: !p[id] })), []);
+  const toggle = useCallback((id: string) => {
+    setDone((p) => {
+      const wasDone = p[id];
+      if (!wasDone) {
+        // Tarea recién completada → mostrar el gato
+        if (catTimer.current) clearTimeout(catTimer.current);
+        setShowCat(true);
+        catTimer.current = setTimeout(() => setShowCat(false), 2800);
+      }
+      return { ...p, [id]: !wasDone };
+    });
+  }, []);
   const expandToggle = useCallback((id: string) => setExpanded((p) => ({ ...p, [id]: !p[id] })), []);
 
   const handleReorder = useCallback((dragId: string, dropId: string) => {
@@ -842,6 +855,38 @@ REGLAS:
           Enter para enviar • 💾 Guardado automático en tu dispositivo
         </div>
       </div>
+
+      {/* 🐱 Gato celebración */}
+      {showCat && (
+        <div
+          onClick={() => setShowCat(false)}
+          style={{
+            position:"fixed", bottom: desktop ? 100 : 90, left:"50%",
+            transform:"translateX(-50%)", zIndex:999,
+            background:"rgba(13,10,26,0.95)",
+            border:"1px solid rgba(168,85,247,0.6)",
+            borderRadius:24, padding:"14px 22px",
+            display:"flex", alignItems:"center", gap:14,
+            boxShadow:"0 8px 40px rgba(168,85,247,0.35)",
+            animation:"slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            cursor:"pointer", maxWidth: 300, width:"calc(100% - 40px)",
+          }}
+        >
+          <img
+            src="https://media.tenor.com/AXJ16vpJy98AAAAj/danci-dancing-cat.gif"
+            alt="dancing cat"
+            style={{ width:64, height:64, borderRadius:14, flexShrink:0 }}
+          />
+          <div>
+            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, color:"#f0e6ff", fontSize:14, marginBottom:3 }}>
+              ¡Tarea completada! 🎉
+            </div>
+            <div style={{ color:P.muted, fontSize:11, lineHeight:1.5 }}>
+              ¡Sigue así, tú puedes! 💜
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
