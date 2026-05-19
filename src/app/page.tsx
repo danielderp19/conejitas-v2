@@ -975,7 +975,7 @@ REGLAS:
               onInput={(e) => { const t = e.currentTarget; t.style.height="auto"; t.style.height=Math.min(t.scrollHeight,90)+"px"; }}
               placeholder='Escribe tus tareas... (ej: "preparar reunión, revisar informe")'
               rows={1}
-              style={{ flex:1, background:"none", border:"none", outline:"none", color:P.txt, fontSize:12, resize:"none", lineHeight:1.5, maxHeight:90, overflowY:"auto" }}
+              style={{ flex:1, background:"none", border:"none", outline:"none", color:P.txt, fontSize:16, resize:"none", lineHeight:1.5, maxHeight:90, overflowY:"auto" }}
             />
           </div>
           <button
