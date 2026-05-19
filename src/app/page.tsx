@@ -422,17 +422,21 @@ export default function ConejitasDashboard() {
 
   useEffect(() => { chatEnd.current?.scrollIntoView({ behavior:"smooth" }); }, [chatLog]);
 
-  // ── Notificaciones ──────────────────────────────────────────────────────────
-  const sendSwMsg = useCallback((msg: object) => {
-    if (!("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.ready.then((reg) => {
-      reg.active?.postMessage(msg);
-    });
-  }, []);
+  // ── Notificaciones Web Push ─────────────────────────────────────────────────
+  const VAPID_PUBLIC = "BPPYfrwEE2qdjYfKo6-iZ0sEYuIvjW0N6eFe9UI_EtPkIzWj1XZFM_u9A1gEgqugn4P8dr1Dp0YeqWag18-LUSs";
 
-  // Detectar si ya tenía notificaciones activadas
+  function urlB64ToUint8Array(b64: string) {
+    const pad = "=".repeat((4 - b64.length % 4) % 4);
+    const base64 = (b64 + pad).replace(/-/g, "+").replace(/_/g, "/");
+    const raw = atob(base64);
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+  }
+
+  // Detectar estado guardado
   useEffect(() => {
-    if (!("Notification" in window)) { setNotifStatus("unsupported"); return; }
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+      setNotifStatus("unsupported"); return;
+    }
     const savedFreq = localStorage.getItem("conjita-notif-freq");
     if (savedFreq) setNotifFreq(Number(savedFreq));
     if (Notification.permission === "granted") {
@@ -443,41 +447,63 @@ export default function ConejitasDashboard() {
     }
   }, []);
 
-  // Sincronizar tareas con el SW cuando cambian
+  // Sincronizar tareas con el servidor cuando cambian
   useEffect(() => {
     if (!hydrated || notifStatus !== "enabled") return;
-    sendSwMsg({ type: "UPDATE_TASKS", trees, done });
-  }, [trees, done, hydrated, notifStatus, sendSwMsg]);
+    fetch("/api/tasks-sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trees, done, freqHours: notifFreq }),
+    }).catch(() => {});
+  }, [trees, done, hydrated, notifStatus, notifFreq]);
 
   const enableNotifications = useCallback(async (freq: number) => {
     if (!("Notification" in window) || !("serviceWorker" in navigator)) {
       setNotifStatus("unsupported"); return;
     }
-    const perm = await Notification.requestPermission();
-    if (perm === "granted") {
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") { setNotifStatus("denied"); setShowFreqPicker(false); return; }
+
+      const sw = await navigator.serviceWorker.ready;
+      const subscription = await sw.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC),
+      });
+
+      await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription, trees, done, freqHours: freq }),
+      });
+
       setNotifFreq(freq);
-      sendSwMsg({ type: "ENABLE_NOTIFICATIONS", trees, done, freqMs: freq * 60 * 60 * 1000 });
       localStorage.setItem("conjita-notif", "enabled");
       localStorage.setItem("conjita-notif-freq", String(freq));
       setNotifStatus("enabled");
-    } else {
-      setNotifStatus("denied");
+    } catch (e) {
+      console.error("Push subscribe error:", e);
     }
     setShowFreqPicker(false);
-  }, [sendSwMsg, trees, done]);
+  }, [trees, done, VAPID_PUBLIC]);
 
-  const toggleNotifications = useCallback(() => {
+  const toggleNotifications = useCallback(async () => {
     if (!("Notification" in window) || !("serviceWorker" in navigator)) {
       setNotifStatus("unsupported"); return;
     }
     if (notifStatus === "enabled") {
-      sendSwMsg({ type: "DISABLE_NOTIFICATIONS" });
+      // Desuscribir
+      try {
+        const sw = await navigator.serviceWorker.ready;
+        const sub = await sw.pushManager.getSubscription();
+        if (sub) await sub.unsubscribe();
+      } catch {}
       localStorage.removeItem("conjita-notif");
       setNotifStatus("idle");
       return;
     }
     setShowFreqPicker(true);
-  }, [notifStatus, sendSwMsg]);
+  }, [notifStatus]);
 
   const totalT = trees.reduce((s, t) => s + totalNodes(t), 0);
   const doneT = trees.reduce((s, t) => s + doneNodes(t, done), 0);

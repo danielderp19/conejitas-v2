@@ -136,6 +136,22 @@ function startNotifTimer() {
   notifTimer = setInterval(sendNotification, notifFreqMs);
 }
 
+// Push real desde el servidor
+self.addEventListener("push", (event) => {
+  let data = { title: "Conjita's Dashboard 🐰", body: "¡Tienes tareas pendientes! 💜" };
+  try { if (event.data) data = { ...data, ...event.data.json() }; } catch {}
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: "/bunny-icon.svg",
+      badge: "/bunny-icon.svg",
+      tag: "conjita-reminder",
+      renotify: true,
+      vibrate: [200, 100, 200],
+    })
+  );
+});
+
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   event.waitUntil(
