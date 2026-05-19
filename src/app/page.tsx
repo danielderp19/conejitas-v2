@@ -352,7 +352,25 @@ export default function ConejitasDashboard() {
   const [hydrated, setHydrated] = useState(false);
   const [notifStatus, setNotifStatus] = useState<"idle"|"enabled"|"denied"|"unsupported">("idle");
 
+  const CAT_MSGS = [
+    "¡Te amo! 💜",
+    "¡Eres la mejor! 🌟",
+    "¡Vas muy bien! 🚀",
+    "¡Sigue así! 💪",
+    "¡Te adoro! 🐰",
+    "¡Imparable! ✨",
+    "¡Orgullo total! 🎉",
+    "¡Crack! 🔥",
+    "¡Eres increíble! 💫",
+    "¡Yo creía en ti! 🥹",
+    "¡Nada te detiene! ⚡",
+    "¡Eres mi favorita! 💝",
+    "¡Qué máquina! 🤩",
+    "¡Lo sabía! 🌸",
+    "¡Dios mío qué buena! 😍",
+  ];
   const [showCat, setShowCat] = useState(false);
+  const [catMsg, setCatMsg] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatEnd = useRef<HTMLDivElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -457,6 +475,7 @@ export default function ConejitasDashboard() {
       if (!wasDone) {
         // Tarea recién completada → mostrar el gato
         if (catTimer.current) clearTimeout(catTimer.current);
+        setCatMsg(CAT_MSGS[Math.floor(Math.random() * CAT_MSGS.length)]);
         setShowCat(true);
         catTimer.current = setTimeout(() => setShowCat(false), 2800);
       }
@@ -881,8 +900,8 @@ REGLAS:
             <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, color:"#f0e6ff", fontSize:14, marginBottom:3 }}>
               ¡Tarea completada! 🎉
             </div>
-            <div style={{ color:P.muted, fontSize:11, lineHeight:1.5 }}>
-              ¡Sigue así, tú puedes! 💜
+            <div style={{ color:"#c084fc", fontSize:13, fontWeight:700, lineHeight:1.5 }}>
+              {catMsg}
             </div>
           </div>
         </div>
