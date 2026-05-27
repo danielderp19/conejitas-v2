@@ -1349,12 +1349,18 @@ REGLAS GENERALES:
             onClick={(e) => e.stopPropagation()}
             style={{ background:"#1a0f2e", border:`1px solid ${P.border}`, borderRadius:"24px 24px 0 0", padding:"24px 20px 40px", width:"100%", maxWidth:maxW, animation:"slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1)" }}
           >
-            <div style={{ textAlign:"center", marginBottom:20 }}>
+            <div style={{ position:"relative", textAlign:"center", marginBottom:20 }}>
               <div style={{ fontSize:28, marginBottom:6 }}>📅</div>
               <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:16, color:P.txt }}>Agendar tarea</div>
               <div style={{ fontSize:12, color:P.muted, marginTop:4, padding:"0 16px", wordBreak:"break-word" }}>
                 &ldquo;{calNode.title}&rdquo;
               </div>
+              {/* Botón de ayuda siempre visible */}
+              <button
+                onClick={() => { setCalNode(null); setShowClientIdGuide(true); }}
+                title="¿Cómo conectar Google Calendar?"
+                style={{ position:"absolute", top:0, right:0, width:28, height:28, borderRadius:"50%", background:"rgba(168,85,247,0.2)", border:`1px solid ${P.border}`, color:"#c084fc", fontSize:13, fontWeight:800, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", lineHeight:1 }}
+              >?</button>
             </div>
 
             {!gcalToken && (
