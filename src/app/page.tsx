@@ -803,11 +803,53 @@ Salida correcta:
 }
 \`\`\`
 
+EJEMPLO 3 — Lista sin etiquetas: SIEMPRE infiere el área por el tipo de tarea:
+Entrada: "me toca hacer ejercicio, hablar con mi jefe sobre el aumento, comprar frutas, ir a la farmacia, llamar al banco y organizar mis fotos del cel"
+Salida correcta:
+\`\`\`json
+{
+  "trees": [
+    {
+      "title": "Salud",
+      "icon": "🏥",
+      "children": [
+        {"title": "Hacer ejercicio", "icon": "🏋️", "children": []},
+        {"title": "Ir a la farmacia", "icon": "💊", "children": []},
+        {"title": "Comprar frutas", "icon": "🍎", "children": []}
+      ]
+    },
+    {
+      "title": "Trabajo",
+      "icon": "💼",
+      "children": [
+        {"title": "Hablar con el jefe sobre el aumento", "icon": "💬", "children": []}
+      ]
+    },
+    {
+      "title": "Finanzas",
+      "icon": "🏦",
+      "children": [
+        {"title": "Llamar al banco", "icon": "📞", "children": []}
+      ]
+    },
+    {
+      "title": "Personal",
+      "icon": "🌸",
+      "children": [
+        {"title": "Organizar fotos del celular", "icon": "📱", "children": []}
+      ]
+    }
+  ]
+}
+\`\`\`
+
 REGLAS GENERALES:
 - Extrae TODAS las tareas aunque el mensaje sea informal o confuso
+- SIEMPRE separa en múltiples árboles por área aunque el usuario no lo diga explícitamente
+- Infiere el área por el tipo de tarea: médico/pastillas/ejercicio → Salud, jefe/reunión/trabajo → Trabajo, banco/dinero/pagar → Finanzas, mamá/amigos/cuarto → Personal, etc.
 - Un árbol por área (Salud, Universidad, Trabajo, Finanzas, Personal, Hogar, etc.)
+- NUNCA metas tareas de distintas áreas en un mismo árbol
 - Cuando hay pasos explícitos para un objetivo → el objetivo es el PADRE y los pasos son HIJOS
-- Cuando hay una lista de acciones sin objetivo padre → cada acción es tarea directa del área
 - Títulos: VERBO + OBJETO, claros y concisos, sin emojis
 - 1 emoji por nodo
 - Si no hay tareas: {"trees":[]}
