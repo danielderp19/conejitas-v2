@@ -36,13 +36,29 @@ const lvlGrad = (l: number) => {
 let _id = Date.now();
 const uid = () => `n${_id++}`;
 
+type Priority = "high" | "medium" | "low" | null;
+
 interface TreeNode {
   id: string;
   title: string;
   icon?: string;
   level: number;
   children: TreeNode[];
+  priority?: Priority;
 }
+
+const PRIORITY_COLORS: Record<string, string> = {
+  high:   "#ef4444",
+  medium: "#f59e0b",
+  low:    "#22c55e",
+};
+const PRIORITY_GLOW: Record<string, string> = {
+  high:   "0 0 8px #ef4444, 0 0 16px rgba(239,68,68,0.4)",
+  medium: "0 0 8px #f59e0b, 0 0 16px rgba(245,158,11,0.4)",
+  low:    "0 0 8px #22c55e, 0 0 16px rgba(34,197,94,0.4)",
+};
+const PRIORITY_CYCLE: Priority[] = ["high", "medium", "low", null];
+const nextPriority = (p: Priority): Priority => PRIORITY_CYCLE[(PRIORITY_CYCLE.indexOf(p) + 1) % PRIORITY_CYCLE.length];
 
 function totalNodes(n: TreeNode): number {
   if (!n.children || n.children.length === 0) return 1;
@@ -99,6 +115,25 @@ function stampIds(node: Partial<TreeNode>, level = 0): TreeNode {
   };
 }
 
+// ─── Prioridad por palabras clave ─────────────────────────────────────────────
+const HIGH_KW = ["urgente","urgente!","hoy","ahora","inmediato","vence","plazo","deadline","entregar","entrega","examen","evaluacion","evaluación","presentación","presentacion","reunion importante","junta","crítico","critico","asap","ya","emergencia"];
+const MED_KW  = ["esta semana","próximo","proximo","importante","revisar","pendiente","seguimiento","confirmar","recordar","semana","mañana","mañana"];
+
+function guessPriority(title: string): Priority {
+  const t = title.toLowerCase();
+  if (HIGH_KW.some(k => t.includes(k))) return "high";
+  if (MED_KW.some(k => t.includes(k))) return "medium";
+  return "low";
+}
+
+function assignPriorities(node: TreeNode): TreeNode {
+  return {
+    ...node,
+    priority: node.priority ?? guessPriority(node.title),
+    children: (node.children || []).map(assignPriorities),
+  };
+}
+
 // ─── Confetti (fuera del componente principal) ───────────────────────────────
 const CONFETTI_COLORS = ["#a855f7","#ec4899","#f59e0b","#86efac","#60a5fa","#f0e6ff"];
 
@@ -133,9 +168,10 @@ interface NodeProps {
   onDelete: (id: string) => void;
   onReorder: (dragId: string, dropId: string) => void;
   onSchedule: (node: TreeNode) => void;
+  onPriority: (id: string) => void;
 }
 
-const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onToggle, onExpand, onDelete, onReorder, onSchedule }: NodeProps) {
+const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onToggle, onExpand, onDelete, onReorder, onSchedule, onPriority }: NodeProps) {
   const isExp = expanded[node.id];
   const isDone = done[node.id];
   const hasKids = (node.children || []).length > 0;
@@ -214,6 +250,20 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
             : <Circle size={18} color="rgba(255,255,255,0.65)"/>
           }
         </button>
+        {/* Semáforo de prioridad */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onPriority(node.id); }}
+          title={node.priority === "high" ? "Alta prioridad" : node.priority === "medium" ? "Media prioridad" : node.priority === "low" ? "Baja prioridad" : "Sin prioridad"}
+          style={{ background:"none", border:"none", padding:"2px 3px", cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center" }}
+        >
+          <div style={{
+            width: 10, height: 10, borderRadius:"50%",
+            background: node.priority ? PRIORITY_COLORS[node.priority] : "rgba(255,255,255,0.15)",
+            boxShadow: node.priority ? PRIORITY_GLOW[node.priority] : "none",
+            transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+          }}/>
+        </button>
+
         <div style={{ flex:1, minWidth:0 }}>
           <p style={{ margin:0, fontSize: desktop ? 13 : 12, fontWeight:600, color: isDone ? "#86efac" : "#fff", textDecoration: isDone ? "line-through" : "none", whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.4, transition:"color 0.3s, text-decoration 0.3s" }}>
             {node.title}
@@ -253,7 +303,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
       {isExp && hasKids && (
         <div>
           {node.children.map((c) => (
-            <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} scheduled={scheduled} onToggle={onToggle} onExpand={onExpand} onDelete={onDelete} onReorder={onReorder} onSchedule={onSchedule}/>
+            <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} scheduled={scheduled} onToggle={onToggle} onExpand={onExpand} onDelete={onDelete} onReorder={onReorder} onSchedule={onSchedule} onPriority={onPriority}/>
           ))}
         </div>
       )}
@@ -274,9 +324,10 @@ interface TreeCardProps {
   onDeleteTree: (id: string) => void;
   onReorder: (dragId: string, dropId: string) => void;
   onSchedule: (node: TreeNode) => void;
+  onPriority: (id: string) => void;
 }
 
-const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, scheduled, onToggle, onExpand, onDeleteNode, onDeleteTree, onReorder, onSchedule }: TreeCardProps) {
+const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, scheduled, onToggle, onExpand, onDeleteNode, onDeleteTree, onReorder, onSchedule, onPriority }: TreeCardProps) {
   const tTotal = totalNodes(tree);
   const tDone = doneNodes(tree, done);
   const tPct = tTotal ? Math.round((tDone / tTotal) * 100) : 0;
@@ -347,7 +398,7 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, schedul
         </svg>
       </div>
       {(tree.children || []).map((c) => (
-        <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} scheduled={scheduled} onToggle={onToggle} onExpand={onExpand} onDelete={onDeleteNode} onReorder={onReorder} onSchedule={onSchedule}/>
+        <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} scheduled={scheduled} onToggle={onToggle} onExpand={onExpand} onDelete={onDeleteNode} onReorder={onReorder} onSchedule={onSchedule} onPriority={onPriority}/>
       ))}
     </div>
   );
@@ -371,6 +422,23 @@ export default function ConejitasDashboard() {
   const [notifStatus, setNotifStatus] = useState<"idle"|"enabled"|"denied"|"unsupported">("idle");
   const [notifFreq, setNotifFreq] = useState(3); // horas
   const [showFreqPicker, setShowFreqPicker] = useState(false);
+
+  // ── Semáforo de prioridad ────────────────────────────────────────────────────
+  const cyclePriority = useCallback((id: string) => {
+    setTrees(prev => {
+      function cycle(nodes: TreeNode[]): TreeNode[] {
+        return nodes.map(n => n.id === id
+          ? { ...n, priority: nextPriority(n.priority ?? null) }
+          : { ...n, children: cycle(n.children || []) }
+        );
+      }
+      return cycle(prev);
+    });
+  }, []);
+
+  const reanalyzePriorities = useCallback(() => {
+    setTrees(prev => prev.map(t => assignPriorities({ ...t, priority: undefined, children: (t.children || []).map(c => ({ ...c, priority: undefined })) })));
+  }, []);
 
   // ── Google Calendar ──────────────────────────────────────────────────────────
   const [gcalToken, setGcalToken] = useState<string | null>(null);
@@ -722,7 +790,7 @@ REGLAS:
         return;
       }
       if (newTrees.length > 0) {
-        const stamped = newTrees.map((t) => stampIds(t, 0));
+        const stamped = newTrees.map((t) => assignPriorities(stampIds(t, 0)));
         setTrees((prev) => [...prev, ...stamped]);
         const exp: Record<string, boolean> = {};
         stamped.forEach((t) => {
@@ -898,6 +966,18 @@ REGLAS:
               ⚠️ Activa notificaciones en los ajustes del navegador/iPhone.
             </div>
           )}
+          <div style={{ padding:"8px 12px 4px", fontSize:10, color:P.muted, fontWeight:700, borderTop:`1px solid ${P.border}`, marginTop:4 }}>PRIORIDADES</div>
+          <button
+            onClick={() => { reanalyzePriorities(); setMenuOpen(false); }}
+            style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", color:P.txt, padding:"9px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:600 }}
+          >
+            <span style={{ display:"flex", gap:3 }}>
+              <span style={{ width:8, height:8, borderRadius:"50%", background:"#ef4444", display:"inline-block", boxShadow:"0 0 5px #ef4444" }}/>
+              <span style={{ width:8, height:8, borderRadius:"50%", background:"#f59e0b", display:"inline-block", boxShadow:"0 0 5px #f59e0b" }}/>
+              <span style={{ width:8, height:8, borderRadius:"50%", background:"#22c55e", display:"inline-block", boxShadow:"0 0 5px #22c55e" }}/>
+            </span>
+            Re-analizar prioridades
+          </button>
           <button onClick={reset} style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", color:"#f87171", padding:"9px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:600, marginTop:4 }}>
             <RotateCcw size={13}/> Borrar todo y memoria
           </button>
@@ -1021,7 +1101,7 @@ REGLAS:
               trees.map((tree) => (
                 <TreeCard key={tree.id} tree={tree} done={done} expanded={expanded} desktop={desktop}
                   scheduled={scheduled} onToggle={toggle} onExpand={expandToggle} onDeleteNode={deleteNode}
-                  onDeleteTree={deleteTree} onReorder={handleReorder} onSchedule={openCalModal}/>
+                  onDeleteTree={deleteTree} onReorder={handleReorder} onSchedule={openCalModal} onPriority={cyclePriority}/>
               ))
             )}
           </div>
