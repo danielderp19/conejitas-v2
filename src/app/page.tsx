@@ -1398,7 +1398,7 @@ REGLAS:
             cursor:"pointer", zIndex:250,
           }}
         >
-          <span style={{ fontSize:20, flexShrink:0 }}>🐰</span>
+          <img src="https://www.gifsanimados.org/data/media/202/perro-imagen-animada-0091.gif" alt="perro" style={{ width:36, height:36, borderRadius:"50%", flexShrink:0 }}/>
           <span style={{ fontSize:12, fontWeight:600, color:"#fff", lineHeight:1.4 }}>{toast}</span>
         </div>
       )}
