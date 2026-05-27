@@ -422,6 +422,7 @@ export default function ConejitasDashboard() {
   const [notifStatus, setNotifStatus] = useState<"idle"|"enabled"|"denied"|"unsupported">("idle");
   const [notifFreq, setNotifFreq] = useState(3); // horas
   const [showFreqPicker, setShowFreqPicker] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   // ── Semáforo de prioridad ────────────────────────────────────────────────────
   const cyclePriority = useCallback((id: string) => {
@@ -512,6 +513,10 @@ export default function ConejitasDashboard() {
       }
     } catch { /* fresh start */ }
     setHydrated(true);
+    // Mostrar bienvenida solo la primera vez
+    if (!localStorage.getItem("conjita-welcome-v2")) {
+      setTimeout(() => setShowWelcome(true), 800);
+    }
   }, []);
 
   useEffect(() => {
@@ -1266,6 +1271,79 @@ REGLAS:
             </button>
             <button onClick={() => setCalNode(null)} style={{ width:"100%", background:"none", border:"none", color:P.muted, fontSize:12, cursor:"pointer", marginTop:12, padding:8 }}>
               Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de bienvenida — solo primera vez */}
+      {showWelcome && (
+        <div
+          onClick={() => { setShowWelcome(false); localStorage.setItem("conjita-welcome-v2", "1"); }}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:500, display:"flex", alignItems:"flex-end", justifyContent:"center" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:"28px 28px 0 0", padding:"28px 22px 44px", width:"100%", maxWidth:maxW, animation:"slideIn 0.5s cubic-bezier(0.34,1.56,0.64,1)", boxShadow:"0 -20px 60px rgba(147,51,234,0.2)" }}
+          >
+            {/* Título */}
+            <div style={{ textAlign:"center", marginBottom:24 }}>
+              <div style={{ fontSize:36, marginBottom:8 }}>✨</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:20, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+                ¡Novedades en tu dashboard!
+              </div>
+              <div style={{ fontSize:12, color:P.muted, marginTop:4 }}>Dos funciones nuevas para ti 🐰</div>
+            </div>
+
+            {/* Feature 1: Semáforo */}
+            <div style={{ background:"rgba(168,85,247,0.08)", border:`1px solid ${P.border}`, borderRadius:16, padding:"16px 18px", marginBottom:12 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+                  <div style={{ width:12, height:12, borderRadius:"50%", background:"#ef4444", boxShadow:"0 0 8px #ef4444" }}/>
+                  <div style={{ width:12, height:12, borderRadius:"50%", background:"#f59e0b", boxShadow:"0 0 8px #f59e0b" }}/>
+                  <div style={{ width:12, height:12, borderRadius:"50%", background:"#22c55e", boxShadow:"0 0 8px #22c55e" }}/>
+                </div>
+                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14, color:P.txt }}>Semáforo de prioridad</div>
+              </div>
+              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>
+                Cada tarea tiene ahora un <strong style={{ color:P.txt }}>punto de color</strong> que indica su prioridad. La IA lo asigna automáticamente cuando creas tareas.
+              </p>
+              <div style={{ marginTop:10, display:"flex", flexDirection:"column", gap:5 }}>
+                {[
+                  { color:"#ef4444", glow:"#ef4444", label:"Rojo", desc:"Alta prioridad — urgente, examen, entregar hoy" },
+                  { color:"#f59e0b", glow:"#f59e0b", label:"Ámbar", desc:"Media prioridad — esta semana, importante" },
+                  { color:"#22c55e", glow:"#22c55e", label:"Verde", desc:"Baja prioridad — sin urgencia" },
+                ].map(({ color, glow, label, desc }) => (
+                  <div key={label} style={{ display:"flex", alignItems:"center", gap:8 }}>
+                    <div style={{ width:9, height:9, borderRadius:"50%", background:color, boxShadow:`0 0 6px ${glow}`, flexShrink:0 }}/>
+                    <span style={{ fontSize:11, color:P.muted }}><strong style={{ color:P.txt }}>{label}:</strong> {desc}</span>
+                  </div>
+                ))}
+              </div>
+              <p style={{ margin:"10px 0 0", fontSize:11, color:"rgba(168,85,247,0.8)", fontWeight:600 }}>
+                💡 Toca el punto para cambiar la prioridad manualmente
+              </p>
+            </div>
+
+            {/* Feature 2: Google Calendar */}
+            <div style={{ background:"rgba(66,133,244,0.08)", border:"1px solid rgba(66,133,244,0.25)", borderRadius:16, padding:"16px 18px", marginBottom:24 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                <span style={{ fontSize:20 }}>📅</span>
+                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14, color:P.txt }}>Agenda en Google Calendar</div>
+              </div>
+              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>
+                En cada tarea verás un <strong style={{ color:P.txt }}>botón azul 📅</strong>. Tócalo para crear un evento en tu Google Calendar con la fecha y hora que elijas.
+              </p>
+              <p style={{ margin:"10px 0 0", fontSize:11, color:"rgba(66,133,244,0.8)", fontWeight:600 }}>
+                💡 La primera vez te pedirá iniciar sesión con Google
+              </p>
+            </div>
+
+            <button
+              onClick={() => { setShowWelcome(false); localStorage.setItem("conjita-welcome-v2", "1"); }}
+              style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:18, padding:"15px", color:"#fff", fontSize:15, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
+            >
+              ¡Entendido, vamos! 🚀
             </button>
           </div>
         </div>
