@@ -9,7 +9,9 @@ import {
   Send, Sparkles, RotateCcw, GripVertical, Bell, BellOff, CalendarPlus,
 } from "lucide-react";
 
-const GCAL_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+const GCAL_CLIENT_ID_ENV = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+const GCAL_ID_KEY   = "conjita-gcal-clientid";
+const GCAL_TOK_KEY  = "conjita-gcal-token";
 
 const P = {
   bg: "#0d0a1a",
@@ -465,8 +467,10 @@ export default function ConejitasDashboard() {
 
   // ── Google Calendar ──────────────────────────────────────────────────────────
   const [gcalToken, setGcalToken] = useState<string | null>(null);
+  const [gcalClientId, setGcalClientId] = useState("");
+  const [gcalIdInput, setGcalIdInput] = useState("");
   const [scheduled, setScheduled] = useState<Record<string, boolean>>({});
-  const [calNode, setCalNode] = useState<TreeNode | null>(null); // tarea a programar
+  const [calNode, setCalNode] = useState<TreeNode | null>(null);
   const [calDate, setCalDate] = useState("");
   const [calTime, setCalTime] = useState("09:00");
   const [calCreating, setCalCreating] = useState(false);
@@ -508,23 +512,52 @@ export default function ConejitasDashboard() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const catTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Cargar Google Identity Services
+  // Cargar Client ID guardado y token en cache al montar
   useEffect(() => {
-    if (!GCAL_CLIENT_ID) return;
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.onload = () => {
+    const saved = localStorage.getItem(GCAL_ID_KEY) || GCAL_CLIENT_ID_ENV;
+    if (saved) setGcalClientId(saved);
+
+    // Recuperar token guardado si aún no expiró
+    try {
+      const raw = localStorage.getItem(GCAL_TOK_KEY);
+      if (raw) {
+        const { token, expiresAt } = JSON.parse(raw);
+        if (token && expiresAt > Date.now()) setGcalToken(token);
+      }
+    } catch { /* ok */ }
+  }, []);
+
+  // Inicializar Google Identity Services cuando tengamos un Client ID
+  useEffect(() => {
+    if (!gcalClientId) return;
+    const initGIS = () => {
       const g = (window as unknown as { google: { accounts: { oauth2: { initTokenClient: (cfg: unknown) => { requestAccessToken: () => void } } } } }).google;
       gcalClientRef.current = g.accounts.oauth2.initTokenClient({
-        client_id: GCAL_CLIENT_ID,
+        client_id: gcalClientId,
         scope: "https://www.googleapis.com/auth/calendar.events",
-        callback: (resp: { access_token?: string }) => {
-          if (resp.access_token) setGcalToken(resp.access_token);
+        callback: (resp: { access_token?: string; expires_in?: number }) => {
+          if (resp.access_token) {
+            setGcalToken(resp.access_token);
+            const expiresAt = Date.now() + (resp.expires_in ?? 3600) * 1000 - 60_000;
+            localStorage.setItem(GCAL_TOK_KEY, JSON.stringify({ token: resp.access_token, expiresAt }));
+          }
         },
       });
     };
-    document.head.appendChild(script);
-  }, []);
+    if ((window as unknown as { google?: unknown }).google) {
+      initGIS();
+    } else {
+      const existing = document.querySelector('script[src*="accounts.google.com/gsi"]');
+      if (!existing) {
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.onload = initGIS;
+        document.head.appendChild(script);
+      } else {
+        existing.addEventListener("load", initGIS);
+      }
+    }
+  }, [gcalClientId]);
 
   useEffect(() => {
     try {
@@ -894,6 +927,15 @@ REGLAS GENERALES:
       setChatLog((p) => [...p, { role:"ai", text: isNetwork ? "Sin conexión a internet. Revisa tu red e intenta de nuevo." : "Algo salió mal. Intenta de nuevo en unos segundos." }]);
     }
     setLoading(false);
+  }
+
+  // Guardar Client ID ingresado por la usuaria
+  function saveGcalClientId() {
+    const id = gcalIdInput.trim();
+    if (!id) return;
+    localStorage.setItem(GCAL_ID_KEY, id);
+    setGcalClientId(id);
+    setGcalIdInput("");
   }
 
   // Abrir modal de calendario para una tarea
@@ -1316,17 +1358,39 @@ REGLAS GENERALES:
             </div>
 
             {!gcalToken && (
-              <div style={{ marginBottom:16, display:"flex", flexDirection:"column", gap:8 }}>
-                <div style={{ background:"rgba(66,133,244,0.1)", border:"1px solid rgba(66,133,244,0.3)", borderRadius:12, padding:"12px 16px", fontSize:12, color:"#93c5fd", textAlign:"center" }}>
-                  Primero conecta tu cuenta de Google para crear el evento
-                </div>
-                <button
-                  onClick={() => { setCalNode(null); setShowClientIdGuide(true); }}
-                  style={{ background:"linear-gradient(135deg,rgba(168,85,247,0.25),rgba(219,39,119,0.2))", border:"1.5px solid rgba(168,85,247,0.55)", borderRadius:12, padding:"12px 16px", color:P.txt, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"'Poppins',sans-serif", display:"flex", alignItems:"center", justifyContent:"center", gap:8, boxShadow:"0 0 12px rgba(168,85,247,0.2)", letterSpacing:"0.01em" }}
-                >
-                  <span style={{ fontSize:18 }}>🗝️</span>
-                  ¿No tienes Client ID? <span style={{ color:"#c084fc", textDecoration:"underline" }}>Ver guía paso a paso</span>
-                </button>
+              <div style={{ marginBottom:16, display:"flex", flexDirection:"column", gap:10 }}>
+                {!gcalClientId ? (
+                  /* ── Sin Client ID: mostrar input para pegarlo ── */
+                  <div style={{ background:"rgba(26,15,46,0.8)", border:`1px solid ${P.border}`, borderRadius:14, padding:"14px 16px", display:"flex", flexDirection:"column", gap:10 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:P.txt }}>🗝️ Pega tu Google Client ID</div>
+                    <div style={{ fontSize:11, color:P.muted, lineHeight:1.5 }}>Solo se guarda en tu dispositivo y no lo volverás a pedir.</div>
+                    <input
+                      value={gcalIdInput}
+                      onChange={e => setGcalIdInput(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && saveGcalClientId()}
+                      placeholder="624920945698-xxxx.apps.googleusercontent.com"
+                      style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:`1px solid ${P.border}`, borderRadius:10, padding:"10px 12px", color:P.txt, fontSize:12, outline:"none", fontFamily:"'Poppins',sans-serif", boxSizing:"border-box" }}
+                    />
+                    <button
+                      onClick={saveGcalClientId}
+                      disabled={!gcalIdInput.trim()}
+                      style={{ background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:10, padding:"11px", color:"#fff", fontSize:13, fontWeight:800, cursor:"pointer", opacity: gcalIdInput.trim() ? 1 : 0.5 }}
+                    >
+                      Guardar y conectar 🔗
+                    </button>
+                    <button
+                      onClick={() => { setCalNode(null); setShowClientIdGuide(true); }}
+                      style={{ background:"linear-gradient(135deg,rgba(168,85,247,0.18),rgba(219,39,119,0.14))", border:"1.5px solid rgba(168,85,247,0.5)", borderRadius:10, padding:"10px 14px", color:P.txt, fontSize:12, fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:7, boxShadow:"0 0 10px rgba(168,85,247,0.18)" }}
+                    >
+                      <span style={{ fontSize:16 }}>🗝️</span> ¿No tienes Client ID? <span style={{ color:"#c084fc", textDecoration:"underline" }}>Ver guía paso a paso</span>
+                    </button>
+                  </div>
+                ) : (
+                  /* ── Tiene Client ID pero aún no ha conectado ── */
+                  <div style={{ background:"rgba(66,133,244,0.08)", border:"1px solid rgba(66,133,244,0.28)", borderRadius:12, padding:"12px 16px", fontSize:12, color:"#93c5fd", textAlign:"center" }}>
+                    Toca el botón de abajo para autorizar con Google 👇
+                  </div>
+                )}
               </div>
             )}
 
@@ -1452,8 +1516,8 @@ REGLAS GENERALES:
                 desc: <>Aparecerá un popup con tu <strong style={{color:P.txt}}>ID de cliente</strong> — se ve así:<br/><code style={{background:"rgba(255,255,255,0.08)",padding:"4px 8px",borderRadius:6,fontSize:10,display:"block",marginTop:6,wordBreak:"break-all",color:"#a5f3fc"}}>624920945698-xxxx.apps.googleusercontent.com</code><br/>Cópialo.</>,
               },
               {
-                n:7, emoji:"⚙️", title:"Ponlo en Vercel",
-                desc: <>Ve a <a href="https://vercel.com" target="_blank" rel="noreferrer" style={{color:"#93c5fd",fontWeight:700}}>vercel.com</a> → tu proyecto → <strong style={{color:P.txt}}>Settings → Environment Variables</strong>. Crea una variable:<br/><code style={{background:"rgba(255,255,255,0.08)",padding:"4px 8px",borderRadius:6,fontSize:11,display:"block",marginTop:6,color:"#86efac"}}>NEXT_PUBLIC_GOOGLE_CLIENT_ID = tu-client-id-aquí</code><br/>Guarda y vuelve a deployar. ¡Listo! 🎉</>,
+                n:7, emoji:"📲", title:"Pégalo en la app — ¡ya está!",
+                desc: <>Vuelve al dashboard, toca el botón 📅 en cualquier tarea y pega el Client ID en el campo que aparece. Se guarda en tu dispositivo y <strong style={{color:P.txt}}>no te lo pedirá nunca más</strong>. ¡Listo! 🎉</>,
               },
             ].map(step => (
               <div key={step.n} style={{ display:"flex", gap:12, marginBottom:16, alignItems:"flex-start" }}>
