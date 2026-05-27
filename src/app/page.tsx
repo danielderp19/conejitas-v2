@@ -1286,9 +1286,13 @@ REGLAS:
             onClick={(e) => e.stopPropagation()}
             style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:"28px 28px 0 0", padding:"28px 22px 44px", width:"100%", maxWidth:maxW, animation:"slideIn 0.5s cubic-bezier(0.34,1.56,0.64,1)", boxShadow:"0 -20px 60px rgba(147,51,234,0.2)" }}
           >
-            {/* Título */}
+            {/* GIF + Título */}
             <div style={{ textAlign:"center", marginBottom:24 }}>
-              <div style={{ fontSize:36, marginBottom:8 }}>✨</div>
+              <img
+                src="https://media4.giphy.com/media/kXNYthbiZZWda/giphy.gif"
+                alt="novedades"
+                style={{ width:120, height:120, objectFit:"cover", borderRadius:"50%", border:`3px solid ${P.p1}`, boxShadow:`0 0 20px rgba(147,51,234,0.5)`, marginBottom:12 }}
+              />
               <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:20, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
                 ¡Novedades en tu dashboard!
               </div>
