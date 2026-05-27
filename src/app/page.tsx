@@ -424,6 +424,26 @@ export default function ConejitasDashboard() {
   const [showFreqPicker, setShowFreqPicker] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
 
+  // ── Toast de motivación al ver tareas ────────────────────────────────────────
+  const TASK_TOASTS = [
+    "¡Conejita, vengaaaa! 🔥 Que las tareas llevan horas esperándote",
+    "¡Ostia chaval! ¿A qué esperas? ¡Las tareas te necesitan! 💪",
+    "¡Venga, venga! Que no muerden... bueno, quizás un poco 🐰",
+    "Cada tarea que terminas me enamora más de ti 💜",
+    "El que programó esto estaría muy orgulloso de verte trabajar 🥹",
+    "Eres tan bonita cuando eres productiva... y siempre 💝",
+  ];
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = useCallback((pending: number) => {
+    if (pending === 0) return;
+    const msg = TASK_TOASTS[Math.floor(Math.random() * TASK_TOASTS.length)];
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 4000);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Semáforo de prioridad ────────────────────────────────────────────────────
   const cyclePriority = useCallback((id: string) => {
     setTrees(prev => {
@@ -518,6 +538,14 @@ export default function ConejitasDashboard() {
       setTimeout(() => setShowWelcome(true), 800);
     }
   }, []);
+
+  // Mostrar toast al entrar al dashboard con tareas pendientes
+  useEffect(() => {
+    if (view !== "dashboard" || !hydrated) return;
+    const pending = trees.reduce((s, t) => s + (totalNodes(t) - doneNodes(t, done)), 0);
+    const timer = setTimeout(() => showToast(pending), 2500);
+    return () => clearTimeout(timer);
+  }, [view, hydrated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const check = () => setDesktop(window.innerWidth >= 768);
@@ -1352,6 +1380,29 @@ REGLAS:
           </div>
         </div>
       )}
+
+      {/* Toast de motivación */}
+      {toast && (
+        <div
+          onClick={() => setToast(null)}
+          style={{
+            position:"fixed", top:72, left:"50%", transform:"translateX(-50%)",
+            background:"linear-gradient(135deg,rgba(147,51,234,0.95),rgba(219,39,119,0.95))",
+            backdropFilter:"blur(12px)",
+            border:"1px solid rgba(255,255,255,0.15)",
+            borderRadius:20, padding:"12px 18px 12px 14px",
+            display:"flex", alignItems:"center", gap:10,
+            maxWidth: "calc(100vw - 28px)", width:"max-content",
+            boxShadow:"0 8px 32px rgba(147,51,234,0.4)",
+            animation:"slideInDown 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+            cursor:"pointer", zIndex:250,
+          }}
+        >
+          <span style={{ fontSize:20, flexShrink:0 }}>🐰</span>
+          <span style={{ fontSize:12, fontWeight:600, color:"#fff", lineHeight:1.4 }}>{toast}</span>
+        </div>
+      )}
+      <style>{`@keyframes slideInDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
 
       {/* Version tag */}
       <div style={{ position:"fixed", bottom:8, right:10, fontSize:10, color:"rgba(240,230,255,0.25)", pointerEvents:"none", zIndex:9 }}>
