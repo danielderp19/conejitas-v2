@@ -87,6 +87,7 @@ export default function VisionBoard() {
   const fileRef = useRef<HTMLInputElement>(null);
   const bgFileRef = useRef<HTMLInputElement>(null);
   const dragRef = useRef<{ id: string; startX: number; startY: number; elX: number; elY: number } | null>(null);
+  const rotRef = useRef<{ id: string; cx: number; cy: number } | null>(null);
 
   useEffect(() => {
     const check = () => setDesktop(window.innerWidth >= 768);
@@ -144,6 +145,38 @@ export default function VisionBoard() {
     window.addEventListener("touchmove", onMove, { passive: false });
     window.addEventListener("touchend", onUp);
   }, [elements, editingText]);
+
+  // ── Rotar con handle estilo Word ──────────────────────────────────────────
+  const startRotate = useCallback((e: React.MouseEvent | React.TouchEvent, el: BoardEl) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const board = boardRef.current;
+    if (!board) return;
+    const rect = board.getBoundingClientRect();
+    // Centro del elemento en coords de viewport
+    const cx = rect.left + el.x + el.w / 2;
+    const cy = rect.top + el.y + el.h / 2;
+    rotRef.current = { id: el.id, cx, cy };
+
+    const onMove = (ev: MouseEvent | TouchEvent) => {
+      if (!rotRef.current) return;
+      const mx = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
+      const my = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+      const angle = Math.atan2(my - rotRef.current.cy, mx - rotRef.current.cx) * 180 / Math.PI + 90;
+      setElements(prev => prev.map(x => x.id === rotRef.current!.id ? { ...x, rotation: Math.round(angle) } : x));
+    };
+    const onUp = () => {
+      rotRef.current = null;
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchmove", onMove, { passive: false });
+    window.addEventListener("touchend", onUp);
+  }, []);
 
   // ── Agregar elementos ──────────────────────────────────────────────────────
   const addImage = useCallback((src: string) => {
@@ -340,8 +373,7 @@ export default function VisionBoard() {
           {/* Todos: opacidad, orden, tamaño, rotar, eliminar */}
           <label style={{ fontSize: 11, color: P.muted }}>Opacidad</label>
           <input type="range" min={0.1} max={1} step={0.05} value={selectedEl.opacity ?? 1} onChange={e => updateEl({ opacity: +e.target.value })} style={{ width: 70 }}/>
-          <label style={{ fontSize: 11, color: P.muted }}>↻</label>
-          <input type="range" min={-180} max={180} step={1} value={selectedEl.rotation} onChange={e => updateEl({ rotation: +e.target.value })} style={{ width: 70 }}/>
+          <span style={{ fontSize: 11, color: P.muted, marginLeft: 4 }}>↻ {selectedEl.rotation}°</span>
           <button onClick={bringForward} title="Traer adelante" style={{ background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 6, padding: "4px 8px", color: P.txt, cursor: "pointer", fontSize: 14 }}>↑</button>
           <button onClick={sendBack} title="Enviar atrás" style={{ background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 6, padding: "4px 8px", color: P.txt, cursor: "pointer", fontSize: 14 }}>↓</button>
           <button onClick={deleteEl} style={{ background: "rgba(239,68,68,0.3)", border: "none", borderRadius: 6, padding: "4px 10px", color: "#fca5a5", fontSize: 12, cursor: "pointer", fontWeight: 700, marginLeft: "auto" }}>🗑 Eliminar</button>
@@ -393,7 +425,28 @@ export default function VisionBoard() {
                 touchAction: "none",
               }}
             >
-              {/* Resize handles visibles al seleccionar */}
+              {/* Handle de rotación estilo Word (círculo + línea sobre el elemento) */}
+              {selected === el.id && (
+                <div style={{ position: "absolute", top: -46, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", zIndex: 20, pointerEvents: "none" }}>
+                  <div
+                    onMouseDown={e => startRotate(e, el)}
+                    onTouchStart={e => startRotate(e, el)}
+                    title="Girar"
+                    style={{
+                      width: 20, height: 20, borderRadius: "50%",
+                      background: `linear-gradient(135deg,${P.p1},${P.p3})`,
+                      border: "2.5px solid #fff",
+                      cursor: "grab",
+                      pointerEvents: "all",
+                      boxShadow: "0 2px 10px rgba(147,51,234,0.6)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 10, color: "#fff", fontWeight: 700, userSelect: "none",
+                    }}
+                  >↻</div>
+                  <div style={{ width: 2, height: 24, background: `linear-gradient(to bottom,${P.p1},rgba(168,85,247,0.3))` }}/>
+                </div>
+              )}
+              {/* Resize handles en las esquinas */}
               {selected === el.id && (
                 <div className="vb-handles" style={{ opacity: 1 }}>
                   {[[-1,-1],[1,-1],[-1,1],[1,1]].map(([cx,cy],i) => (
@@ -439,7 +492,7 @@ export default function VisionBoard() {
         </div>
 
         <div style={{ marginTop: 10, fontSize: 11, color: P.muted, textAlign: "center" }}>
-          💡 Arrastra para mover · Doble clic en texto para editar · Esquinas para redimensionar
+          💡 Arrastra para mover · Doble clic en texto para editar · Esquinas para redimensionar · Círculo ↻ para girar
         </div>
       </div>
     </div>
