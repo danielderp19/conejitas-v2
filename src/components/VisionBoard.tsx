@@ -82,6 +82,10 @@ export default function VisionBoard() {
   const [editingText, setEditingText] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [desktop, setDesktop] = useState(false);
+  const [showPdfModal, setShowPdfModal] = useState(false);
+  const [pdfName, setPdfName] = useState("mi-vision-board");
+  const [creativeToast, setCreativeToast] = useState(false);
+  const [creativeMsg, setCreativeMsg] = useState("");
 
   const boardRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -146,6 +150,22 @@ export default function VisionBoard() {
     window.addEventListener("touchend", onUp);
   }, [elements, editingText]);
 
+  // ── Toast creativa ────────────────────────────────────────────────────────
+  const CREATIVE_MSGS = [
+    "¡Wow, qué creativa! 💜",
+    "¡Eres súper creativa! ✨",
+    "¡Me encanta tu estilo! 🌸",
+    "¡Esto se ve espectacular! 🌟",
+    "¡Eres un genio del diseño! 🎨",
+  ];
+  const triggerCreativeToast = useCallback(() => {
+    if (Math.random() > 0.35) return; // ~35% de probabilidad
+    const msg = CREATIVE_MSGS[Math.floor(Math.random() * CREATIVE_MSGS.length)];
+    setCreativeMsg(msg);
+    setCreativeToast(true);
+    setTimeout(() => setCreativeToast(false), 3800);
+  }, []);
+
   // ── Rotar con handle estilo Word ──────────────────────────────────────────
   const startRotate = useCallback((e: React.MouseEvent | React.TouchEvent, el: BoardEl) => {
     e.stopPropagation();
@@ -181,28 +201,33 @@ export default function VisionBoard() {
   // ── Agregar elementos ──────────────────────────────────────────────────────
   const addImage = useCallback((src: string) => {
     setElements(prev => [...prev, { id: uid(), type: "image", x: 40, y: 40, w: 200, h: 200, rotation: 0, src, opacity: 1 }]);
-  }, []);
+    triggerCreativeToast();
+  }, [triggerCreativeToast]);
 
   const addText = useCallback(() => {
     const id = uid();
     setElements(prev => [...prev, { id, type: "text", x: 60, y: 60, w: 220, h: 60, rotation: 0, content: "Escribe aquí ✨", fontSize: 18, color: "#f0e6ff", fontFamily: "Poppins", bold: false, italic: false, align: "center", opacity: 1 }]);
     setSelected(id);
     setTimeout(() => setEditingText(id), 100);
-  }, []);
+    triggerCreativeToast();
+  }, [triggerCreativeToast]);
 
   const addShape = useCallback((shape: ShapeKind) => {
     setElements(prev => [...prev, { id: uid(), type: "shape", x: 80, y: 80, w: 120, h: 120, rotation: 0, shape, fill: "#9333ea", stroke: "transparent", opacity: 1 }]);
-  }, []);
+    triggerCreativeToast();
+  }, [triggerCreativeToast]);
 
   const addEmoji = useCallback((emoji: string) => {
     setElements(prev => [...prev, { id: uid(), type: "emoji", x: 100, y: 100, w: 80, h: 80, rotation: 0, emoji, opacity: 1 }]);
     setShowEmojiPicker(false);
-  }, []);
+    triggerCreativeToast();
+  }, [triggerCreativeToast]);
 
   const addQuote = useCallback((q: string) => {
     setElements(prev => [...prev, { id: uid(), type: "quote", x: 40, y: 120, w: 280, h: 80, rotation: 0, content: q, fontSize: 16, color: "#f0e6ff", fontFamily: "Georgia", bold: false, italic: true, align: "center", opacity: 1 }]);
     setShowQuotes(false);
-  }, []);
+    triggerCreativeToast();
+  }, [triggerCreativeToast]);
 
   // ── Actualizar elemento seleccionado ───────────────────────────────────────
   const updateEl = useCallback((patch: Partial<BoardEl>) => {
@@ -239,8 +264,9 @@ export default function VisionBoard() {
   }, [selected]);
 
   // ── Export PDF ─────────────────────────────────────────────────────────────
-  const exportPDF = useCallback(async () => {
+  const exportPDF = useCallback(async (name: string) => {
     if (!boardRef.current) return;
+    setShowPdfModal(false);
     setExporting(true);
     setSelected(null);
     await new Promise(r => setTimeout(r, 200));
@@ -251,7 +277,8 @@ export default function VisionBoard() {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width / 2, canvas.height / 2] });
       pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
-      pdf.save("vision-board.pdf");
+      const fileName = (name.trim() || "mi-vision-board").replace(/\.pdf$/i, "") + ".pdf";
+      pdf.save(fileName);
     } catch { alert("Error al exportar. Intenta de nuevo."); }
     setExporting(false);
   }, []);
@@ -310,7 +337,7 @@ export default function VisionBoard() {
 
         <div style={{ marginLeft: "auto", display: "flex", gap: desktop ? 8 : 4 }}>
           <ToolBtn icon="🎨" label="Fondo" onClick={() => setShowBgPicker(v => !v)} accent/>
-          <ToolBtn icon={exporting ? "⏳" : "📄"} label="PDF" onClick={exportPDF} accent/>
+          <ToolBtn icon={exporting ? "⏳" : "📄"} label="PDF" onClick={() => setShowPdfModal(v => !v)} accent/>
         </div>
       </div>
 
@@ -331,6 +358,25 @@ export default function VisionBoard() {
           {QUOTES.map(q => <button key={q} onClick={() => addQuote(q)} style={{ background: "none", border: `1px solid ${P.border}`, borderRadius: 8, padding: "8px 12px", color: P.txt, fontSize: 12, cursor: "pointer", textAlign: "left", fontFamily: "Georgia", fontStyle: "italic" }}>{q}</button>)}
         </div>
       )}
+      {/* ── Modal nombre PDF ── */}
+      {showPdfModal && (
+        <div style={{ background: "rgba(26,15,46,0.98)", border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px", margin: "6px 12px 0", display: "flex", gap: 8, alignItems: "center", animation: "fadeIn 0.2s" }}>
+          <span style={{ fontSize: 13, color: P.muted, whiteSpace: "nowrap" }}>📄 Nombre del PDF:</span>
+          <input
+            value={pdfName}
+            onChange={e => setPdfName(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") exportPDF(pdfName); if (e.key === "Escape") setShowPdfModal(false); }}
+            placeholder="mi-vision-board"
+            autoFocus
+            style={{ flex: 1, background: "rgba(255,255,255,0.07)", border: `1px solid ${P.border}`, borderRadius: 8, padding: "8px 12px", color: P.txt, fontSize: 13, outline: "none", fontFamily: "Poppins" }}
+          />
+          <span style={{ fontSize: 12, color: P.muted }}>.pdf</span>
+          <button onClick={() => exportPDF(pdfName)} style={{ background: `linear-gradient(135deg,${P.p1},${P.p3})`, border: "none", borderRadius: 8, padding: "8px 14px", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+            {exporting ? "⏳" : "Exportar"}
+          </button>
+        </div>
+      )}
+
       {showBgPicker && (
         <div style={{ background: "rgba(26,15,46,0.98)", border: `1px solid ${P.border}`, borderRadius: 12, padding: 12, margin: "6px 12px 0", animation: "fadeIn 0.2s" }}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
@@ -377,6 +423,27 @@ export default function VisionBoard() {
           <button onClick={bringForward} title="Traer adelante" style={{ background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 6, padding: "4px 8px", color: P.txt, cursor: "pointer", fontSize: 14 }}>↑</button>
           <button onClick={sendBack} title="Enviar atrás" style={{ background: "rgba(255,255,255,0.07)", border: "none", borderRadius: 6, padding: "4px 8px", color: P.txt, cursor: "pointer", fontSize: 14 }}>↓</button>
           <button onClick={deleteEl} style={{ background: "rgba(239,68,68,0.3)", border: "none", borderRadius: 6, padding: "4px 10px", color: "#fca5a5", fontSize: 12, cursor: "pointer", fontWeight: 700, marginLeft: "auto" }}>🗑 Eliminar</button>
+        </div>
+      )}
+
+      {/* ── Toast "qué creativa" ── */}
+      {creativeToast && (
+        <div style={{
+          position: "fixed", bottom: 28, right: 20, zIndex: 9999,
+          background: "rgba(13,10,26,0.97)", border: `1px solid ${P.borderHi}`,
+          borderRadius: 16, padding: "12px 16px", maxWidth: 260,
+          boxShadow: "0 8px 32px rgba(147,51,234,0.4)",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+          animation: "fadeIn 0.3s",
+        }}>
+          <img
+            src="https://media4.giphy.com/media/deOKie3HCHOAo/giphy.gif"
+            alt="creativa"
+            style={{ width: 160, height: 120, objectFit: "cover", borderRadius: 10, border: `1px solid ${P.border}` }}
+          />
+          <p style={{ margin: 0, color: P.txt, fontSize: 14, fontWeight: 700, textAlign: "center", fontFamily: "'Poppins',sans-serif" }}>
+            {creativeMsg}
+          </p>
         </div>
       )}
 
