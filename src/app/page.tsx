@@ -473,6 +473,7 @@ export default function ConejitasDashboard() {
   const [calMsg, setCalMsg] = useState<{ type: "ok"|"err"; text: string } | null>(null);
   const [calRecurring, setCalRecurring] = useState(false);
   const [calDays, setCalDays] = useState(7);
+  const [showClientIdGuide, setShowClientIdGuide] = useState(false);
   const gcalClientRef = useRef<{ requestAccessToken: () => void } | null>(null);
 
   const CAT_MSGS = [
@@ -1315,8 +1316,16 @@ REGLAS GENERALES:
             </div>
 
             {!gcalToken && (
-              <div style={{ background:"rgba(66,133,244,0.1)", border:"1px solid rgba(66,133,244,0.3)", borderRadius:12, padding:"12px 16px", marginBottom:16, fontSize:12, color:"#93c5fd", textAlign:"center" }}>
-                Primero conecta tu cuenta de Google para crear el evento
+              <div style={{ marginBottom:16, display:"flex", flexDirection:"column", gap:8 }}>
+                <div style={{ background:"rgba(66,133,244,0.1)", border:"1px solid rgba(66,133,244,0.3)", borderRadius:12, padding:"12px 16px", fontSize:12, color:"#93c5fd", textAlign:"center" }}>
+                  Primero conecta tu cuenta de Google para crear el evento
+                </div>
+                <button
+                  onClick={() => { setCalNode(null); setShowClientIdGuide(true); }}
+                  style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:10, padding:"9px 14px", color:"rgba(240,230,255,0.6)", fontSize:11, cursor:"pointer", fontFamily:"'Poppins',sans-serif", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}
+                >
+                  🤔 ¿No tienes Client ID? Ver guía paso a paso
+                </button>
               </div>
             )}
 
@@ -1393,6 +1402,81 @@ REGLAS GENERALES:
             </button>
             <button onClick={() => setCalNode(null)} style={{ width:"100%", background:"none", border:"none", color:P.muted, fontSize:12, cursor:"pointer", marginTop:12, padding:8 }}>
               Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal guía Client ID ── */}
+      {showClientIdGuide && (
+        <div
+          onClick={() => setShowClientIdGuide(false)}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.75)", zIndex:600, display:"flex", alignItems:"center", justifyContent:"center", padding:"16px" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background:"#1a0f2e", border:`1px solid ${P.border}`, borderRadius:20, padding:"24px 20px", width:"100%", maxWidth:480, maxHeight:"88vh", overflowY:"auto", animation:"slideIn 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}
+          >
+            {/* Header */}
+            <div style={{ textAlign:"center", marginBottom:20 }}>
+              <div style={{ fontSize:32, marginBottom:6 }}>🗝️</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:17, color:P.txt }}>Cómo obtener tu Client ID</div>
+              <div style={{ fontSize:12, color:P.muted, marginTop:4 }}>Guía paso a paso — promesa que es fácil 🐰</div>
+            </div>
+
+            {/* Pasos */}
+            {[
+              {
+                n:1, emoji:"🌐", title:"Abre Google Cloud Console",
+                desc: <>Ve a <a href="https://console.cloud.google.com" target="_blank" rel="noreferrer" style={{ color:"#93c5fd", fontWeight:700 }}>console.cloud.google.com</a> e inicia sesión con tu cuenta de Google.</>,
+              },
+              {
+                n:2, emoji:"📁", title:"Crea un proyecto nuevo",
+                desc: <>Arriba a la izquierda verás un desplegable con el nombre del proyecto. Haz clic → <strong style={{color:P.txt}}>Proyecto nuevo</strong> → ponle el nombre que quieras (ej: &ldquo;Mi Dashboard&rdquo;) → <strong style={{color:P.txt}}>Crear</strong>.</>,
+              },
+              {
+                n:3, emoji:"📅", title:"Activa la API de Google Calendar",
+                desc: <>En el menú lateral ve a <strong style={{color:P.txt}}>APIs y servicios → Biblioteca</strong>. Busca <strong style={{color:P.txt}}>&ldquo;Google Calendar API&rdquo;</strong> → haz clic → <strong style={{color:P.txt}}>Habilitar</strong>.</>,
+              },
+              {
+                n:4, emoji:"🔑", title:"Crea las credenciales OAuth",
+                desc: <>Ve a <strong style={{color:P.txt}}>APIs y servicios → Credenciales</strong> → <strong style={{color:P.txt}}>+ Crear credenciales → ID de cliente OAuth 2.0</strong>.<br/><br/>Si te pide configurar la pantalla de consentimiento primero, selecciona <strong style={{color:P.txt}}>Externo</strong>, rellena solo el nombre de la app y tu correo, y guarda.</>,
+              },
+              {
+                n:5, emoji:"💻", title:"Configura el tipo de aplicación",
+                desc: <>En &ldquo;Tipo de aplicación&rdquo; elige <strong style={{color:P.txt}}>Aplicación web</strong>. En el campo <strong style={{color:P.txt}}>&ldquo;Orígenes JavaScript autorizados&rdquo;</strong> agrega la URL de tu app (ej: <code style={{background:"rgba(255,255,255,0.1)",padding:"2px 5px",borderRadius:4,fontSize:11}}>https://conejitas-v2.vercel.app</code>). Haz clic en <strong style={{color:P.txt}}>Crear</strong>.</>,
+              },
+              {
+                n:6, emoji:"📋", title:"Copia tu Client ID",
+                desc: <>Aparecerá un popup con tu <strong style={{color:P.txt}}>ID de cliente</strong> — se ve así:<br/><code style={{background:"rgba(255,255,255,0.08)",padding:"4px 8px",borderRadius:6,fontSize:10,display:"block",marginTop:6,wordBreak:"break-all",color:"#a5f3fc"}}>624920945698-xxxx.apps.googleusercontent.com</code><br/>Cópialo.</>,
+              },
+              {
+                n:7, emoji:"⚙️", title:"Ponlo en Vercel",
+                desc: <>Ve a <a href="https://vercel.com" target="_blank" rel="noreferrer" style={{color:"#93c5fd",fontWeight:700}}>vercel.com</a> → tu proyecto → <strong style={{color:P.txt}}>Settings → Environment Variables</strong>. Crea una variable:<br/><code style={{background:"rgba(255,255,255,0.08)",padding:"4px 8px",borderRadius:6,fontSize:11,display:"block",marginTop:6,color:"#86efac"}}>NEXT_PUBLIC_GOOGLE_CLIENT_ID = tu-client-id-aquí</code><br/>Guarda y vuelve a deployar. ¡Listo! 🎉</>,
+              },
+            ].map(step => (
+              <div key={step.n} style={{ display:"flex", gap:12, marginBottom:16, alignItems:"flex-start" }}>
+                <div style={{ flexShrink:0, width:34, height:34, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:800, color:"#fff", fontFamily:"'Syne',sans-serif" }}>
+                  {step.n}
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontWeight:700, fontSize:13, color:P.txt, marginBottom:4 }}>{step.emoji} {step.title}</div>
+                  <div style={{ fontSize:12, color:"rgba(240,230,255,0.7)", lineHeight:1.6 }}>{step.desc}</div>
+                </div>
+              </div>
+            ))}
+
+            {/* Tip extra */}
+            <div style={{ background:"rgba(168,85,247,0.1)", border:`1px solid ${P.border}`, borderRadius:12, padding:"12px 14px", marginTop:4, marginBottom:20 }}>
+              <div style={{ fontSize:12, color:"rgba(168,85,247,0.9)", fontWeight:700, marginBottom:4 }}>💡 Tip extra</div>
+              <div style={{ fontSize:11, color:P.muted, lineHeight:1.6 }}>Si al conectar te da error de &ldquo;origen no autorizado&rdquo;, asegúrate de que la URL exacta de tu app (sin barra al final) esté en los orígenes autorizados del paso 5.</div>
+            </div>
+
+            <button
+              onClick={() => setShowClientIdGuide(false)}
+              style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:14, padding:"13px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
+            >
+              ¡Entendido! 🐰
             </button>
           </div>
         </div>
