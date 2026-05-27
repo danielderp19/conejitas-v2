@@ -1382,7 +1382,7 @@ REGLAS GENERALES:
                       onClick={() => { setCalNode(null); setShowClientIdGuide(true); }}
                       style={{ background:"linear-gradient(135deg,rgba(168,85,247,0.18),rgba(219,39,119,0.14))", border:"1.5px solid rgba(168,85,247,0.5)", borderRadius:10, padding:"10px 14px", color:P.txt, fontSize:12, fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:7, boxShadow:"0 0 10px rgba(168,85,247,0.18)" }}
                     >
-                      <span style={{ fontSize:16 }}>🗝️</span> ¿No tienes Client ID? <span style={{ color:"#c084fc", textDecoration:"underline" }}>Ver guía paso a paso</span>
+                      <span style={{ fontSize:16 }}>❓</span> ¿Cómo me conecto? <span style={{ color:"#c084fc", textDecoration:"underline" }}>Ver guía</span>
                     </button>
                   </div>
                 ) : (
@@ -1472,75 +1472,121 @@ REGLAS GENERALES:
         </div>
       )}
 
-      {/* ── Modal guía Client ID ── */}
+      {/* ── Modal guía Cómo conectar Google Calendar ── */}
       {showClientIdGuide && (
-        <div
-          onClick={() => setShowClientIdGuide(false)}
-          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.75)", zIndex:600, display:"flex", alignItems:"center", justifyContent:"center", padding:"16px" }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{ background:"#1a0f2e", border:`1px solid ${P.border}`, borderRadius:20, padding:"24px 20px", width:"100%", maxWidth:480, maxHeight:"88vh", overflowY:"auto", animation:"slideIn 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}
-          >
+        <div onClick={() => setShowClientIdGuide(false)} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.80)", zIndex:600, display:"flex", alignItems:"center", justifyContent:"center", padding:"16px" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background:"#1a0f2e", border:`1px solid ${P.border}`, borderRadius:20, padding:"24px 20px", width:"100%", maxWidth:400, maxHeight:"90vh", overflowY:"auto", animation:"slideIn 0.3s cubic-bezier(0.34,1.56,0.64,1)" }}>
+
             {/* Header */}
-            <div style={{ textAlign:"center", marginBottom:20 }}>
-              <div style={{ fontSize:32, marginBottom:6 }}>🗝️</div>
-              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:17, color:P.txt }}>Cómo obtener tu Client ID</div>
-              <div style={{ fontSize:12, color:P.muted, marginTop:4 }}>Guía paso a paso — promesa que es fácil 🐰</div>
+            <div style={{ textAlign:"center", marginBottom:22 }}>
+              <div style={{ fontSize:34, marginBottom:6 }}>📅</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:17, color:P.txt }}>Cómo conectar Google Calendar</div>
+              <div style={{ fontSize:12, color:P.muted, marginTop:5 }}>Solo se hace una vez — promesa 🐰</div>
             </div>
 
-            {/* Pasos */}
-            {[
-              {
-                n:1, emoji:"🌐", title:"Abre Google Cloud Console",
-                desc: <>Ve a <a href="https://console.cloud.google.com" target="_blank" rel="noreferrer" style={{ color:"#93c5fd", fontWeight:700 }}>console.cloud.google.com</a> e inicia sesión con tu cuenta de Google.</>,
-              },
-              {
-                n:2, emoji:"📁", title:"Crea un proyecto nuevo",
-                desc: <>Arriba a la izquierda verás un desplegable con el nombre del proyecto. Haz clic → <strong style={{color:P.txt}}>Proyecto nuevo</strong> → ponle el nombre que quieras (ej: &ldquo;Mi Dashboard&rdquo;) → <strong style={{color:P.txt}}>Crear</strong>.</>,
-              },
-              {
-                n:3, emoji:"📅", title:"Activa la API de Google Calendar",
-                desc: <>En el menú lateral ve a <strong style={{color:P.txt}}>APIs y servicios → Biblioteca</strong>. Busca <strong style={{color:P.txt}}>&ldquo;Google Calendar API&rdquo;</strong> → haz clic → <strong style={{color:P.txt}}>Habilitar</strong>.</>,
-              },
-              {
-                n:4, emoji:"🔑", title:"Crea las credenciales OAuth",
-                desc: <>Ve a <strong style={{color:P.txt}}>APIs y servicios → Credenciales</strong> → <strong style={{color:P.txt}}>+ Crear credenciales → ID de cliente OAuth 2.0</strong>.<br/><br/>Si te pide configurar la pantalla de consentimiento primero, selecciona <strong style={{color:P.txt}}>Externo</strong>, rellena solo el nombre de la app y tu correo, y guarda.</>,
-              },
-              {
-                n:5, emoji:"💻", title:"Configura el tipo de aplicación",
-                desc: <>En &ldquo;Tipo de aplicación&rdquo; elige <strong style={{color:P.txt}}>Aplicación web</strong>. En el campo <strong style={{color:P.txt}}>&ldquo;Orígenes JavaScript autorizados&rdquo;</strong> agrega la URL de tu app (ej: <code style={{background:"rgba(255,255,255,0.1)",padding:"2px 5px",borderRadius:4,fontSize:11}}>https://conejitas-v2.vercel.app</code>). Haz clic en <strong style={{color:P.txt}}>Crear</strong>.</>,
-              },
-              {
-                n:6, emoji:"📋", title:"Copia tu Client ID",
-                desc: <>Aparecerá un popup con tu <strong style={{color:P.txt}}>ID de cliente</strong> — se ve así:<br/><code style={{background:"rgba(255,255,255,0.08)",padding:"4px 8px",borderRadius:6,fontSize:10,display:"block",marginTop:6,wordBreak:"break-all",color:"#a5f3fc"}}>624920945698-xxxx.apps.googleusercontent.com</code><br/>Cópialo.</>,
-              },
-              {
-                n:7, emoji:"📲", title:"Pégalo en la app — ¡ya está!",
-                desc: <>Vuelve al dashboard, toca el botón 📅 en cualquier tarea y pega el Client ID en el campo que aparece. Se guarda en tu dispositivo y <strong style={{color:P.txt}}>no te lo pedirá nunca más</strong>. ¡Listo! 🎉</>,
-              },
-            ].map(step => (
-              <div key={step.n} style={{ display:"flex", gap:12, marginBottom:16, alignItems:"flex-start" }}>
-                <div style={{ flexShrink:0, width:34, height:34, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:800, color:"#fff", fontFamily:"'Syne',sans-serif" }}>
-                  {step.n}
+            {/* PASO 1 */}
+            <div style={{ marginBottom:18 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <div style={{ width:22, height:22, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:"#fff", flexShrink:0 }}>1</div>
+                <span style={{ fontSize:13, fontWeight:700, color:P.txt }}>Toca el botón 📅 en cualquier tarea</span>
+              </div>
+              {/* Mockup tarea */}
+              <div style={{ background:"rgba(10,5,20,0.8)", borderRadius:12, padding:"10px 14px", border:`1px solid ${P.border}` }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                  <div style={{ width:16, height:16, borderRadius:"50%", border:"2px solid rgba(255,255,255,0.25)", flexShrink:0 }}/>
+                  <span style={{ flex:1, color:"rgba(240,230,255,0.8)", fontSize:12 }}>Llamar al médico mañana</span>
+                  <div style={{ background:"linear-gradient(135deg,#4285f4,#34a853)", borderRadius:7, padding:"5px 9px", fontSize:16, boxShadow:"0 0 14px rgba(66,133,244,0.7)" }}>📅</div>
                 </div>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontWeight:700, fontSize:13, color:P.txt, marginBottom:4 }}>{step.emoji} {step.title}</div>
-                  <div style={{ fontSize:12, color:"rgba(240,230,255,0.7)", lineHeight:1.6 }}>{step.desc}</div>
+                <div style={{ textAlign:"right", marginTop:5, fontSize:10, color:"#4ade80", fontWeight:700 }}>↑ Toca aquí</div>
+              </div>
+            </div>
+
+            {/* PASO 2 */}
+            <div style={{ marginBottom:18 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <div style={{ width:22, height:22, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:"#fff", flexShrink:0 }}>2</div>
+                <span style={{ fontSize:13, fontWeight:700, color:P.txt }}>Toca &ldquo;Conectar Google Calendar&rdquo;</span>
+              </div>
+              {/* Mockup botón */}
+              <div style={{ background:"rgba(10,5,20,0.8)", borderRadius:12, padding:"12px 14px", border:`1px solid ${P.border}` }}>
+                <div style={{ background:"linear-gradient(135deg,#4285f4,#34a853)", borderRadius:10, padding:"11px", textAlign:"center", color:"#fff", fontSize:12, fontWeight:800, boxShadow:"0 0 16px rgba(66,133,244,0.4)" }}>Conectar Google Calendar</div>
+                <div style={{ textAlign:"center", marginTop:5, fontSize:10, color:"#4ade80", fontWeight:700 }}>↑ Toca este botón</div>
+              </div>
+            </div>
+
+            {/* PASO 3 */}
+            <div style={{ marginBottom:18 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <div style={{ width:22, height:22, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:"#fff", flexShrink:0 }}>3</div>
+                <span style={{ fontSize:13, fontWeight:700, color:P.txt }}>Elige tu cuenta de Google</span>
+              </div>
+              {/* Mockup Google account picker */}
+              <div style={{ background:"#fff", borderRadius:10, padding:"12px 14px", boxShadow:"0 4px 20px rgba(0,0,0,0.4)" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:10 }}>
+                  <span style={{ fontWeight:900, fontSize:14, background:"linear-gradient(90deg,#4285f4,#ea4335,#fbbc05,#34a853)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>G</span>
+                  <span style={{ fontSize:11, color:"#444", fontFamily:"sans-serif" }}>Elegir una cuenta</span>
+                </div>
+                <div style={{ display:"flex", alignItems:"center", gap:10, padding:"7px 8px", borderRadius:6, border:"1px solid #e8e8e8" }}>
+                  <div style={{ width:28, height:28, borderRadius:"50%", background:"linear-gradient(135deg,#9333ea,#db2777)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:12, flexShrink:0 }}>👤</div>
+                  <div>
+                    <div style={{ fontSize:12, color:"#333", fontFamily:"sans-serif", fontWeight:600 }}>Tu nombre</div>
+                    <div style={{ fontSize:10, color:"#888", fontFamily:"sans-serif" }}>tucorreo@gmail.com</div>
+                  </div>
+                  <div style={{ marginLeft:"auto", fontSize:16 }}>›</div>
                 </div>
               </div>
-            ))}
-
-            {/* Tip extra */}
-            <div style={{ background:"rgba(168,85,247,0.1)", border:`1px solid ${P.border}`, borderRadius:12, padding:"12px 14px", marginTop:4, marginBottom:20 }}>
-              <div style={{ fontSize:12, color:"rgba(168,85,247,0.9)", fontWeight:700, marginBottom:4 }}>💡 Tip extra</div>
-              <div style={{ fontSize:11, color:P.muted, lineHeight:1.6 }}>Si al conectar te da error de &ldquo;origen no autorizado&rdquo;, asegúrate de que la URL exacta de tu app (sin barra al final) esté en los orígenes autorizados del paso 5.</div>
             </div>
 
-            <button
-              onClick={() => setShowClientIdGuide(false)}
-              style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:14, padding:"13px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
-            >
+            {/* PASO 4 */}
+            <div style={{ marginBottom:18 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <div style={{ width:22, height:22, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:"#fff", flexShrink:0 }}>4</div>
+                <span style={{ fontSize:13, fontWeight:700, color:P.txt }}>Aparece una advertencia — ¡no te asustes! 😊</span>
+              </div>
+              <div style={{ background:"rgba(251,188,5,0.08)", border:"1px solid rgba(251,188,5,0.3)", borderRadius:10, padding:"10px 12px", marginBottom:8 }}>
+                <div style={{ fontSize:11, color:"#fbbf24", lineHeight:1.6 }}>⚠️ Google muestra esta pantalla porque la app es personal y no está en su tienda oficial. Es completamente <strong style={{color:"#fde68a"}}>normal y seguro</strong> — igual que cuando instalas cualquier app fuera de la Play Store.</div>
+              </div>
+              {/* Mockup pantalla Google "no verificada" */}
+              <div style={{ background:"#fff", borderRadius:10, padding:"14px", boxShadow:"0 4px 20px rgba(0,0,0,0.4)" }}>
+                <div style={{ textAlign:"center", marginBottom:10 }}>
+                  <div style={{ fontSize:28 }}>⚠️</div>
+                  <div style={{ fontSize:12, fontWeight:700, color:"#333", fontFamily:"sans-serif", margin:"4px 0 2px" }}>Google no ha verificado esta app</div>
+                  <div style={{ fontSize:10, color:"#666", fontFamily:"sans-serif" }}>Conjita&apos;s Dashboard</div>
+                </div>
+                <div style={{ borderTop:"1px solid #eee", paddingTop:8, textAlign:"center" }}>
+                  <span style={{ fontSize:11, color:"#1a73e8", fontFamily:"sans-serif", cursor:"pointer", fontWeight:600 }}>Opciones avanzadas ▼</span>
+                  <div style={{ marginTop:6, fontSize:11, color:"#c5221f", fontFamily:"sans-serif", cursor:"pointer" }}>→ Ir a Conjita&apos;s Dashboard (no seguro)</div>
+                </div>
+                <div style={{ textAlign:"center", marginTop:6, fontSize:10, color:"#4ade80", fontWeight:700 }}>↑ Toca "Opciones avanzadas" y luego el enlace rojo</div>
+              </div>
+            </div>
+
+            {/* PASO 5 */}
+            <div style={{ marginBottom:18 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <div style={{ width:22, height:22, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:"#fff", flexShrink:0 }}>5</div>
+                <span style={{ fontSize:13, fontWeight:700, color:P.txt }}>Toca &ldquo;Permitir&rdquo;</span>
+              </div>
+              <div style={{ background:"#fff", borderRadius:10, padding:"12px 14px", boxShadow:"0 4px 20px rgba(0,0,0,0.4)" }}>
+                <div style={{ fontSize:11, color:"#333", fontFamily:"sans-serif", marginBottom:10, lineHeight:1.5 }}>
+                  <strong>Conjita&apos;s Dashboard</strong> quiere acceder a tu Google Calendar para crear eventos
+                </div>
+                <div style={{ display:"flex", justifyContent:"flex-end", gap:8 }}>
+                  <div style={{ fontSize:11, color:"#444", fontFamily:"sans-serif", padding:"6px 12px", cursor:"pointer" }}>Cancelar</div>
+                  <div style={{ background:"#1a73e8", color:"#fff", borderRadius:4, padding:"6px 16px", fontSize:11, fontFamily:"sans-serif", fontWeight:700, cursor:"pointer", boxShadow:"0 0 10px rgba(26,115,232,0.5)" }}>Permitir</div>
+                </div>
+                <div style={{ textAlign:"right", marginTop:4, fontSize:10, color:"#4ade80", fontWeight:700 }}>↑ Toca "Permitir"</div>
+              </div>
+            </div>
+
+            {/* PASO 6: ¡Listo! */}
+            <div style={{ background:"rgba(52,211,153,0.1)", border:"1px solid rgba(52,211,153,0.35)", borderRadius:12, padding:"14px 16px", textAlign:"center", marginBottom:20 }}>
+              <div style={{ fontSize:28, marginBottom:6 }}>🎉</div>
+              <div style={{ fontSize:14, fontWeight:800, color:"#34d399", fontFamily:"'Syne',sans-serif" }}>¡Listo! Ya está conectado</div>
+              <div style={{ fontSize:11, color:"rgba(52,211,153,0.7)", marginTop:4, lineHeight:1.5 }}>La próxima vez que uses el calendario <strong style={{color:"#6ee7b7"}}>ya no te pedirá nada</strong> — se conecta solo automáticamente 💜</div>
+            </div>
+
+            <button onClick={() => setShowClientIdGuide(false)} style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:14, padding:"13px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}>
               ¡Entendido! 🐰
             </button>
           </div>
