@@ -576,8 +576,12 @@ export default function ConejitasDashboard() {
     if (!localStorage.getItem("conjita-welcome-v3")) {
       setTimeout(() => setShowWelcome(true), 800);
     }
-    // Mensaje motivacional — aparece siempre al abrir (después de 4s)
-    setTimeout(() => setShowMotivation(true), 4000);
+    // Mensaje motivacional — una vez cada 8 días
+    const lastMotiv = localStorage.getItem("conjita-motiv-last");
+    const eightDays = 8 * 24 * 60 * 60 * 1000;
+    if (!lastMotiv || Date.now() - Number(lastMotiv) >= eightDays) {
+      setTimeout(() => setShowMotivation(true), 4000);
+    }
   }, []);
 
   // Mostrar toast solo si hay tareas URGENTES (prioridad alta) pendientes
@@ -1703,10 +1707,24 @@ REGLAS GENERALES:
       )}
       <style>{`@keyframes slideInDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}} @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}`}</style>
 
-      {/* Toast motivacional — aparece siempre al abrir */}
-      {showMotivation && (
+      {/* Toast motivacional — una vez cada 8 días */}
+      {showMotivation && (() => {
+        const MOTIV_MSGS = [
+          { title:"Eres brillante, talentosa y grande 💜", body:"Cada vez que abres esto, estás más cerca de ser la mujer más espectacular del mundo 🌟" },
+          { title:"Hoy también eres increíble ✨", body:"No existe versión tuya que no sea absolutamente extraordinaria. Sigue así, campeona 🏆" },
+          { title:"El mundo es mejor contigo en él 🌸", body:"Cada cosa que logras, por pequeña que sea, te hace más poderosa de lo que imaginas 💫" },
+          { title:"Eres más fuerte de lo que crees 🦋", body:"Cada tarea que completas es una victoria. Y las victorias pequeñas construyen grandes vidas 🌺" },
+          { title:"Tu potencial no tiene límites 🚀", body:"La persona que abre esta app cada día es alguien que no se rinde. Eso es todo lo que necesitas saber 💝" },
+          { title:"Eres única e irrepetible 🌙", body:"No hay nadie en el mundo que pueda hacer lo que tú haces, de la forma en que tú lo haces. Eso es un superpoder 💎" },
+          { title:"Orgullo total por ti 🥹", body:"Cada vez que te organizas, te estás amando a ti misma. Y eso es lo más bonito que existe 🌷" },
+          { title:"Sigue brillando, conejita 🐰", body:"El esfuerzo de hoy es el logro de mañana. Y tú lo sabes mejor que nadie porque aquí estás, otra vez 💜" },
+          { title:"La mujer más espectacular del mundo 👑", body:"No es una meta lejana — eres tú, ahora mismo, con todo lo que eres y todo lo que estás construyendo ✨" },
+        ];
+        const idx = Number(localStorage.getItem("conjita-motiv-idx") || "0") % MOTIV_MSGS.length;
+        const msg = MOTIV_MSGS[idx];
+        return (
         <div
-          onClick={() => setShowMotivation(false)}
+          onClick={() => { setShowMotivation(false); localStorage.setItem("conjita-motiv-last", String(Date.now())); localStorage.setItem("conjita-motiv-idx", String((idx + 1) % MOTIV_MSGS.length)); }}
           style={{
             position:"fixed", bottom:28, left:"50%", transform:"translateX(-50%)",
             background:"linear-gradient(135deg,rgba(13,10,26,0.97),rgba(26,15,46,0.97))",
@@ -1722,15 +1740,16 @@ REGLAS GENERALES:
           <div style={{ fontSize:28 }}>💜</div>
           <div style={{ textAlign:"center" }}>
             <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:15, color:P.txt, marginBottom:6 }}>
-              Eres brillante, talentosa y grande
+              {msg.title}
             </div>
             <div style={{ fontSize:12, color:"rgba(240,230,255,0.65)", lineHeight:1.6 }}>
-              Este mensaje solo te lo recuerda porque cada vez que abres esto, estás más cerca de ser la mujer más espectacular del mundo 🌟
+              {msg.body}
             </div>
           </div>
-          <div style={{ fontSize:10, color:"rgba(240,230,255,0.3)", fontStyle:"italic" }}>Toca para cerrar</div>
+          <div style={{ fontSize:10, color:"rgba(240,230,255,0.3)", fontStyle:"italic" }}>Toca para cerrar · aparece cada 8 días 🐰</div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Version tag */}
       <div style={{ position:"fixed", bottom:8, right:10, fontSize:10, color:"rgba(240,230,255,0.25)", pointerEvents:"none", zIndex:9 }}>
