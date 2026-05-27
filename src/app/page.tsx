@@ -1296,7 +1296,7 @@ REGLAS:
               <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:20, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
                 ¡Novedades en tu dashboard!
               </div>
-              <div style={{ fontSize:12, color:P.muted, marginTop:4 }}>Dos funciones nuevas para ti 🐰</div>
+              <div style={{ fontSize:12, color:P.muted, marginTop:4 }}>Dos funciones nuevas para ti mi traviesa de corona brillante 👑✨</div>
             </div>
 
             {/* Feature 1: Semáforo */}
