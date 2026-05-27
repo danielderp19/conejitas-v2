@@ -1322,9 +1322,10 @@ REGLAS GENERALES:
                 </div>
                 <button
                   onClick={() => { setCalNode(null); setShowClientIdGuide(true); }}
-                  style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:10, padding:"9px 14px", color:"rgba(240,230,255,0.6)", fontSize:11, cursor:"pointer", fontFamily:"'Poppins',sans-serif", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}
+                  style={{ background:"linear-gradient(135deg,rgba(168,85,247,0.25),rgba(219,39,119,0.2))", border:"1.5px solid rgba(168,85,247,0.55)", borderRadius:12, padding:"12px 16px", color:P.txt, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"'Poppins',sans-serif", display:"flex", alignItems:"center", justifyContent:"center", gap:8, boxShadow:"0 0 12px rgba(168,85,247,0.2)", letterSpacing:"0.01em" }}
                 >
-                  🤔 ¿No tienes Client ID? Ver guía paso a paso
+                  <span style={{ fontSize:18 }}>🗝️</span>
+                  ¿No tienes Client ID? <span style={{ color:"#c084fc", textDecoration:"underline" }}>Ver guía paso a paso</span>
                 </button>
               </div>
             )}
