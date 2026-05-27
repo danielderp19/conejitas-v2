@@ -1746,7 +1746,7 @@ REGLAS GENERALES:
               {msg.body}
             </div>
           </div>
-          <div style={{ fontSize:10, color:"rgba(240,230,255,0.3)", fontStyle:"italic" }}>Toca para cerrar · aparece cada 8 días 🐰</div>
+          <div style={{ fontSize:10, color:"rgba(240,230,255,0.3)", fontStyle:"italic" }}>Toca para cerrar 🐰</div>
         </div>
         );
       })()}
