@@ -4,8 +4,10 @@ import { useState, useRef, useEffect, useCallback, memo } from "react";
 import {
   CheckCircle2, Circle, ChevronRight, Trash2,
   RefreshCw, Monitor, Smartphone, Cloud, Menu, X,
-  Send, Sparkles, RotateCcw, GripVertical, Bell, BellOff,
+  Send, Sparkles, RotateCcw, GripVertical, Bell, BellOff, CalendarPlus,
 } from "lucide-react";
+
+const GCAL_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
 const P = {
   bg: "#0d0a1a",
@@ -125,13 +127,15 @@ interface NodeProps {
   done: Record<string, boolean>;
   expanded: Record<string, boolean>;
   desktop: boolean;
+  scheduled: Record<string, boolean>;
   onToggle: (id: string) => void;
   onExpand: (id: string) => void;
   onDelete: (id: string) => void;
   onReorder: (dragId: string, dropId: string) => void;
+  onSchedule: (node: TreeNode) => void;
 }
 
-const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExpand, onDelete, onReorder }: NodeProps) {
+const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onToggle, onExpand, onDelete, onReorder, onSchedule }: NodeProps) {
   const isExp = expanded[node.id];
   const isDone = done[node.id];
   const hasKids = (node.children || []).length > 0;
@@ -225,6 +229,18 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
             {lPct}%
           </span>
         )}
+        {!hasKids && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onSchedule(node); }}
+            title="Agendar en Google Calendar"
+            style={{ background: scheduled[node.id] ? "rgba(52,211,153,0.25)" : "rgba(66,133,244,0.2)", border:"none", borderRadius:6, padding:"6px 8px", cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
+          >
+            {scheduled[node.id]
+              ? <span style={{ fontSize:12 }}>📅</span>
+              : <CalendarPlus size={14} color={scheduled[node.id] ? "#34d399" : "#93c5fd"}/>
+            }
+          </button>
+        )}
         <button
           onClick={(e) => { e.stopPropagation(); if (window.confirm("¿Eliminar esta tarea?")) onDelete(node.id); }}
           style={{ background:"rgba(239,68,68,0.3)", border:"none", borderRadius:6, padding:"6px 8px", cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
@@ -237,7 +253,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, onToggle, onExp
       {isExp && hasKids && (
         <div>
           {node.children.map((c) => (
-            <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDelete} onReorder={onReorder}/>
+            <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} scheduled={scheduled} onToggle={onToggle} onExpand={onExpand} onDelete={onDelete} onReorder={onReorder} onSchedule={onSchedule}/>
           ))}
         </div>
       )}
@@ -251,14 +267,16 @@ interface TreeCardProps {
   done: Record<string, boolean>;
   expanded: Record<string, boolean>;
   desktop: boolean;
+  scheduled: Record<string, boolean>;
   onToggle: (id: string) => void;
   onExpand: (id: string) => void;
   onDeleteNode: (id: string) => void;
   onDeleteTree: (id: string) => void;
   onReorder: (dragId: string, dropId: string) => void;
+  onSchedule: (node: TreeNode) => void;
 }
 
-const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggle, onExpand, onDeleteNode, onDeleteTree, onReorder }: TreeCardProps) {
+const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, scheduled, onToggle, onExpand, onDeleteNode, onDeleteTree, onReorder, onSchedule }: TreeCardProps) {
   const tTotal = totalNodes(tree);
   const tDone = doneNodes(tree, done);
   const tPct = tTotal ? Math.round((tDone / tTotal) * 100) : 0;
@@ -329,7 +347,7 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, onToggl
         </svg>
       </div>
       {(tree.children || []).map((c) => (
-        <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} onToggle={onToggle} onExpand={onExpand} onDelete={onDeleteNode} onReorder={onReorder}/>
+        <Node key={c.id} node={c} done={done} expanded={expanded} desktop={desktop} scheduled={scheduled} onToggle={onToggle} onExpand={onExpand} onDelete={onDeleteNode} onReorder={onReorder} onSchedule={onSchedule}/>
       ))}
     </div>
   );
@@ -353,6 +371,16 @@ export default function ConejitasDashboard() {
   const [notifStatus, setNotifStatus] = useState<"idle"|"enabled"|"denied"|"unsupported">("idle");
   const [notifFreq, setNotifFreq] = useState(3); // horas
   const [showFreqPicker, setShowFreqPicker] = useState(false);
+
+  // ── Google Calendar ──────────────────────────────────────────────────────────
+  const [gcalToken, setGcalToken] = useState<string | null>(null);
+  const [scheduled, setScheduled] = useState<Record<string, boolean>>({});
+  const [calNode, setCalNode] = useState<TreeNode | null>(null); // tarea a programar
+  const [calDate, setCalDate] = useState("");
+  const [calTime, setCalTime] = useState("09:00");
+  const [calCreating, setCalCreating] = useState(false);
+  const [calMsg, setCalMsg] = useState<{ type: "ok"|"err"; text: string } | null>(null);
+  const gcalClientRef = useRef<{ requestAccessToken: () => void } | null>(null);
 
   const CAT_MSGS = [
     "¡Te amo! 💜",
@@ -385,6 +413,24 @@ export default function ConejitasDashboard() {
   const chatEnd = useRef<HTMLDivElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const catTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cargar Google Identity Services
+  useEffect(() => {
+    if (!GCAL_CLIENT_ID) return;
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.onload = () => {
+      const g = (window as unknown as { google: { accounts: { oauth2: { initTokenClient: (cfg: unknown) => { requestAccessToken: () => void } } } } }).google;
+      gcalClientRef.current = g.accounts.oauth2.initTokenClient({
+        client_id: GCAL_CLIENT_ID,
+        scope: "https://www.googleapis.com/auth/calendar.events",
+        callback: (resp: { access_token?: string }) => {
+          if (resp.access_token) setGcalToken(resp.access_token);
+        },
+      });
+    };
+    document.head.appendChild(script);
+  }, []);
 
   useEffect(() => {
     try {
@@ -697,6 +743,60 @@ REGLAS:
     setLoading(false);
   }
 
+  // Abrir modal de calendario para una tarea
+  function openCalModal(node: TreeNode) {
+    setCalNode(node);
+    setCalMsg(null);
+    // Fecha por defecto: mañana
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setCalDate(tomorrow.toISOString().split("T")[0]);
+    setCalTime("09:00");
+  }
+
+  // Crear evento en Google Calendar
+  async function createCalendarEvent() {
+    if (!calNode || !calDate) return;
+    if (!gcalToken) {
+      gcalClientRef.current?.requestAccessToken();
+      return;
+    }
+    setCalCreating(true);
+    setCalMsg(null);
+    try {
+      const start = new Date(`${calDate}T${calTime}:00`);
+      const end = new Date(start.getTime() + 60 * 60 * 1000); // +1 hora
+      const fmt = (d: Date) => d.toISOString();
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const res = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${gcalToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          summary: calNode.title,
+          description: "Tarea de Conjita's Dashboard 🐰",
+          start: { dateTime: fmt(start), timeZone: tz },
+          end: { dateTime: fmt(end), timeZone: tz },
+        }),
+      });
+      if (!res.ok) {
+        if (res.status === 401) {
+          setGcalToken(null);
+          gcalClientRef.current?.requestAccessToken();
+          setCalCreating(false);
+          return;
+        }
+        throw new Error("Error al crear evento");
+      }
+      setScheduled((p) => ({ ...p, [calNode.id]: true }));
+      setCalMsg({ type: "ok", text: "✅ Evento creado en tu Google Calendar" });
+      setTimeout(() => setCalNode(null), 1800);
+    } catch {
+      setCalMsg({ type: "err", text: "❌ No se pudo crear el evento. Intenta de nuevo." });
+    } finally {
+      setCalCreating(false);
+    }
+  }
+
   function reset() {
     if (!window.confirm("¿Borrar TODO? Esto eliminará también la memoria guardada.")) return;
     setTrees([]); setDone({}); setExpanded({}); setChatLog([]);
@@ -920,8 +1020,8 @@ REGLAS:
             ) : (
               trees.map((tree) => (
                 <TreeCard key={tree.id} tree={tree} done={done} expanded={expanded} desktop={desktop}
-                  onToggle={toggle} onExpand={expandToggle} onDeleteNode={deleteNode} onDeleteTree={deleteTree}
-                  onReorder={handleReorder}/>
+                  scheduled={scheduled} onToggle={toggle} onExpand={expandToggle} onDeleteNode={deleteNode}
+                  onDeleteTree={deleteTree} onReorder={handleReorder} onSchedule={openCalModal}/>
               ))
             )}
           </div>
@@ -1022,6 +1122,71 @@ REGLAS:
             <div style={{ color:"#c084fc", fontSize:13, fontWeight:700, lineHeight:1.5 }}>
               {catMsg}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Google Calendar */}
+      {calNode && (
+        <div
+          onClick={() => setCalNode(null)}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.65)", zIndex:400, display:"flex", alignItems:"flex-end", justifyContent:"center" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background:"#1a0f2e", border:`1px solid ${P.border}`, borderRadius:"24px 24px 0 0", padding:"24px 20px 40px", width:"100%", maxWidth:maxW, animation:"slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1)" }}
+          >
+            <div style={{ textAlign:"center", marginBottom:20 }}>
+              <div style={{ fontSize:28, marginBottom:6 }}>📅</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:16, color:P.txt }}>Agendar tarea</div>
+              <div style={{ fontSize:12, color:P.muted, marginTop:4, padding:"0 16px", wordBreak:"break-word" }}>
+                &ldquo;{calNode.title}&rdquo;
+              </div>
+            </div>
+
+            {!gcalToken && (
+              <div style={{ background:"rgba(66,133,244,0.1)", border:"1px solid rgba(66,133,244,0.3)", borderRadius:12, padding:"12px 16px", marginBottom:16, fontSize:12, color:"#93c5fd", textAlign:"center" }}>
+                Primero conecta tu cuenta de Google para crear el evento
+              </div>
+            )}
+
+            <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:20 }}>
+              <div>
+                <label style={{ fontSize:11, color:P.muted, fontWeight:600, display:"block", marginBottom:5 }}>FECHA</label>
+                <input
+                  type="date"
+                  value={calDate}
+                  onChange={(e) => setCalDate(e.target.value)}
+                  style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:`1px solid ${P.border}`, borderRadius:10, padding:"10px 14px", color:P.txt, fontSize:15, outline:"none", fontFamily:"'Poppins',sans-serif" }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize:11, color:P.muted, fontWeight:600, display:"block", marginBottom:5 }}>HORA</label>
+                <input
+                  type="time"
+                  value={calTime}
+                  onChange={(e) => setCalTime(e.target.value)}
+                  style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:`1px solid ${P.border}`, borderRadius:10, padding:"10px 14px", color:P.txt, fontSize:15, outline:"none", fontFamily:"'Poppins',sans-serif" }}
+                />
+              </div>
+            </div>
+
+            {calMsg && (
+              <div style={{ background: calMsg.type === "ok" ? "rgba(52,211,153,0.1)" : "rgba(239,68,68,0.1)", border:`1px solid ${calMsg.type === "ok" ? "rgba(52,211,153,0.3)" : "rgba(239,68,68,0.3)"}`, borderRadius:10, padding:"10px 14px", fontSize:12, color: calMsg.type === "ok" ? "#34d399" : "#f87171", marginBottom:14, textAlign:"center" }}>
+                {calMsg.text}
+              </div>
+            )}
+
+            <button
+              onClick={createCalendarEvent}
+              disabled={calCreating}
+              style={{ width:"100%", background: gcalToken ? `linear-gradient(135deg,${P.p1},${P.p3})` : "linear-gradient(135deg,#4285f4,#34a853)", border:"none", borderRadius:16, padding:"14px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif", opacity: calCreating ? 0.7 : 1 }}
+            >
+              {calCreating ? "Creando evento..." : gcalToken ? "Crear evento en Calendar 📅" : "Conectar Google Calendar"}
+            </button>
+            <button onClick={() => setCalNode(null)} style={{ width:"100%", background:"none", border:"none", color:P.muted, fontSize:12, cursor:"pointer", marginTop:12, padding:8 }}>
+              Cancelar
+            </button>
           </div>
         </div>
       )}
