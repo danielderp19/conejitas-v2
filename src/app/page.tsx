@@ -427,6 +427,7 @@ export default function ConejitasDashboard() {
   const [notifFreq, setNotifFreq] = useState(3); // horas
   const [showFreqPicker, setShowFreqPicker] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showMotivation, setShowMotivation] = useState(false);
 
   // ── Toast de motivación al ver tareas ────────────────────────────────────────
   const TASK_TOASTS = [
@@ -571,10 +572,12 @@ export default function ConejitasDashboard() {
       }
     } catch { /* fresh start */ }
     setHydrated(true);
-    // Mostrar bienvenida solo la primera vez
-    if (!localStorage.getItem("conjita-welcome-v2")) {
+    // Mostrar bienvenida solo la primera vez (v3 incluye Vision Board y guía Calendar)
+    if (!localStorage.getItem("conjita-welcome-v3")) {
       setTimeout(() => setShowWelcome(true), 800);
     }
+    // Mensaje motivacional — aparece siempre al abrir (después de 4s)
+    setTimeout(() => setShowMotivation(true), 4000);
   }, []);
 
   // Mostrar toast solo si hay tareas URGENTES (prioridad alta) pendientes
@@ -1602,24 +1605,20 @@ REGLAS GENERALES:
       {/* Modal de bienvenida — solo primera vez */}
       {showWelcome && (
         <div
-          onClick={() => { setShowWelcome(false); localStorage.setItem("conjita-welcome-v2", "1"); }}
+          onClick={() => { setShowWelcome(false); localStorage.setItem("conjita-welcome-v3", "1"); }}
           style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:500, display:"flex", alignItems:"flex-end", justifyContent:"center" }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:"28px 28px 0 0", padding:"28px 22px 44px", width:"100%", maxWidth:maxW, animation:"slideIn 0.5s cubic-bezier(0.34,1.56,0.64,1)", boxShadow:"0 -20px 60px rgba(147,51,234,0.2)" }}
+            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:"28px 28px 0 0", padding:"28px 22px 44px", width:"100%", maxWidth:maxW, animation:"slideIn 0.5s cubic-bezier(0.34,1.56,0.64,1)", boxShadow:"0 -20px 60px rgba(147,51,234,0.2)", maxHeight:"90vh", overflowY:"auto" }}
           >
             {/* GIF + Título */}
             <div style={{ textAlign:"center", marginBottom:24 }}>
-              <img
-                src="https://media4.giphy.com/media/kXNYthbiZZWda/giphy.gif"
-                alt="novedades"
-                style={{ width:120, height:120, objectFit:"cover", borderRadius:"50%", border:`3px solid ${P.p1}`, boxShadow:`0 0 20px rgba(147,51,234,0.5)`, marginBottom:12 }}
-              />
+              <img src="https://media4.giphy.com/media/kXNYthbiZZWda/giphy.gif" alt="novedades" style={{ width:120, height:120, objectFit:"cover", borderRadius:"50%", border:`3px solid ${P.p1}`, boxShadow:`0 0 20px rgba(147,51,234,0.5)`, marginBottom:12 }}/>
               <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:20, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
                 ¡Novedades en tu dashboard!
               </div>
-              <div style={{ fontSize:12, color:P.muted, marginTop:4 }}>Dos funciones nuevas para ti mi traviesa de corona brillante 👑✨</div>
+              <div style={{ fontSize:12, color:P.muted, marginTop:4 }}>Todo lo nuevo para ti, mi traviesa de corona brillante 👑✨</div>
             </div>
 
             {/* Feature 1: Semáforo */}
@@ -1632,24 +1631,8 @@ REGLAS GENERALES:
                 </div>
                 <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14, color:P.txt }}>Semáforo de prioridad</div>
               </div>
-              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>
-                Cada tarea tiene ahora un <strong style={{ color:P.txt }}>punto de color</strong> que indica su prioridad. La IA lo asigna automáticamente cuando creas tareas.
-              </p>
-              <div style={{ marginTop:10, display:"flex", flexDirection:"column", gap:5 }}>
-                {[
-                  { color:"#ef4444", glow:"#ef4444", label:"Rojo", desc:"Alta prioridad — urgente, examen, entregar hoy" },
-                  { color:"#f59e0b", glow:"#f59e0b", label:"Ámbar", desc:"Media prioridad — esta semana, importante" },
-                  { color:"#22c55e", glow:"#22c55e", label:"Verde", desc:"Baja prioridad — sin urgencia" },
-                ].map(({ color, glow, label, desc }) => (
-                  <div key={label} style={{ display:"flex", alignItems:"center", gap:8 }}>
-                    <div style={{ width:9, height:9, borderRadius:"50%", background:color, boxShadow:`0 0 6px ${glow}`, flexShrink:0 }}/>
-                    <span style={{ fontSize:11, color:P.muted }}><strong style={{ color:P.txt }}>{label}:</strong> {desc}</span>
-                  </div>
-                ))}
-              </div>
-              <p style={{ margin:"10px 0 0", fontSize:11, color:"rgba(168,85,247,0.8)", fontWeight:600 }}>
-                💡 Toca el punto para cambiar la prioridad manualmente
-              </p>
+              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>Cada tarea tiene un <strong style={{ color:P.txt }}>punto de color</strong> que indica su prioridad. La IA lo asigna automáticamente.</p>
+              <p style={{ margin:"8px 0 0", fontSize:11, color:"rgba(168,85,247,0.8)", fontWeight:600 }}>💡 Toca el punto para cambiarlo manualmente</p>
             </div>
 
             {/* Feature 2: Google Calendar */}
@@ -1658,30 +1641,37 @@ REGLAS GENERALES:
                 <span style={{ fontSize:20 }}>📅</span>
                 <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14, color:P.txt }}>Agenda en Google Calendar</div>
               </div>
-              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>
-                En cada tarea verás un <strong style={{ color:P.txt }}>botón azul 📅</strong>. Tócalo para crear un evento en tu Google Calendar con la fecha y hora que elijas.
-              </p>
-              <p style={{ margin:"10px 0 0", fontSize:11, color:"rgba(66,133,244,0.8)", fontWeight:600 }}>
-                💡 La primera vez te pedirá iniciar sesión con Google
-              </p>
+              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>Toca el <strong style={{ color:P.txt }}>botón azul 📅</strong> en cualquier tarea para agregarla a tu Google Calendar. La primera vez te pedirá iniciar sesión — ¡solo esa vez!</p>
+              <p style={{ margin:"8px 0 0", fontSize:11, color:"rgba(66,133,244,0.8)", fontWeight:600 }}>💡 Toca el <strong>?</strong> dentro del modal si tienes dudas — hay una guía paso a paso con imágenes</p>
             </div>
 
-            {/* Feature 3: Toast urgente */}
-            <div style={{ background:"rgba(239,68,68,0.07)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:16, padding:"16px 18px", marginBottom:24 }}>
+            {/* Feature 3: Alertas urgentes */}
+            <div style={{ background:"rgba(239,68,68,0.07)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:16, padding:"16px 18px", marginBottom:12 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
                 <img src="https://www.gifsanimados.org/data/media/202/perro-imagen-animada-0091.gif" alt="perro" style={{ width:32, height:32, borderRadius:"50%" }}/>
                 <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14, color:P.txt }}>Alertas de tareas urgentes</div>
               </div>
-              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>
-                Si tienes tareas con prioridad <strong style={{ color:"#ef4444" }}>🔴 roja</strong> pendientes, al abrir el dashboard aparecerá un mensaje para que no se te olviden.
-              </p>
-              <p style={{ margin:"10px 0 0", fontSize:11, color:"rgba(239,68,68,0.7)", fontWeight:600 }}>
-                💡 Solo aparece cuando hay algo urgente sin completar
-              </p>
+              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>Cuando tengas tareas <strong style={{ color:"#ef4444" }}>🔴 urgentes</strong> pendientes, al abrir la app aparecerá un aviso para que no se te escapen.</p>
+              <p style={{ margin:"8px 0 0", fontSize:11, color:"rgba(239,68,68,0.7)", fontWeight:600 }}>💡 Solo aparece cuando hay algo urgente sin completar</p>
+            </div>
+
+            {/* Feature 4: Vision Board */}
+            <div style={{ background:"rgba(251,191,36,0.07)", border:"1px solid rgba(251,191,36,0.25)", borderRadius:16, padding:"16px 18px", marginBottom:20 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                <span style={{ fontSize:20 }}>🌟</span>
+                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14, color:P.txt }}>Vision Board</div>
+              </div>
+              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>Toca la pestaña <strong style={{ color:P.txt }}>🌟</strong> en el menú para crear tu tablero de visión. Agrega imágenes, texto, frases, formas y emojis — y expórtalo en PDF.</p>
+              <p style={{ margin:"8px 0 0", fontSize:11, color:"rgba(251,191,36,0.8)", fontWeight:600 }}>💡 Gira los elementos con el círculo ↻ que aparece al seleccionarlos</p>
+            </div>
+
+            {/* Nota: no volverá a salir */}
+            <div style={{ textAlign:"center", marginBottom:16 }}>
+              <span style={{ fontSize:11, color:"rgba(240,230,255,0.3)", fontStyle:"italic" }}>Este mensaje no volverá a aparecer 🐰</span>
             </div>
 
             <button
-              onClick={() => { setShowWelcome(false); localStorage.setItem("conjita-welcome-v2", "1"); }}
+              onClick={() => { setShowWelcome(false); localStorage.setItem("conjita-welcome-v3", "1"); }}
               style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:18, padding:"15px", color:"#fff", fontSize:15, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
             >
               ¡Entendido, vamos! 🚀
@@ -1711,11 +1701,40 @@ REGLAS GENERALES:
           <span style={{ fontSize:12, fontWeight:600, color:"#fff", lineHeight:1.4 }}>{toast}</span>
         </div>
       )}
-      <style>{`@keyframes slideInDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
+      <style>{`@keyframes slideInDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}} @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}`}</style>
+
+      {/* Toast motivacional — aparece siempre al abrir */}
+      {showMotivation && (
+        <div
+          onClick={() => setShowMotivation(false)}
+          style={{
+            position:"fixed", bottom:28, left:"50%", transform:"translateX(-50%)",
+            background:"linear-gradient(135deg,rgba(13,10,26,0.97),rgba(26,15,46,0.97))",
+            border:`1px solid ${P.borderHi}`,
+            borderRadius:20, padding:"16px 20px",
+            maxWidth:"calc(100vw - 32px)", width:360,
+            boxShadow:"0 8px 40px rgba(147,51,234,0.45)",
+            animation:"fadeInUp 0.5s cubic-bezier(0.34,1.56,0.64,1)",
+            cursor:"pointer", zIndex:250,
+            display:"flex", flexDirection:"column", alignItems:"center", gap:10,
+          }}
+        >
+          <div style={{ fontSize:28 }}>💜</div>
+          <div style={{ textAlign:"center" }}>
+            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:15, color:P.txt, marginBottom:6 }}>
+              Eres brillante, talentosa y grande
+            </div>
+            <div style={{ fontSize:12, color:"rgba(240,230,255,0.65)", lineHeight:1.6 }}>
+              Este mensaje solo te lo recuerda porque cada vez que abres esto, estás más cerca de ser la mujer más espectacular del mundo 🌟
+            </div>
+          </div>
+          <div style={{ fontSize:10, color:"rgba(240,230,255,0.3)", fontStyle:"italic" }}>Toca para cerrar</div>
+        </div>
+      )}
 
       {/* Version tag */}
       <div style={{ position:"fixed", bottom:8, right:10, fontSize:10, color:"rgba(240,230,255,0.25)", pointerEvents:"none", zIndex:9 }}>
-        v1.1
+        v1.2
       </div>
     </div>
   );
