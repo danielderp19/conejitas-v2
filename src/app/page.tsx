@@ -430,7 +430,7 @@ export default function ConejitasDashboard() {
     "¡Ostia chaval! ¿A qué esperas? ¡Las tareas te necesitan! 💪",
     "¡Venga, venga! Que no muerden... bueno, quizás un poco 🐰",
     "Cada tarea que terminas me enamora más de ti 💜",
-    "El que programó esto estaría muy orgulloso de verte trabajar 🥹",
+    "El que programó esto estaría muy orgulloso de verte lograr tus metas 🥹",
     "Eres tan bonita cuando eres productiva... y siempre 💝",
   ];
   const [toast, setToast] = useState<string | null>(null);
@@ -539,11 +539,15 @@ export default function ConejitasDashboard() {
     }
   }, []);
 
-  // Mostrar toast al entrar al dashboard con tareas pendientes
+  // Mostrar toast solo si hay tareas URGENTES (prioridad alta) pendientes
   useEffect(() => {
     if (view !== "dashboard" || !hydrated) return;
-    const pending = trees.reduce((s, t) => s + (totalNodes(t) - doneNodes(t, done)), 0);
-    const timer = setTimeout(() => showToast(pending), 2500);
+    function hasUrgentPending(node: TreeNode): boolean {
+      if (!node.children || node.children.length === 0) return node.priority === "high" && !done[node.id];
+      return node.children.some(c => hasUrgentPending(c));
+    }
+    const hasUrgent = trees.some(t => hasUrgentPending(t));
+    const timer = setTimeout(() => showToast(hasUrgent ? 1 : 0), 2500);
     return () => clearTimeout(timer);
   }, [view, hydrated]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1358,7 +1362,7 @@ REGLAS:
             </div>
 
             {/* Feature 2: Google Calendar */}
-            <div style={{ background:"rgba(66,133,244,0.08)", border:"1px solid rgba(66,133,244,0.25)", borderRadius:16, padding:"16px 18px", marginBottom:24 }}>
+            <div style={{ background:"rgba(66,133,244,0.08)", border:"1px solid rgba(66,133,244,0.25)", borderRadius:16, padding:"16px 18px", marginBottom:12 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
                 <span style={{ fontSize:20 }}>📅</span>
                 <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14, color:P.txt }}>Agenda en Google Calendar</div>
@@ -1368,6 +1372,20 @@ REGLAS:
               </p>
               <p style={{ margin:"10px 0 0", fontSize:11, color:"rgba(66,133,244,0.8)", fontWeight:600 }}>
                 💡 La primera vez te pedirá iniciar sesión con Google
+              </p>
+            </div>
+
+            {/* Feature 3: Toast urgente */}
+            <div style={{ background:"rgba(239,68,68,0.07)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:16, padding:"16px 18px", marginBottom:24 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                <img src="https://www.gifsanimados.org/data/media/202/perro-imagen-animada-0091.gif" alt="perro" style={{ width:32, height:32, borderRadius:"50%" }}/>
+                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:14, color:P.txt }}>Alertas de tareas urgentes</div>
+              </div>
+              <p style={{ margin:0, fontSize:12, color:P.muted, lineHeight:1.7 }}>
+                Si tienes tareas con prioridad <strong style={{ color:"#ef4444" }}>🔴 roja</strong> pendientes, al abrir el dashboard aparecerá un mensaje para que no se te olviden.
+              </p>
+              <p style={{ margin:"10px 0 0", fontSize:11, color:"rgba(239,68,68,0.7)", fontWeight:600 }}>
+                💡 Solo aparece cuando hay algo urgente sin completar
               </p>
             </div>
 
