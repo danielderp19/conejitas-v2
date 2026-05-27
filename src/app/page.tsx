@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, memo } from "react";
+import dynamic from "next/dynamic";
+const VisionBoard = dynamic(() => import("@/components/VisionBoard"), { ssr: false });
 import {
   CheckCircle2, Circle, ChevronRight, Trash2,
   RefreshCw, Monitor, Smartphone, Cloud, Menu, X,
@@ -415,7 +417,7 @@ export default function ConejitasDashboard() {
   const [loading, setLoading] = useState(false);
   const [chatLog, setChatLog] = useState<{ role: string; text: string }[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [view, setView] = useState<"dashboard" | "chat">("dashboard");
+  const [view, setView] = useState<"dashboard" | "chat" | "vision">("dashboard");
   const [desktop, setDesktop] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle"|"saving"|"saved"|"error">("idle");
   const [hydrated, setHydrated] = useState(false);
@@ -1023,7 +1025,7 @@ REGLAS GENERALES:
           {desktop ? <Smartphone size={15}/> : <Monitor size={15}/>}
         </button>
         <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:28, padding:3 }}>
-          {([{v:"dashboard",icon:"📊"},{v:"chat",icon:"💬"}] as const).map(({v,icon}) => (
+          {([{v:"dashboard",icon:"📊"},{v:"chat",icon:"💬"},{v:"vision",icon:"🌟"}] as const).map(({v,icon}) => (
             <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:22, padding:"5px 11px", color: view===v ? "#fff" : P.muted, fontSize:11, fontWeight:700, cursor:"pointer" }}>{icon}</button>
           ))}
         </div>
@@ -1140,7 +1142,10 @@ REGLAS GENERALES:
         </div>
       )}
 
-      <main style={{ flex:1, overflowY:"auto", padding: desktop ? "20px 28px 150px" : "14px 14px 130px" }}>
+      <main style={{ flex:1, overflowY: view === "vision" ? "hidden" : "auto", padding: view === "vision" ? 0 : desktop ? "20px 28px 150px" : "14px 14px 130px", display: view === "vision" ? "flex" : "block", flexDirection: "column" }}>
+
+        {/* VISION BOARD */}
+        {view === "vision" && <VisionBoard/>}
 
         {/* DASHBOARD */}
         {view === "dashboard" && (
