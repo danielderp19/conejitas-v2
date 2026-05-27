@@ -469,6 +469,8 @@ export default function ConejitasDashboard() {
   const [calTime, setCalTime] = useState("09:00");
   const [calCreating, setCalCreating] = useState(false);
   const [calMsg, setCalMsg] = useState<{ type: "ok"|"err"; text: string } | null>(null);
+  const [calRecurring, setCalRecurring] = useState(false);
+  const [calDays, setCalDays] = useState(7);
   const gcalClientRef = useRef<{ requestAccessToken: () => void } | null>(null);
 
   const CAT_MSGS = [
@@ -895,6 +897,8 @@ REGLAS GENERALES:
   function openCalModal(node: TreeNode) {
     setCalNode(node);
     setCalMsg(null);
+    setCalRecurring(false);
+    setCalDays(7);
     // Fecha por defecto: mañana
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -924,6 +928,7 @@ REGLAS GENERALES:
           description: "Tarea de Conjita's Dashboard 🐰",
           start: { dateTime: fmt(start), timeZone: tz },
           end: { dateTime: fmt(end), timeZone: tz },
+          ...(calRecurring ? { recurrence: [`RRULE:FREQ=DAILY;COUNT=${calDays}`] } : {}),
         }),
       });
       if (!res.ok) {
@@ -936,7 +941,7 @@ REGLAS GENERALES:
         throw new Error("Error al crear evento");
       }
       setScheduled((p) => ({ ...p, [calNode.id]: true }));
-      setCalMsg({ type: "ok", text: "✅ Evento creado en tu Google Calendar" });
+      setCalMsg({ type: "ok", text: calRecurring ? `✅ Evento creado por ${calDays} días en tu Google Calendar` : "✅ Evento creado en tu Google Calendar" });
       setTimeout(() => setCalNode(null), 1800);
     } catch {
       setCalMsg({ type: "err", text: "❌ No se pudo crear el evento. Intenta de nuevo." });
@@ -1329,6 +1334,43 @@ REGLAS GENERALES:
                   style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:`1px solid ${P.border}`, borderRadius:10, padding:"10px 14px", color:P.txt, fontSize:15, outline:"none", fontFamily:"'Poppins',sans-serif" }}
                 />
               </div>
+            </div>
+
+            {/* Tarea repetitiva */}
+            <div style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${P.border}`, borderRadius:12, padding:"12px 14px", marginBottom:16 }}>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:700, color:P.txt }}>🔁 Tarea repetitiva</div>
+                  <div style={{ fontSize:11, color:P.muted, marginTop:2 }}>Repite el evento todos los días a la misma hora</div>
+                </div>
+                {/* Toggle */}
+                <div
+                  onClick={() => setCalRecurring(r => !r)}
+                  style={{ width:44, height:24, borderRadius:12, background: calRecurring ? `linear-gradient(135deg,${P.p1},${P.p3})` : "rgba(255,255,255,0.12)", cursor:"pointer", position:"relative", transition:"background 0.3s", flexShrink:0 }}
+                >
+                  <div style={{ position:"absolute", top:3, left: calRecurring ? 23 : 3, width:18, height:18, borderRadius:"50%", background:"#fff", transition:"left 0.3s", boxShadow:"0 1px 4px rgba(0,0,0,0.3)" }}/>
+                </div>
+              </div>
+
+              {calRecurring && (
+                <div style={{ marginTop:14 }}>
+                  <label style={{ fontSize:11, color:P.muted, fontWeight:600, display:"block", marginBottom:8 }}>¿CUÁNTOS DÍAS?</label>
+                  <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                    {[3, 5, 7, 10, 14, 21, 30].map(d => (
+                      <button
+                        key={d}
+                        onClick={() => setCalDays(d)}
+                        style={{ background: calDays === d ? `linear-gradient(135deg,${P.p1},${P.p3})` : "rgba(168,85,247,0.1)", border:`1px solid ${calDays === d ? "transparent" : P.border}`, borderRadius:10, padding:"8px 14px", color: calDays === d ? "#fff" : P.txt, fontSize:13, fontWeight:700, cursor:"pointer", transition:"all 0.2s" }}
+                      >
+                        {d}d
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ marginTop:10, fontSize:11, color:"rgba(168,85,247,0.8)", fontWeight:600 }}>
+                    📅 Se crearán {calDays} eventos — del {calDate} a las {calTime}, todos los días
+                  </div>
+                </div>
+              )}
             </div>
 
             {calMsg && (
