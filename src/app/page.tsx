@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 const VisionBoard = dynamic(() => import("@/components/VisionBoard"), { ssr: false });
 import {
   CheckCircle2, Circle, ChevronRight, Trash2,
-  RefreshCw, Monitor, Smartphone, Cloud, Menu, X,
+  RefreshCw, Smartphone, Cloud, Menu, X,
   Send, Sparkles, RotateCcw, GripVertical, Bell, BellOff, CalendarPlus,
 } from "lucide-react";
 
@@ -1019,7 +1019,7 @@ REGLAS GENERALES:
   const maxW = 960;
 
   return (
-    <div style={{ minHeight:"100vh", background:P.bg, fontFamily:"'Poppins',sans-serif", color:P.txt, display:"flex", flexDirection:"column", maxWidth:maxW, margin:"0 auto", position:"relative" }}>
+    <div style={{ minHeight:"100dvh", background:P.bg, fontFamily:"'Poppins',sans-serif", color:P.txt, display:"flex", flexDirection:"column", maxWidth:maxW, margin:"0 auto", position:"relative" }}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg);}}
         @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
@@ -1038,17 +1038,17 @@ REGLAS GENERALES:
       `}</style>
 
       {/* Header */}
-      <header style={{ padding: desktop ? "14px 28px" : "14px 18px", background:"rgba(13,10,26,0.97)", borderBottom:`1px solid ${P.border}`, display:"flex", alignItems:"center", gap:10, position:"sticky", top:0, zIndex:100 }}>
-        <div style={{ flex:1 }}>
-          <div style={{ fontFamily:"'Syne',sans-serif", fontSize: desktop ? 22 : 18, fontWeight:800, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+      <header style={{ padding: desktop ? "14px 28px" : "12px 14px", paddingTop: desktop ? 14 : "calc(12px + env(safe-area-inset-top))", background:"rgba(13,10,26,0.97)", backdropFilter:"blur(10px)", borderBottom:`1px solid ${P.border}`, display:"flex", alignItems:"center", gap: desktop ? 10 : 7, position:"sticky", top:0, zIndex:100 }}>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontFamily:"'Syne',sans-serif", fontSize: desktop ? 22 : 17, fontWeight:800, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
             Conjita&apos;s Dashboard
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:1 }}>
-            <div style={{ fontSize:11, color:P.muted }}>
+            <div style={{ fontSize:11, color:P.muted, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
               {totalT ? `${doneT} de ${totalT} tareas • ${pct}%` : "Escribe tus tareas"}
             </div>
-            {saveStatus === "saving" && <div style={{ fontSize:10, color:P.muted, display:"flex", alignItems:"center", gap:3 }}><RefreshCw size={10} style={{ animation:"spin 0.7s linear infinite" }}/>Guardando</div>}
-            {saveStatus === "saved" && <div style={{ fontSize:10, color:"#86efac", display:"flex", alignItems:"center", gap:3 }}><Cloud size={10}/>Guardado</div>}
+            {saveStatus === "saving" && <div style={{ fontSize:10, color:P.muted, display:"flex", alignItems:"center", gap:3, flexShrink:0 }}><RefreshCw size={10} style={{ animation:"spin 0.7s linear infinite" }}/>Guardando</div>}
+            {saveStatus === "saved" && <div style={{ fontSize:10, color:"#86efac", display:"flex", alignItems:"center", gap:3, flexShrink:0 }}><Cloud size={10}/>Guardado</div>}
           </div>
         </div>
         {/* Botón de notificaciones */}
@@ -1058,8 +1058,8 @@ REGLAS GENERALES:
           style={{
             background: notifStatus === "enabled" ? "linear-gradient(135deg,#9333ea,#db2777)" : "rgba(255,255,255,0.06)",
             border: `1px solid ${notifStatus === "enabled" ? "transparent" : P.border}`,
-            borderRadius: 8, padding: 7, cursor: notifStatus === "denied" ? "not-allowed" : "pointer",
-            display: "flex", alignItems: "center", position: "relative",
+            borderRadius: 10, padding: desktop ? 7 : 9, cursor: notifStatus === "denied" ? "not-allowed" : "pointer",
+            display: "flex", alignItems: "center", position: "relative", flexShrink:0,
             opacity: notifStatus === "unsupported" ? 0.4 : 1,
           }}
         >
@@ -1071,21 +1071,24 @@ REGLAS GENERALES:
             <span style={{ position:"absolute", top:4, right:4, width:6, height:6, borderRadius:"50%", background:"#86efac", boxShadow:"0 0 4px #86efac" }}/>
           )}
         </button>
-        <button onClick={() => setDesktop((d) => !d)} style={{ background:"rgba(255,255,255,0.06)", border:`1px solid ${P.border}`, borderRadius:8, padding:7, color:P.txt, cursor:"pointer", display:"flex", alignItems:"center" }}>
-          {desktop ? <Smartphone size={15}/> : <Monitor size={15}/>}
-        </button>
-        <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:28, padding:3 }}>
+        {/* Toggle vista escritorio — solo visible en escritorio */}
+        {desktop && (
+          <button onClick={() => setDesktop((d) => !d)} style={{ background:"rgba(255,255,255,0.06)", border:`1px solid ${P.border}`, borderRadius:10, padding:7, color:P.txt, cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}>
+            <Smartphone size={15}/>
+          </button>
+        )}
+        <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:28, padding:3, flexShrink:0 }}>
           {([{v:"dashboard",icon:"📊"},{v:"chat",icon:"💬"},{v:"vision",icon:"🌟"}] as const).map(({v,icon}) => (
-            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:22, padding:"5px 11px", color: view===v ? "#fff" : P.muted, fontSize:11, fontWeight:700, cursor:"pointer" }}>{icon}</button>
+            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:22, padding: desktop ? "5px 11px" : "7px 12px", color: view===v ? "#fff" : P.muted, fontSize: desktop ? 11 : 14, fontWeight:700, cursor:"pointer", lineHeight:1 }}>{icon}</button>
           ))}
         </div>
-        <button onClick={() => setMenuOpen((m) => !m)} style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:8, padding:7, color:P.txt, cursor:"pointer" }}>
+        <button onClick={() => setMenuOpen((m) => !m)} style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:10, padding: desktop ? 7 : 9, color:P.txt, cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center" }}>
           {menuOpen ? <X size={16}/> : <Menu size={16}/>}
         </button>
       </header>
 
       {menuOpen && (
-        <div style={{ position:"fixed", top:62, right: desktop ? "calc(50% - 480px + 12px)" : 12, background:"rgba(13,10,26,0.98)", border:`1px solid ${P.border}`, borderRadius:14, padding:8, zIndex:200, minWidth:210, boxShadow:"0 12px 40px rgba(0,0,0,0.8)" }}>
+        <div style={{ position:"fixed", top: desktop ? 62 : "calc(64px + env(safe-area-inset-top))", right: desktop ? "calc(50% - 480px + 12px)" : 12, background:"rgba(13,10,26,0.98)", border:`1px solid ${P.border}`, borderRadius:14, padding:8, zIndex:200, minWidth:210, boxShadow:"0 12px 40px rgba(0,0,0,0.8)" }}>
           <div style={{ padding:"8px 12px 6px", fontSize:10, color:P.muted, fontWeight:700 }}>MEMORIA</div>
           <div style={{ padding:"4px 12px 10px", fontSize:11, color:P.txt, borderBottom:`1px solid ${P.border}` }}>
             💾 Tus tareas se guardan automáticamente.
@@ -1192,7 +1195,7 @@ REGLAS GENERALES:
         </div>
       )}
 
-      <main style={{ flex:1, overflowY: view === "vision" ? "hidden" : "auto", padding: view === "vision" ? 0 : desktop ? "20px 28px 150px" : "14px 14px 130px", display: view === "vision" ? "flex" : "block", flexDirection: "column" }}>
+      <main style={{ flex:1, overflowY: view === "vision" ? "hidden" : "auto", WebkitOverflowScrolling:"touch", padding: view === "vision" ? 0 : desktop ? "20px 28px 150px" : "14px 14px", paddingBottom: view === "vision" ? 0 : desktop ? 150 : "calc(120px + env(safe-area-inset-bottom))", display: view === "vision" ? "flex" : "block", flexDirection: "column" }}>
 
         {/* VISION BOARD */}
         {view === "vision" && <VisionBoard/>}
@@ -1283,7 +1286,7 @@ REGLAS GENERALES:
       </main>
 
       {/* Input bar */}
-      <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:maxW, background:"rgba(13,10,26,0.97)", borderTop:`1px solid ${P.border}`, padding: desktop ? "12px 28px 18px" : "10px 14px 16px", zIndex:100 }}>
+      <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:maxW, background:"rgba(13,10,26,0.97)", backdropFilter:"blur(10px)", borderTop:`1px solid ${P.border}`, padding: desktop ? "12px 28px 18px" : "10px 14px", paddingBottom: desktop ? 18 : "calc(10px + env(safe-area-inset-bottom))", zIndex:100, display: view === "vision" ? "none" : "block" }}>
         <div style={{ display:"flex", gap:8, alignItems:"flex-end" }}>
           <div style={{ flex:1, background:"rgba(255,255,255,0.05)", border:`1px solid ${P.borderHi}`, borderRadius:18, padding:"9px 14px", display:"flex", alignItems:"center", gap:7 }}>
             <Sparkles size={14} color={P.p1}/>

@@ -527,7 +527,7 @@ export default function VisionBoard() {
       )}
 
       {/* ── Canvas ── */}
-      <div ref={scrollRef} style={{ flex:1, overflowY:"auto", overflowX:"hidden", padding: desktop ? "16px 20px 24px" : "10px 10px 20px" }}>
+      <div ref={scrollRef} style={{ flex:1, overflowY:"auto", overflowX:"hidden", WebkitOverflowScrolling:"touch", padding: desktop ? "16px 20px 24px" : "10px 10px 20px", paddingBottom: desktop ? 24 : "calc(20px + env(safe-area-inset-bottom))" }}>
         <div
           ref={boardRef}
           onClick={() => { setSelected(null); setEditingText(null); }}
