@@ -23,7 +23,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-capable" content="yes"/>
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
         <meta name="apple-mobile-web-app-title" content="Conjita"/>
-        <link rel="apple-touch-icon" href="/bunny-icon.svg"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png"/>
         <link rel="icon" href="/bunny-icon.svg" type="image/svg+xml"/>
       </head>
       <body style={{ margin: 0, padding: 0, background: "#0d0a1a" }}>

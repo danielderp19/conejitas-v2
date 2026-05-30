@@ -1,68 +1,118 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Fondo degradado oscuro -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Conejita">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1a0533"/>
-      <stop offset="100%" stop-color="#0f0a1e"/>
+    <radialGradient id="bg" cx="50%" cy="36%" r="78%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="52%" stop-color="#3b1566"/>
+      <stop offset="100%" stop-color="#160a2b"/>
+    </radialGradient>
+    <radialGradient id="moon" cx="38%" cy="32%" r="80%">
+      <stop offset="0%" stop-color="#FFF6D6"/>
+      <stop offset="55%" stop-color="#FFE48A"/>
+      <stop offset="100%" stop-color="#F4C04A"/>
+    </radialGradient>
+    <filter id="moonGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <mask id="cresc">
+      <circle cx="148" cy="142" r="60" fill="#fff"/>
+      <circle cx="178" cy="120" r="52" fill="#000"/>
+    </mask>
+    <radialGradient id="fur" cx="40%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FFFFFF"/><stop offset="48%" stop-color="#F4EBFF"/>
+      <stop offset="80%" stop-color="#E5D5F6"/><stop offset="100%" stop-color="#D2BBEF"/>
+    </radialGradient>
+    <radialGradient id="occ" cx="50%" cy="80%" r="70%">
+      <stop offset="0%" stop-color="#A981D8" stop-opacity="0"/>
+      <stop offset="72%" stop-color="#A981D8" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#9670C9" stop-opacity=".4"/>
+    </radialGradient>
+    <radialGradient id="gloss" cx="42%" cy="18%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".95"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity=".15"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ear" cx="50%" cy="20%" r="90%">
+      <stop offset="0%" stop-color="#FFE0EE"/><stop offset="50%" stop-color="#F7ABCD"/>
+      <stop offset="100%" stop-color="#E879AC"/>
+    </radialGradient>
+    <radialGradient id="eye" cx="38%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#46295F"/><stop offset="60%" stop-color="#291641"/>
+      <stop offset="100%" stop-color="#150A26"/>
+    </radialGradient>
+    <radialGradient id="blush" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF9DBC" stop-opacity=".9"/>
+      <stop offset="100%" stop-color="#FF9DBC" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nose" cx="40%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FF9CBD"/><stop offset="60%" stop-color="#FF6F9C"/>
+      <stop offset="100%" stop-color="#E84C82"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF1C4"/><stop offset="45%" stop-color="#FFD05C"/>
+      <stop offset="100%" stop-color="#E0941A"/>
     </linearGradient>
-    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#c084fc"/>
-      <stop offset="100%" stop-color="#a855f7"/>
-    </linearGradient>
+    <radialGradient id="gem" cx="40%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FFC2DC"/><stop offset="55%" stop-color="#FF6FA5"/>
+      <stop offset="100%" stop-color="#DC4684"/>
+    </radialGradient>
+    <radialGradient id="spark" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#FFE6F4"/>
+    </radialGradient>
+    <filter id="sh" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="11" stdDeviation="11" flood-color="#1a0a30" flood-opacity=".45"/>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
 
-  <!-- Oreja izquierda -->
-  <ellipse cx="175" cy="120" rx="38" ry="88" fill="#a855f7"/>
-  <ellipse cx="175" cy="120" rx="22" ry="68" fill="#ec4899"/>
+  <!-- Fondo morado -->
+  <rect width="512" height="512" fill="url(#bg)"/>
 
-  <!-- Oreja derecha -->
-  <ellipse cx="337" cy="120" rx="38" ry="88" fill="#a855f7"/>
-  <ellipse cx="337" cy="120" rx="22" ry="68" fill="#ec4899"/>
+  <!-- Estrellitas -->
+  <g fill="#FFFFFF">
+    <circle cx="430" cy="120" r="3.5" opacity=".9"/>
+    <circle cx="392" cy="210" r="2.2" opacity=".6"/>
+    <circle cx="96" cy="96" r="2.4" opacity=".55"/>
+    <path d="M442,168 q2.4,6 8,8 q-6,2 -8,8 q-2,-6 -8,-8 q6,-2 8,-8 Z" fill="#FFF3C4" opacity=".9"/>
+    <path d="M86,150 q1.6,4 5.4,5.4 q-4,1.6 -5.4,5.4 q-1.4,-4 -5.4,-5.4 q4,-1.4 5.4,-5.4 Z" fill="#FFFFFF" opacity=".7"/>
+  </g>
 
-  <!-- Cuerpo -->
-  <ellipse cx="256" cy="370" rx="130" ry="115" fill="url(#bodyGrad)"/>
+  <!-- Luna creciente (arriba a la izquierda) -->
+  <g filter="url(#moonGlow)" opacity=".5">
+    <circle cx="148" cy="142" r="60" fill="url(#moon)" mask="url(#cresc)"/>
+  </g>
+  <circle cx="148" cy="142" r="60" fill="url(#moon)" mask="url(#cresc)"/>
 
-  <!-- Cabeza -->
-  <ellipse cx="256" cy="240" rx="105" ry="98" fill="url(#bodyGrad)"/>
+  <!-- Conejita (mascota) centrada -->
+  <g filter="url(#sh)">
+    <g transform="translate(106,150) scale(4.7)">
+      <g transform="translate(25.5,23) rotate(-8)"><g>
+        <path d="M0,1 C-5,-1 -7.5,-9 -6.4,-16.5 C-5.4,-22 -2.2,-25 0,-25 C2.2,-25 5.4,-22 6.4,-16.5 C7.5,-9 5,-1 0,1 Z" fill="url(#fur)" stroke="#3D2257" stroke-width=".7" stroke-opacity=".45"/>
+        <path d="M0,-3 C-3,-5 -5,-10 -4,-15.5 C-3.2,-19.5 -1.2,-22 0,-22 C1.2,-22 3.2,-19.5 4,-15.5 C5,-10 3,-5 0,-3 Z" fill="url(#ear)"/>
+      </g></g>
+      <g transform="translate(38.5,23) rotate(30)"><g>
+        <path d="M0,1 C-5,-1 -7.5,-9 -6.4,-16.5 C-5.4,-22 -2.2,-25 0,-25 C2.2,-25 5.4,-22 6.4,-16.5 C7.5,-9 5,-1 0,1 Z" fill="url(#fur)" stroke="#3D2257" stroke-width=".7" stroke-opacity=".45"/>
+        <path d="M0,-3 C-3,-5 -5,-10 -4,-15.5 C-3.2,-19.5 -1.2,-22 0,-22 C1.2,-22 3.2,-19.5 4,-15.5 C5,-10 3,-5 0,-3 Z" fill="url(#ear)"/>
+      </g></g>
+      <path d="M32,19 C20.5,18 13.5,26 13.5,36 C13.5,46 22,53.5 32,53.5 C42,53.5 50.5,46 50.5,36 C50.5,26 43.5,18 32,19 Z" fill="url(#fur)" stroke="#3D2257" stroke-width=".8" stroke-opacity=".5"/>
+      <path d="M32,19 C20.5,18 13.5,26 13.5,36 C13.5,46 22,53.5 32,53.5 C42,53.5 50.5,46 50.5,36 C50.5,26 43.5,18 32,19 Z" fill="url(#occ)"/>
+      <path d="M32,21 C23.5,21 17.5,26 16.5,32 C23.5,27 40.5,27 47.5,32 C46.5,26 40.5,21 32,21 Z" fill="url(#gloss)"/>
+      <ellipse cx="22.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush)"/>
+      <ellipse cx="41.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush)"/>
+      <ellipse cx="26" cy="35.5" rx="3.7" ry="4.7" fill="url(#eye)"/>
+      <circle cx="24.74" cy="33.8" r="1.55" fill="#fff"/><circle cx="27.33" cy="36.9" r="0.74" fill="#fff" opacity=".8"/>
+      <ellipse cx="38" cy="35.5" rx="3.7" ry="4.7" fill="url(#eye)"/>
+      <circle cx="36.74" cy="33.8" r="1.55" fill="#fff"/><circle cx="39.33" cy="36.9" r="0.74" fill="#fff" opacity=".8"/>
+      <path d="M32,43.2 C30.9,42.1 30,41.6 30,40.5 C30,39.4 31.1,39.2 32,40.2 C32.9,39.2 34,39.4 34,40.5 C34,41.6 33.1,42.1 32,43.2 Z" fill="url(#nose)"/>
+      <path d="M29.4,45 Q32,47.4 34.6,45" stroke="#3D2257" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <g transform="translate(32,18) scale(0.24)">
+        <path d="M -30,12 Q -33,-2 -22,-14 Q -16,-2 -9,-12 Q -2,-26 0,-26 Q 2,-26 9,-12 Q 16,-2 22,-14 Q 33,-2 30,12 Z" fill="url(#gold)" stroke="#C97E12" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="-22" cy="-15" r="3.6" fill="url(#gem)"/>
+        <circle cx="22" cy="-15" r="3.6" fill="url(#gem)"/>
+        <circle cx="0" cy="-24" r="5" fill="url(#gem)"/>
+      </g>
+    </g>
+  </g>
 
-  <!-- Mejillas -->
-  <ellipse cx="205" cy="268" rx="22" ry="14" fill="rgba(236,72,153,0.45)"/>
-  <ellipse cx="307" cy="268" rx="22" ry="14" fill="rgba(236,72,153,0.45)"/>
-
-  <!-- Ojos blancos -->
-  <ellipse cx="225" cy="235" rx="18" ry="20" fill="white"/>
-  <ellipse cx="287" cy="235" rx="18" ry="20" fill="white"/>
-
-  <!-- Pupilas -->
-  <circle cx="229" cy="238" r="11" fill="#1a0533"/>
-  <circle cx="291" cy="238" r="11" fill="#1a0533"/>
-
-  <!-- Brillos ojos -->
-  <circle cx="233" cy="233" r="4" fill="white"/>
-  <circle cx="295" cy="233" r="4" fill="white"/>
-
-  <!-- Nariz -->
-  <ellipse cx="256" cy="265" rx="10" ry="8" fill="#ec4899"/>
-
-  <!-- Boca -->
-  <path d="M244 275 Q256 287 268 275" stroke="#ec4899" stroke-width="3" fill="none" stroke-linecap="round"/>
-
-  <!-- Patitas -->
-  <ellipse cx="200" cy="462" rx="42" ry="22" fill="#c084fc"/>
-  <ellipse cx="312" cy="462" rx="42" ry="22" fill="#c084fc"/>
-
-  <!-- Bracitos -->
-  <ellipse cx="148" cy="365" rx="26" ry="42" fill="#c084fc" transform="rotate(-20 148 365)"/>
-  <ellipse cx="364" cy="365" rx="26" ry="42" fill="#c084fc" transform="rotate(20 364 365)"/>
-
-  <!-- Colita -->
-  <ellipse cx="256" cy="468" rx="20" ry="16" fill="white" opacity="0.85"/>
-
-  <!-- Estrellitas decorativas -->
-  <circle cx="410" cy="80" r="5" fill="#f0e6ff" opacity="0.8"/>
-  <circle cx="430" cy="65" r="3" fill="#ec4899" opacity="0.9"/>
-  <circle cx="390" cy="60" r="4" fill="#c084fc" opacity="0.7"/>
-  <circle cx="100" cy="80" r="4" fill="#f0e6ff" opacity="0.7"/>
-  <circle cx="82" cy="62" r="3" fill="#ec4899" opacity="0.8"/>
+  <!-- chispitas -->
+  <path d="M392,300 q3,8 10,10 q-7,2 -10,10 q-3,-8 -10,-10 q7,-2 10,-10 Z" fill="url(#spark)" opacity=".85"/>
+  <path d="M120,330 q2,5 7,7 q-5,2 -7,7 q-2,-5 -7,-7 q5,-2 7,-7 Z" fill="url(#spark)" opacity=".7"/>
 </svg>
