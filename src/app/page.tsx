@@ -1351,14 +1351,15 @@ REGLAS GENERALES:
             borderRadius:24, padding:"14px 22px",
             display:"flex", alignItems:"center", gap:14,
             boxShadow:"0 8px 40px rgba(168,85,247,0.35)",
-            animation:"slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            animation:"toastBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both",
             cursor:"pointer", maxWidth: 300, width:"calc(100% - 40px)",
+            willChange:"transform, opacity",
           }}
         >
           <img
             src="https://media.tenor.com/AXJ16vpJy98AAAAj/danci-dancing-cat.gif"
             alt="dancing cat"
-            style={{ width:64, height:64, borderRadius:14, flexShrink:0 }}
+            style={{ width:64, height:64, borderRadius:14, flexShrink:0, objectFit:"cover", background:"rgba(168,85,247,0.15)" }}
           />
           <div>
             <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, color:"#f0e6ff", fontSize:14, marginBottom:3 }}>
@@ -1730,7 +1731,7 @@ REGLAS GENERALES:
           <span style={{ fontSize:12, fontWeight:600, color:"#fff", lineHeight:1.4 }}>{toast}</span>
         </div>
       )}
-      <style>{`@keyframes slideInDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}} @keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}`}</style>
+      <style>{`@keyframes slideInDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
 
       {/* Toast motivacional — una vez cada 8 días */}
       {showMotivation && (() => {
@@ -1757,7 +1758,8 @@ REGLAS GENERALES:
             borderRadius:20, padding:"16px 20px",
             maxWidth:"calc(100vw - 32px)", width:360,
             boxShadow:"0 8px 40px rgba(147,51,234,0.45)",
-            animation:"fadeInUp 0.5s cubic-bezier(0.34,1.56,0.64,1)",
+            animation:"toastBounce 0.5s cubic-bezier(0.34,1.56,0.64,1) both",
+            willChange:"transform, opacity",
             cursor:"pointer", zIndex:250,
             display:"flex", flexDirection:"column", alignItems:"center", gap:10,
           }}
