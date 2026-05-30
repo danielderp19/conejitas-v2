@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="calendar-add"><defs>
+    <radialGradient id="fur_calendaradd" cx="40%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="48%" stop-color="#F4EBFF"></stop>
+      <stop offset="80%" stop-color="#E5D5F6"></stop><stop offset="100%" stop-color="#D2BBEF"></stop>
+    </radialGradient>
+    <radialGradient id="occ_calendaradd" cx="50%" cy="80%" r="70%">
+      <stop offset="0%" stop-color="#A981D8" stop-opacity="0"></stop>
+      <stop offset="72%" stop-color="#A981D8" stop-opacity="0"></stop>
+      <stop offset="100%" stop-color="#9670C9" stop-opacity=".4"></stop>
+    </radialGradient>
+    <radialGradient id="gloss_calendaradd" cx="42%" cy="18%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".95"></stop>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity=".15"></stop>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id="ear_calendaradd" cx="50%" cy="20%" r="90%">
+      <stop offset="0%" stop-color="#FFE0EE"></stop><stop offset="50%" stop-color="#F7ABCD"></stop>
+      <stop offset="100%" stop-color="#E879AC"></stop>
+    </radialGradient>
+    <radialGradient id="eye_calendaradd" cx="38%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#46295F"></stop><stop offset="60%" stop-color="#291641"></stop>
+      <stop offset="100%" stop-color="#150A26"></stop>
+    </radialGradient>
+    <radialGradient id="blush_calendaradd" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF9DBC" stop-opacity=".9"></stop>
+      <stop offset="100%" stop-color="#FF9DBC" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id="nose_calendaradd" cx="40%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FF9CBD"></stop><stop offset="60%" stop-color="#FF6F9C"></stop>
+      <stop offset="100%" stop-color="#E84C82"></stop>
+    </radialGradient>
+    <linearGradient id="gold_calendaradd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF1C4"></stop><stop offset="45%" stop-color="#FFD05C"></stop>
+      <stop offset="100%" stop-color="#E0941A"></stop>
+    </linearGradient>
+    <radialGradient id="gem_calendaradd" cx="40%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FFC2DC"></stop><stop offset="55%" stop-color="#FF6FA5"></stop>
+      <stop offset="100%" stop-color="#DC4684"></stop>
+    </radialGradient>
+    <linearGradient id="acc_calendaradd" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A24BF0"></stop><stop offset="100%" stop-color="#E0468C"></stop>
+    </linearGradient>
+    <linearGradient id="accHi_calendaradd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".85"></stop>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"></stop>
+    </linearGradient>
+    <radialGradient id="spark_calendaradd" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="100%" stop-color="#FFE6F4"></stop>
+    </radialGradient>
+    <radialGradient id="gemHi_calendaradd" cx="40%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#FFD0E2"></stop><stop offset="45%" stop-color="#FF4D8D"></stop>
+      <stop offset="100%" stop-color="#C9165C"></stop>
+    </radialGradient>
+    <radialGradient id="gemLo_calendaradd" cx="40%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#F0E4FF"></stop><stop offset="50%" stop-color="#C9A8F0"></stop>
+      <stop offset="100%" stop-color="#9E78CF"></stop>
+    </radialGradient>
+    <filter id="sh_calendaradd" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.4" stdDeviation="1.4" flood-color="#3a1d5e" flood-opacity=".30"></feDropShadow>
+    </filter>
+    <filter id="glw_calendaradd" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.6"></feGaussianBlur>
+    </filter>
+  </defs><path d="M15,21 L49,21 Q51,21 51,23 L51,47 Q51,49 49,49 L15,49 Q13,49 13,47 L13,23 Q13,21 15,21 Z" fill="url(#acc_calendaradd)" stroke="#7a2ba8" stroke-width="1" stroke-opacity=".4" filter="url(#sh_calendaradd)"></path><rect x="13" y="21" width="38" height="9" rx="2" fill="#6e2699" fill-opacity=".5"></rect>
+        <rect x="20.3" y="15" width="3.6" height="9.5" rx="1.8" fill="url(#acc_calendaradd)" filter="url(#sh_calendaradd)"></rect>
+        <rect x="40.1" y="15" width="3.6" height="9.5" rx="1.8" fill="url(#acc_calendaradd)" filter="url(#sh_calendaradd)"></rect>
+        <g stroke="#fff" stroke-width="2.8" stroke-linecap="round"><line x1="32" y1="34" x2="32" y2="44"></line><line x1="27" y1="39" x2="37" y2="39"></line></g></svg>

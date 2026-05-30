@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="drag"><defs>
+    <radialGradient id="fur_drag" cx="40%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="48%" stop-color="#F4EBFF"></stop>
+      <stop offset="80%" stop-color="#E5D5F6"></stop><stop offset="100%" stop-color="#D2BBEF"></stop>
+    </radialGradient>
+    <radialGradient id="occ_drag" cx="50%" cy="80%" r="70%">
+      <stop offset="0%" stop-color="#A981D8" stop-opacity="0"></stop>
+      <stop offset="72%" stop-color="#A981D8" stop-opacity="0"></stop>
+      <stop offset="100%" stop-color="#9670C9" stop-opacity=".4"></stop>
+    </radialGradient>
+    <radialGradient id="gloss_drag" cx="42%" cy="18%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".95"></stop>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity=".15"></stop>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id="ear_drag" cx="50%" cy="20%" r="90%">
+      <stop offset="0%" stop-color="#FFE0EE"></stop><stop offset="50%" stop-color="#F7ABCD"></stop>
+      <stop offset="100%" stop-color="#E879AC"></stop>
+    </radialGradient>
+    <radialGradient id="eye_drag" cx="38%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#46295F"></stop><stop offset="60%" stop-color="#291641"></stop>
+      <stop offset="100%" stop-color="#150A26"></stop>
+    </radialGradient>
+    <radialGradient id="blush_drag" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF9DBC" stop-opacity=".9"></stop>
+      <stop offset="100%" stop-color="#FF9DBC" stop-opacity="0"></stop>
+    </radialGradient>
+    <radialGradient id="nose_drag" cx="40%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FF9CBD"></stop><stop offset="60%" stop-color="#FF6F9C"></stop>
+      <stop offset="100%" stop-color="#E84C82"></stop>
+    </radialGradient>
+    <linearGradient id="gold_drag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF1C4"></stop><stop offset="45%" stop-color="#FFD05C"></stop>
+      <stop offset="100%" stop-color="#E0941A"></stop>
+    </linearGradient>
+    <radialGradient id="gem_drag" cx="40%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FFC2DC"></stop><stop offset="55%" stop-color="#FF6FA5"></stop>
+      <stop offset="100%" stop-color="#DC4684"></stop>
+    </radialGradient>
+    <linearGradient id="acc_drag" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A24BF0"></stop><stop offset="100%" stop-color="#E0468C"></stop>
+    </linearGradient>
+    <linearGradient id="accHi_drag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".85"></stop>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"></stop>
+    </linearGradient>
+    <radialGradient id="spark_drag" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF"></stop><stop offset="100%" stop-color="#FFE6F4"></stop>
+    </radialGradient>
+    <radialGradient id="gemHi_drag" cx="40%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#FFD0E2"></stop><stop offset="45%" stop-color="#FF4D8D"></stop>
+      <stop offset="100%" stop-color="#C9165C"></stop>
+    </radialGradient>
+    <radialGradient id="gemLo_drag" cx="40%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#F0E4FF"></stop><stop offset="50%" stop-color="#C9A8F0"></stop>
+      <stop offset="100%" stop-color="#9E78CF"></stop>
+    </radialGradient>
+    <filter id="sh_drag" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.4" stdDeviation="1.4" flood-color="#3a1d5e" flood-opacity=".30"></feDropShadow>
+    </filter>
+    <filter id="glw_drag" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.6"></feGaussianBlur>
+    </filter>
+  </defs><circle cx="26" cy="21" r="3.4" fill="url(#acc_drag)" filter="url(#sh_drag)"></circle><circle cx="25" cy="19.8" r="1.1" fill="#fff" opacity=".6"></circle><circle cx="38" cy="21" r="3.4" fill="url(#acc_drag)" filter="url(#sh_drag)"></circle><circle cx="37" cy="19.8" r="1.1" fill="#fff" opacity=".6"></circle><circle cx="26" cy="33" r="3.4" fill="url(#acc_drag)" filter="url(#sh_drag)"></circle><circle cx="25" cy="31.8" r="1.1" fill="#fff" opacity=".6"></circle><circle cx="38" cy="33" r="3.4" fill="url(#acc_drag)" filter="url(#sh_drag)"></circle><circle cx="37" cy="31.8" r="1.1" fill="#fff" opacity=".6"></circle><circle cx="26" cy="45" r="3.4" fill="url(#acc_drag)" filter="url(#sh_drag)"></circle><circle cx="25" cy="43.8" r="1.1" fill="#fff" opacity=".6"></circle><circle cx="38" cy="45" r="3.4" fill="url(#acc_drag)" filter="url(#sh_drag)"></circle><circle cx="37" cy="43.8" r="1.1" fill="#fff" opacity=".6"></circle></svg>
