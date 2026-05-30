@@ -8,7 +8,7 @@ import {
   SaveCloudIcon, MenuIcon, CloseIcon, SendIcon, SparkleIcon, ResetIcon,
   DragIcon, BellOnIcon, BellOffIcon, CalendarAddIcon,
   TabDashboardIcon, TabChatIcon, TabVisionIcon,
-  PriorityHighIcon, PriorityMediumIcon, PriorityLowIcon,
+  PriorityHighIcon,
   WorkIcon, StudyIcon, HealthIcon, FitnessIcon, PersonalIcon, ShoppingIcon,
   FinanceIcon, TravelIcon, CreativeIcon, HomeIcon,
   MascotBunnyIcon, EmptyStateIcon, CompleteCelebrationIcon,
@@ -76,6 +76,16 @@ interface TreeNode {
   priority?: Priority;
 }
 
+const PRIORITY_COLORS: Record<string, string> = {
+  high:   "#ef4444",
+  medium: "#f59e0b",
+  low:    "#22c55e",
+};
+const PRIORITY_GLOW: Record<string, string> = {
+  high:   "0 0 8px #ef4444, 0 0 16px rgba(239,68,68,0.4)",
+  medium: "0 0 8px #f59e0b, 0 0 16px rgba(245,158,11,0.4)",
+  low:    "0 0 8px #22c55e, 0 0 16px rgba(34,197,94,0.4)",
+};
 const PRIORITY_CYCLE: Priority[] = ["high", "medium", "low", null];
 const nextPriority = (p: Priority): Priority => PRIORITY_CYCLE[(PRIORITY_CYCLE.indexOf(p) + 1) % PRIORITY_CYCLE.length];
 
@@ -228,9 +238,9 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
         onClick={() => hasKids && onExpand(node.id)}
         style={{
           background: isDone ? "rgba(134,239,172,0.1)" : isComplete ? "rgba(168,85,247,0.2)" : lvlGrad(node.level),
-          borderRadius: 12,
-          padding: desktop ? "11px 15px" : "9px 12px",
-          display: "flex", alignItems: "center", gap: 7,
+          borderRadius: 14,
+          padding: desktop ? "10px 14px" : "8px 11px",
+          display: "flex", alignItems: "center", gap: desktop ? 9 : 7,
           cursor: hasKids ? "pointer" : "default",
           opacity: isDone ? 0.65 : 1,
           border: isDragOver ? "1px solid rgba(168,85,247,0.9)" : isDone ? "1px solid rgba(134,239,172,0.4)" : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
@@ -247,7 +257,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
             e.dataTransfer.effectAllowed = "move";
           }}
           onClick={(e) => e.stopPropagation()}
-          style={{ cursor:"grab", flexShrink:0, display:"flex", alignItems:"center", opacity:0.45, touchAction:"none" }}
+          style={{ cursor:"grab", flexShrink:0, display:"flex", alignItems:"center", opacity:0.3, touchAction:"none" }}
           onTouchStart={(e) => {
             e.stopPropagation();
             (e.currentTarget as HTMLElement).setAttribute("data-touch-drag", node.id);
@@ -266,24 +276,26 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
           style={{ background:"none", border:"none", padding:2, cursor:"pointer", flexShrink:0, lineHeight:0, display:"flex", alignItems:"center" }}
         >
           {isDone
-            ? <CheckDoneIcon size={30} style={{ animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>
-            : <CheckEmptyIcon size={30}/>
+            ? <CheckDoneIcon size={34} style={{ animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>
+            : <CheckEmptyIcon size={34}/>
           }
         </button>
-        {/* Semáforo de prioridad */}
+        {/* Semáforo de prioridad — punto de color brillante (estilo clásico) */}
         <button
           onClick={(e) => { e.stopPropagation(); onPriority(node.id); }}
           title={node.priority === "high" ? "Alta prioridad" : node.priority === "medium" ? "Media prioridad" : node.priority === "low" ? "Baja prioridad" : "Sin prioridad"}
-          style={{ background:"none", border:"none", padding:"2px 3px", cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center" }}
+          style={{ background:"none", border:"none", padding:"2px 4px", cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center" }}
         >
-          {node.priority === "high"
-            ? <span style={{ display:"flex", animation: !isDone ? "breathe 1.6s ease-in-out infinite" : "none" }}><PriorityHighIcon size={18}/></span>
-            : node.priority === "medium"
-            ? <PriorityMediumIcon size={18}/>
-            : node.priority === "low"
-            ? <PriorityLowIcon size={18}/>
-            : <div style={{ width: 11, height: 11, borderRadius:"50%", background:"rgba(255,255,255,0.18)", border:"1px solid rgba(255,255,255,0.2)" }}/>
-          }
+          <div style={{
+            width: 11, height: 11, borderRadius:"50%",
+            background: node.priority ? PRIORITY_COLORS[node.priority] : "rgba(255,255,255,0.18)",
+            boxShadow: node.priority ? PRIORITY_GLOW[node.priority] : "none",
+            border: node.priority ? "none" : "1px solid rgba(255,255,255,0.25)",
+            transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+            ...(node.priority === "high" && !isDone
+              ? { ["--pc" as string]: PRIORITY_COLORS.high, animation: "priorityPulse 1.8s ease-in-out infinite" }
+              : {}),
+          }}/>
         </button>
 
         <div style={{ flex:1, minWidth:0 }}>
@@ -305,21 +317,20 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
           <button
             onClick={(e) => { e.stopPropagation(); onSchedule(node); }}
             title="Agendar en Google Calendar"
-            style={{ background: scheduled[node.id] ? "rgba(52,211,153,0.25)" : "rgba(66,133,244,0.2)", border:"none", borderRadius:6, padding:"6px 8px", cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
+            style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:9, padding:"5px 6px", cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
           >
             {scheduled[node.id]
-              ? <span style={{ fontSize:12 }}>✅</span>
-              : <CalendarAddIcon size={18}/>
+              ? <span style={{ fontSize:14 }}>✅</span>
+              : <CalendarAddIcon size={22}/>
             }
           </button>
         )}
         <button
           onClick={(e) => { e.stopPropagation(); if (window.confirm("¿Eliminar esta tarea?")) onDelete(node.id); }}
-          style={{ background:"rgba(239,68,68,0.3)", border:"none", borderRadius:6, padding:"6px 8px", cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.5)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.3)"; }}
+          title="Eliminar tarea"
+          style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:9, padding:"5px 6px", cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
         >
-          <DeleteIcon size={18}/>
+          <DeleteIcon size={22}/>
         </button>
       </div>
       {isExp && hasKids && (
