@@ -238,17 +238,17 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
       <div
         onClick={() => hasKids && onExpand(node.id)}
         style={{
-          // Completado: tarea principal = tarjeta verde celebratoria; subtarea = solo tachado gris (sin verde)
-          background: isDone ? (isMain ? "linear-gradient(135deg,rgba(52,211,153,0.32),rgba(34,197,94,0.14))" : "rgba(255,255,255,0.02)") : isComplete ? "rgba(168,85,247,0.2)" : lvlGrad(node.level),
+          // Completado: tarea principal = verde; subtarea = morado/lila (acorde a la app)
+          background: isDone ? (isMain ? "rgba(134,239,172,0.1)" : "rgba(168,85,247,0.15)") : isComplete ? "rgba(168,85,247,0.2)" : lvlGrad(node.level),
           borderRadius: 14,
           padding: desktop ? "8px 12px 8px 10px" : "6px 8px 6px 8px",
           display: "flex", alignItems: "center", gap: 4,
           cursor: hasKids ? "pointer" : "default",
-          opacity: isDone ? (isMain ? 1 : 0.5) : 1,
-          border: isDragOver ? "1px solid rgba(168,85,247,0.9)" : isDone ? (isMain ? "1px solid rgba(52,211,153,0.7)" : "1px solid rgba(255,255,255,0.06)") : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
-          // Borde izquierdo: prioridad (pendiente) o verde grueso solo en tarea principal completada
-          borderLeft: `${isDone && isMain ? 5 : 4}px solid ${isDone ? (isMain ? "#34d399" : "transparent") : (node.priority ? PRIORITY_COLORS[node.priority] : "transparent")}`,
-          boxShadow: isDone && isMain ? "0 4px 18px rgba(52,211,153,0.22)" : node.priority === "high" && !isDone ? `inset 3px 0 8px -2px ${PRIORITY_COLORS.high}` : "none",
+          opacity: isDone ? 0.7 : 1,
+          border: isDragOver ? "1px solid rgba(168,85,247,0.9)" : isDone ? (isMain ? "1px solid rgba(134,239,172,0.4)" : "1px solid rgba(168,85,247,0.5)") : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
+          // Borde izquierdo = prioridad de un vistazo (solo pendientes)
+          borderLeft: `4px solid ${node.priority && !isDone ? PRIORITY_COLORS[node.priority] : "transparent"}`,
+          boxShadow: node.priority === "high" && !isDone ? `inset 3px 0 8px -2px ${PRIORITY_COLORS.high}` : "none",
           transition: "opacity 0.3s, border-color 0.2s, background 0.3s",
           animation: popping ? "pop 0.35s ease" : `slideInStagger 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${node.level * 0.08}s both`,
         }}
@@ -264,22 +264,15 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
           style={{ background:"none", border:"none", padding:0, margin:0, cursor:"pointer", flexShrink:0, lineHeight:0, display:"flex", alignItems:"center", justifyContent:"center", width: isMain ? 44 : 38, height: isMain ? 44 : 38 }}
         >
           {isDone
-            ? (isMain
-                ? <CompleteCelebrationIcon size={36} style={{ animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>
-                : <CheckDoneIcon size={24} style={{ opacity:0.7, animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>)
-            : <CheckEmptyIcon size={isMain ? 32 : 26}/>
+            ? <CheckDoneIcon size={32} style={{ animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>
+            : <CheckEmptyIcon size={32}/>
           }
         </button>
 
         <div style={{ flex:1, minWidth:0 }}>
-          <p style={{ margin:0, fontSize: isMain ? (desktop ? 13.5 : 13) : (desktop ? 12.5 : 12), fontWeight: isDone ? (isMain ? 800 : 400) : 600, color: isDone ? (isMain ? "#5eead4" : "rgba(240,230,255,0.38)") : "#fff", textDecoration: isDone ? "line-through" : "none", textDecorationColor: isDone ? (isMain ? "rgba(94,234,212,0.6)" : "rgba(240,230,255,0.35)") : undefined, whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.4, transition:"color 0.3s, text-decoration 0.3s" }}>
+          <p style={{ margin:0, fontSize: desktop ? 13 : 12.5, fontWeight:600, color: isDone ? (isMain ? "#86efac" : "#c792ff") : "#fff", textDecoration: isDone ? "line-through" : "none", whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.4, transition:"color 0.3s, text-decoration 0.3s" }}>
             {node.title}
           </p>
-          {isDone && isMain && (
-            <span style={{ display:"inline-flex", alignItems:"center", gap:4, marginTop:4, fontSize:9.5, fontWeight:800, color:"#0d0a1a", background:"linear-gradient(135deg,#34d399,#5eead4)", borderRadius:20, padding:"3px 9px", letterSpacing:"0.04em", boxShadow:"0 0 10px rgba(52,211,153,0.5)" }}>
-              ✓ ¡COMPLETADA!
-            </span>
-          )}
           {hasKids && (
             <div style={{ height:3, background:"rgba(0,0,0,0.25)", borderRadius:4, marginTop:4, overflow:"hidden" }}>
               <div className="progress-bar" style={{ height:"100%", width:`${lPct}%`, background: isComplete ? "linear-gradient(90deg,#86efac,#34d399)" : "rgba(255,255,255,0.7)", borderRadius:4 }}/>
