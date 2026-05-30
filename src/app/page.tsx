@@ -255,7 +255,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
       >
         {/* Chevron de expandir (solo padres) */}
         {hasKids && (
-          <div style={{ transform: isExp ? "rotate(90deg)" : "rotate(0)", flexShrink:0, transition:"transform 0.25s ease", display:"flex", opacity:0.7 }}><ExpandIcon size={15}/></div>
+          <div style={{ transform: isExp ? "rotate(90deg)" : "rotate(0)", flexShrink:0, transition:"transform 0.25s ease", display:"flex", alignItems:"center", justifyContent:"center", width:30, height:38, opacity:0.85 }}><ExpandIcon size={24}/></div>
         )}
         {/* Check completar */}
         <button
