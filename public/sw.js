@@ -1,4 +1,4 @@
-const CACHE = "conjita-v5";
+const CACHE = "conjita-v6";
 const STATIC = ["/manifest.json", "/bunny-icon.svg"];
 
 self.addEventListener("install", (e) => {

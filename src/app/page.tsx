@@ -238,16 +238,16 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
       <div
         onClick={() => hasKids && onExpand(node.id)}
         style={{
-          // Completado: tarea principal = verde; subtarea = morado/lila (acorde a la app)
-          background: isDone ? (isMain ? "rgba(134,239,172,0.1)" : "rgba(168,85,247,0.15)") : isComplete ? "rgba(168,85,247,0.2)" : lvlGrad(node.level),
+          // Completado: tarea principal = verde; subtarea = rosa (contrasta con el morado del tema)
+          background: isDone ? (isMain ? "rgba(52,211,153,0.18)" : "rgba(236,72,153,0.22)") : isComplete ? "rgba(168,85,247,0.2)" : lvlGrad(node.level),
           borderRadius: 14,
           padding: desktop ? "8px 12px 8px 10px" : "6px 8px 6px 8px",
           display: "flex", alignItems: "center", gap: 4,
           cursor: hasKids ? "pointer" : "default",
-          opacity: isDone ? 0.7 : 1,
-          border: isDragOver ? "1px solid rgba(168,85,247,0.9)" : isDone ? (isMain ? "1px solid rgba(134,239,172,0.4)" : "1px solid rgba(168,85,247,0.5)") : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
-          // Borde izquierdo = prioridad de un vistazo (solo pendientes)
-          borderLeft: `4px solid ${node.priority && !isDone ? PRIORITY_COLORS[node.priority] : "transparent"}`,
+          opacity: isDone ? 0.92 : 1,
+          border: isDragOver ? "1px solid rgba(168,85,247,0.9)" : isDone ? (isMain ? "1px solid rgba(52,211,153,0.55)" : "1px solid rgba(236,72,153,0.6)") : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
+          // Borde izquierdo: prioridad (pendiente) o color de completado (verde principal / rosa subtarea)
+          borderLeft: `4px solid ${isDone ? (isMain ? "#34d399" : "#ec4899") : (node.priority ? PRIORITY_COLORS[node.priority] : "transparent")}`,
           boxShadow: node.priority === "high" && !isDone ? `inset 3px 0 8px -2px ${PRIORITY_COLORS.high}` : "none",
           transition: "opacity 0.3s, border-color 0.2s, background 0.3s",
           animation: popping ? "pop 0.35s ease" : `slideInStagger 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${node.level * 0.08}s both`,
@@ -270,7 +270,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
         </button>
 
         <div style={{ flex:1, minWidth:0 }}>
-          <p style={{ margin:0, fontSize: desktop ? 13 : 12.5, fontWeight:600, color: isDone ? (isMain ? "#86efac" : "#c792ff") : "#fff", textDecoration: isDone ? "line-through" : "none", whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.4, transition:"color 0.3s, text-decoration 0.3s" }}>
+          <p style={{ margin:0, fontSize: desktop ? 13 : 12.5, fontWeight:600, color: isDone ? (isMain ? "#86efac" : "#f9a8d4") : "#fff", textDecoration: isDone ? "line-through" : "none", whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.4, transition:"color 0.3s, text-decoration 0.3s" }}>
             {node.title}
           </p>
           {hasKids && (
@@ -1832,7 +1832,7 @@ REGLAS GENERALES:
 
       {/* Version tag */}
       <div style={{ position:"fixed", bottom:8, right:10, fontSize:10, color:"rgba(240,230,255,0.25)", pointerEvents:"none", zIndex:9 }}>
-        v1.4
+        v1.5
       </div>
     </div>
   );
