@@ -6,7 +6,7 @@ const VisionBoard = dynamic(() => import("@/components/VisionBoard"), { ssr: fal
 import {
   CheckDoneIcon, CheckEmptyIcon, ExpandIcon, DeleteIcon, RefreshIcon,
   SaveCloudIcon, MenuIcon, CloseIcon, SendIcon, SparkleIcon, ResetIcon,
-  DragIcon, BellOnIcon, BellOffIcon, CalendarAddIcon,
+  BellOnIcon, BellOffIcon, CalendarAddIcon,
   TabDashboardIcon, TabChatIcon, TabVisionIcon,
   PriorityHighIcon,
   WorkIcon, StudyIcon, HealthIcon, FitnessIcon, PersonalIcon, ShoppingIcon,
@@ -239,67 +239,36 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
         style={{
           background: isDone ? "rgba(134,239,172,0.1)" : isComplete ? "rgba(168,85,247,0.2)" : lvlGrad(node.level),
           borderRadius: 14,
-          padding: desktop ? "10px 14px" : "8px 11px",
-          display: "flex", alignItems: "center", gap: desktop ? 9 : 7,
+          padding: desktop ? "8px 12px 8px 10px" : "6px 8px 6px 8px",
+          display: "flex", alignItems: "center", gap: 4,
           cursor: hasKids ? "pointer" : "default",
           opacity: isDone ? 0.65 : 1,
           border: isDragOver ? "1px solid rgba(168,85,247,0.9)" : isDone ? "1px solid rgba(134,239,172,0.4)" : isComplete ? `1px solid ${P.p1}` : "1px solid rgba(255,255,255,0.1)",
+          // Borde izquierdo = prioridad de un vistazo
+          borderLeft: `4px solid ${node.priority && !isDone ? PRIORITY_COLORS[node.priority] : "transparent"}`,
+          boxShadow: node.priority === "high" && !isDone ? `inset 3px 0 8px -2px ${PRIORITY_COLORS.high}` : "none",
           transition: "opacity 0.3s, border-color 0.2s, background 0.3s",
           animation: popping ? "pop 0.35s ease" : `slideInStagger 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${node.level * 0.08}s both`,
         }}
       >
-        {/* Grip handle */}
-        <div
-          draggable
-          onDragStart={(e) => {
-            e.stopPropagation();
-            e.dataTransfer.setData("text/plain", node.id);
-            e.dataTransfer.effectAllowed = "move";
-          }}
-          onClick={(e) => e.stopPropagation()}
-          style={{ cursor:"grab", flexShrink:0, display:"flex", alignItems:"center", opacity:0.3, touchAction:"none" }}
-          onTouchStart={(e) => {
-            e.stopPropagation();
-            (e.currentTarget as HTMLElement).setAttribute("data-touch-drag", node.id);
-          }}
-        >
-          <DragIcon size={16}/>
-        </div>
-
-        {hasKids
-          ? <div style={{ transform: isExp ? "rotate(90deg)" : "rotate(0)", flexShrink:0, transition:"transform 0.25s ease", display:"flex" }}><ExpandIcon size={16}/></div>
-          : <div style={{ width:14, flexShrink:0 }}/>
-        }
+        {/* Chevron de expandir (solo padres) */}
+        {hasKids && (
+          <div style={{ transform: isExp ? "rotate(90deg)" : "rotate(0)", flexShrink:0, transition:"transform 0.25s ease", display:"flex", opacity:0.7 }}><ExpandIcon size={15}/></div>
+        )}
+        {/* Check completar */}
         <button
           onClick={(e) => { e.stopPropagation(); onToggle(node.id); }}
           title={isDone ? "Marcar como pendiente" : "Marcar como completada"}
-          style={{ background:"none", border:"none", padding:2, cursor:"pointer", flexShrink:0, lineHeight:0, display:"flex", alignItems:"center" }}
+          style={{ background:"none", border:"none", padding:0, margin:0, cursor:"pointer", flexShrink:0, lineHeight:0, display:"flex", alignItems:"center", justifyContent:"center", width:44, height:44 }}
         >
           {isDone
-            ? <CheckDoneIcon size={34} style={{ animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>
-            : <CheckEmptyIcon size={34}/>
+            ? <CheckDoneIcon size={32} style={{ animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>
+            : <CheckEmptyIcon size={32}/>
           }
-        </button>
-        {/* Semáforo de prioridad — punto de color brillante (estilo clásico) */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onPriority(node.id); }}
-          title={node.priority === "high" ? "Alta prioridad" : node.priority === "medium" ? "Media prioridad" : node.priority === "low" ? "Baja prioridad" : "Sin prioridad"}
-          style={{ background:"none", border:"none", padding:"2px 4px", cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center" }}
-        >
-          <div style={{
-            width: 11, height: 11, borderRadius:"50%",
-            background: node.priority ? PRIORITY_COLORS[node.priority] : "rgba(255,255,255,0.18)",
-            boxShadow: node.priority ? PRIORITY_GLOW[node.priority] : "none",
-            border: node.priority ? "none" : "1px solid rgba(255,255,255,0.25)",
-            transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-            ...(node.priority === "high" && !isDone
-              ? { ["--pc" as string]: PRIORITY_COLORS.high, animation: "priorityPulse 1.8s ease-in-out infinite" }
-              : {}),
-          }}/>
         </button>
 
         <div style={{ flex:1, minWidth:0 }}>
-          <p style={{ margin:0, fontSize: desktop ? 13 : 12, fontWeight:600, color: isDone ? "#86efac" : "#fff", textDecoration: isDone ? "line-through" : "none", whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.4, transition:"color 0.3s, text-decoration 0.3s" }}>
+          <p style={{ margin:0, fontSize: desktop ? 13 : 12.5, fontWeight:600, color: isDone ? "#86efac" : "#fff", textDecoration: isDone ? "line-through" : "none", whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.4, transition:"color 0.3s, text-decoration 0.3s" }}>
             {node.title}
           </p>
           {hasKids && (
@@ -308,8 +277,27 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
             </div>
           )}
         </div>
+
+        {/* Prioridad (pill tappable, tras el título) */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onPriority(node.id); }}
+          title={node.priority === "high" ? "Alta prioridad" : node.priority === "medium" ? "Media prioridad" : node.priority === "low" ? "Baja prioridad" : "Toca para asignar prioridad"}
+          style={{ background:"none", border:"none", padding:0, cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", width:34, height:40 }}
+        >
+          <div style={{
+            width: 12, height: 12, borderRadius:"50%",
+            background: node.priority ? PRIORITY_COLORS[node.priority] : "rgba(255,255,255,0.15)",
+            boxShadow: node.priority ? `0 0 6px ${PRIORITY_COLORS[node.priority]}` : "none",
+            border: node.priority ? "none" : "1.5px solid rgba(255,255,255,0.3)",
+            transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+            ...(node.priority === "high" && !isDone
+              ? { ["--pc" as string]: PRIORITY_COLORS.high, animation: "priorityPulse 1.8s ease-in-out infinite" }
+              : {}),
+          }}/>
+        </button>
+
         {hasKids && (
-          <span style={{ fontSize:10, fontWeight:700, color: isComplete ? "#86efac" : "#fff", background: isComplete ? "rgba(134,239,172,0.2)" : "rgba(0,0,0,0.25)", borderRadius:20, padding:"2px 7px", flexShrink:0, transition:"all 0.3s", animation: isComplete ? "shimmer 1.5s infinite" : "none" }}>
+          <span style={{ fontSize:10, fontWeight:700, color: isComplete ? "#86efac" : "#fff", background: isComplete ? "rgba(134,239,172,0.2)" : "rgba(0,0,0,0.25)", borderRadius:20, padding:"3px 8px", flexShrink:0, transition:"all 0.3s", animation: isComplete ? "shimmer 1.5s infinite" : "none" }}>
             {lPct}%
           </span>
         )}
@@ -317,20 +305,20 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
           <button
             onClick={(e) => { e.stopPropagation(); onSchedule(node); }}
             title="Agendar en Google Calendar"
-            style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:9, padding:"5px 6px", cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
+            style={{ background:"none", border:"none", borderRadius:10, padding:0, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, width:40, height:40 }}
           >
             {scheduled[node.id]
-              ? <span style={{ fontSize:14 }}>✅</span>
-              : <CalendarAddIcon size={22}/>
+              ? <span style={{ fontSize:16 }}>✅</span>
+              : <CalendarAddIcon size={24}/>
             }
           </button>
         )}
         <button
           onClick={(e) => { e.stopPropagation(); if (window.confirm("¿Eliminar esta tarea?")) onDelete(node.id); }}
           title="Eliminar tarea"
-          style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:9, padding:"5px 6px", cursor:"pointer", display:"flex", alignItems:"center", flexShrink:0 }}
+          style={{ background:"none", border:"none", borderRadius:10, padding:0, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, width:40, height:40 }}
         >
-          <DeleteIcon size={22}/>
+          <DeleteIcon size={24}/>
         </button>
       </div>
       {isExp && hasKids && (
@@ -1128,7 +1116,7 @@ REGLAS GENERALES:
         </button>
         <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:28, padding:3, flexShrink:0, gap:2 }}>
           {([{v:"dashboard",Icon:TabDashboardIcon},{v:"chat",Icon:TabChatIcon},{v:"vision",Icon:TabVisionIcon}] as const).map(({v,Icon}) => (
-            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} title={v} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:22, padding: "5px 9px", cursor:"pointer", lineHeight:0, display:"flex", alignItems:"center", transform: view===v ? "scale(1.05)" : "scale(1)", opacity: view===v ? 1 : 0.55, transition:"opacity 0.2s, transform 0.2s", animation: view===v ? "tabGlow 0.5s ease-out" : "none" }}><Icon size={desktop ? 22 : 24}/></button>
+            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} title={v} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:20, width:38, height:34, cursor:"pointer", lineHeight:0, display:"flex", alignItems:"center", justifyContent:"center", opacity: view===v ? 1 : 0.5, transition:"opacity 0.2s, background 0.2s", animation: view===v ? "tabGlow 0.5s ease-out" : "none" }}><Icon size={22}/></button>
           ))}
         </div>
         <button onClick={() => setMenuOpen((m) => !m)} style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:10, padding: desktop ? 7 : 9, cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center" }}>
@@ -1314,7 +1302,7 @@ REGLAS GENERALES:
             ) : chatLog.map((m, i) => (
               <div key={i} style={{ display:"flex", justifyContent: m.role==="user" ? "flex-end" : "flex-start", marginBottom:10, animation:"floatIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both" }}>
                 {m.role === "ai" && (
-                  <div style={{ width:28, height:28, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, marginRight:7, flexShrink:0, alignSelf:"flex-end" }}>✨</div>
+                  <div style={{ marginRight:7, flexShrink:0, alignSelf:"flex-end", display:"flex" }}><MascotBunnyIcon size={30}/></div>
                 )}
                 <div style={{ maxWidth:"78%", background: m.role==="user" ? P.p1 : "rgba(255,255,255,0.06)", borderRadius: m.role==="user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px", padding:"9px 13px", fontSize:12, color:"#fff", lineHeight:1.5, border: m.role==="ai" ? `1px solid ${P.border}` : "none" }}>
                   {m.text}
@@ -1323,7 +1311,7 @@ REGLAS GENERALES:
             ))}
             {loading && (
               <div style={{ display:"flex", alignItems:"center", gap:9, marginTop:7 }}>
-                <div style={{ width:28, height:28, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13 }}>✨</div>
+                <div style={{ display:"flex", flexShrink:0 }}><MascotBunnyIcon size={30}/></div>
                 <div style={{ background:"rgba(255,255,255,0.06)", border:`1px solid ${P.border}`, borderRadius:"16px 16px 16px 4px", padding:"10px 16px", display:"flex", gap:5 }}>
                   {[0,1,2].map((i) => <div key={i} style={{ width:6, height:6, borderRadius:"50%", background:P.p1, animation:`blink 1.2s ${i*0.2}s infinite` }}/>)}
                 </div>
@@ -1345,7 +1333,7 @@ REGLAS GENERALES:
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
               onInput={(e) => { const t = e.currentTarget; t.style.height="auto"; t.style.height=Math.min(t.scrollHeight,90)+"px"; }}
-              placeholder='Escribe tus tareas... (ej: "preparar reunión, revisar informe")'
+              placeholder={desktop ? 'Escribe tus tareas... (ej: "preparar reunión, revisar informe")' : "Escribe tus tareas…"}
               rows={1}
               style={{ flex:1, background:"none", border:"none", outline:"none", color:P.txt, fontSize:16, resize:"none", lineHeight:1.5, maxHeight:90, overflowY:"auto" }}
             />
@@ -1742,15 +1730,15 @@ REGLAS GENERALES:
         <div
           onClick={() => setToast(null)}
           style={{
-            position:"fixed", top:72, left:"50%", transform:"translateX(-50%)",
-            background:"linear-gradient(135deg,rgba(147,51,234,0.95),rgba(219,39,119,0.95))",
+            position:"fixed", bottom:`calc(${desktop ? 104 : 92}px + env(safe-area-inset-bottom))`, left:"50%", transform:"translateX(-50%)",
+            background:"linear-gradient(135deg,rgba(147,51,234,0.96),rgba(219,39,119,0.96))",
             backdropFilter:"blur(12px)",
             border:"1px solid rgba(255,255,255,0.15)",
             borderRadius:20, padding:"12px 18px 12px 14px",
             display:"flex", alignItems:"center", gap:10,
             maxWidth: "calc(100vw - 28px)", width:"max-content",
-            boxShadow:"0 8px 32px rgba(147,51,234,0.4)",
-            animation:"slideInDown 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+            boxShadow:"0 8px 32px rgba(147,51,234,0.45)",
+            animation:"toastUp 0.4s cubic-bezier(0.34,1.56,0.64,1)",
             cursor:"pointer", zIndex:250,
           }}
         >
@@ -1758,7 +1746,7 @@ REGLAS GENERALES:
           <span style={{ fontSize:12, fontWeight:600, color:"#fff", lineHeight:1.4 }}>{toast}</span>
         </div>
       )}
-      <style>{`@keyframes slideInDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
+      <style>{`@keyframes toastUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
 
       {/* Ventana de presentación de iconos — solo una vez */}
       {showIconsIntro && (
