@@ -250,7 +250,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
           style={{ background:"none", border:"none", padding:0, cursor:"pointer", flexShrink:0, lineHeight:0 }}
         >
           {isDone
-            ? <CheckCircle2 size={18} color="#86efac" style={{ filter:"drop-shadow(0 0 4px #86efac)", transition:"all 0.3s" }}/>
+            ? <CheckCircle2 size={18} color="#86efac" style={{ filter:"drop-shadow(0 0 5px #86efac)", animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>
             : <Circle size={18} color="rgba(255,255,255,0.65)"/>
           }
         </button>
@@ -265,6 +265,9 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
             background: node.priority ? PRIORITY_COLORS[node.priority] : "rgba(255,255,255,0.15)",
             boxShadow: node.priority ? PRIORITY_GLOW[node.priority] : "none",
             transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+            ...(node.priority === "high" && !isDone
+              ? { ["--pc" as string]: PRIORITY_COLORS.high, animation: "priorityPulse 1.8s ease-in-out infinite" }
+              : {}),
           }}/>
         </button>
 
@@ -362,8 +365,9 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, schedul
         border: `1px solid ${cardDragOver ? "rgba(168,85,247,0.9)" : isComplete ? "rgba(134,239,172,0.4)" : P.border}`,
         borderRadius:16, padding: desktop ? 18 : 14, marginBottom:12,
         position:"relative", overflow:"hidden",
-        transition:"border-color 0.3s, background 0.5s",
-        animation:"slideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        transition:"border-color 0.3s, background 0.5s, box-shadow 0.3s, transform 0.18s cubic-bezier(.34,1.56,.64,1)",
+        animation:"cardEnter 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both",
+        boxShadow: isComplete ? "0 6px 24px rgba(134,239,172,0.12)" : "0 4px 18px rgba(0,0,0,0.18)",
         cursor:"grab",
       }}>
       {isComplete && <Confetti/>}
@@ -1029,18 +1033,36 @@ REGLAS GENERALES:
         @keyframes slideIn{from{opacity:0;transform:translateY(30px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
         @keyframes slideInStagger{0%{opacity:0;transform:translateX(-20px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         @keyframes fadeGlow{from{box-shadow:0 0 0 0 rgba(168,85,247,0.5)}to{box-shadow:0 0 0 8px rgba(168,85,247,0)}}
+        /* ── Nuevas animaciones bonitas ── */
+        @keyframes floatIn{0%{opacity:0;transform:translateY(22px) scale(0.96);filter:blur(6px)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+        @keyframes cardEnter{0%{opacity:0;transform:translateY(28px) scale(0.94)}60%{opacity:1;transform:translateY(-4px) scale(1.01)}100%{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes checkBurst{0%{transform:scale(1)}30%{transform:scale(1.45) rotate(-8deg)}55%{transform:scale(0.85) rotate(4deg)}100%{transform:scale(1) rotate(0)}}
+        @keyframes priorityPulse{0%,100%{box-shadow:0 0 6px 0 var(--pc),0 0 0 0 var(--pc)}50%{box-shadow:0 0 12px 2px var(--pc),0 0 0 4px rgba(239,68,68,0.18)}}
+        @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+        @keyframes sparkleSpin{0%{transform:rotate(0) scale(1);opacity:0.8}50%{transform:rotate(180deg) scale(1.25);opacity:1}100%{transform:rotate(360deg) scale(1);opacity:0.8}}
+        @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+        @keyframes tabGlow{0%{box-shadow:0 0 0 0 rgba(219,39,119,0.6)}100%{box-shadow:0 0 0 7px rgba(219,39,119,0)}}
+        @keyframes toastBounce{0%{opacity:0;transform:translateX(-50%) translateY(24px) scale(0.9)}60%{opacity:1;transform:translateX(-50%) translateY(-6px) scale(1.02)}100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         textarea,input{font-family:'Poppins',sans-serif;}
         ::-webkit-scrollbar{width:4px;}
         ::-webkit-scrollbar-thumb{background:rgba(168,85,247,0.3);border-radius:4px;}
         .progress-circle{transition:stroke-dashoffset 0.7s cubic-bezier(.4,0,.2,1);}
-        .progress-bar{transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+        .progress-bar{transition:width 0.6s cubic-bezier(.34,1.56,.64,1);}
+        /* Micro-interacciones globales en botones */
+        button{transition:transform 0.12s cubic-bezier(.34,1.56,.64,1), filter 0.15s, box-shadow 0.2s, background 0.2s;}
+        button:active{transform:scale(0.92);}
+        @media(hover:hover){button:hover{filter:brightness(1.12);}}
+        .tap-lift{transition:transform 0.18s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;}
+        @media(hover:hover){.tap-lift:hover{transform:translateY(-2px);}}
+        .grad-anim{background-size:200% 200%;animation:gradientShift 5s ease infinite;}
+        @media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;animation-iteration-count:1!important;}}
       `}</style>
 
       {/* Header */}
       <header style={{ padding: desktop ? "14px 28px" : "12px 14px", paddingTop: desktop ? 14 : "calc(12px + env(safe-area-inset-top))", background:"rgba(13,10,26,0.97)", backdropFilter:"blur(10px)", borderBottom:`1px solid ${P.border}`, display:"flex", alignItems:"center", gap: desktop ? 10 : 7, position:"sticky", top:0, zIndex:100 }}>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontFamily:"'Syne',sans-serif", fontSize: desktop ? 22 : 17, fontWeight:800, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+          <div className="grad-anim" style={{ fontFamily:"'Syne',sans-serif", fontSize: desktop ? 22 : 17, fontWeight:800, backgroundImage:`linear-gradient(135deg,${P.p1},${P.p3},${P.p1})`, WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
             Conjita&apos;s Dashboard
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:1 }}>
@@ -1079,7 +1101,7 @@ REGLAS GENERALES:
         )}
         <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:28, padding:3, flexShrink:0 }}>
           {([{v:"dashboard",icon:"📊"},{v:"chat",icon:"💬"},{v:"vision",icon:"🌟"}] as const).map(({v,icon}) => (
-            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:22, padding: desktop ? "5px 11px" : "7px 12px", color: view===v ? "#fff" : P.muted, fontSize: desktop ? 11 : 14, fontWeight:700, cursor:"pointer", lineHeight:1 }}>{icon}</button>
+            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:22, padding: desktop ? "5px 11px" : "7px 12px", color: view===v ? "#fff" : P.muted, fontSize: desktop ? 11 : 14, fontWeight:700, cursor:"pointer", lineHeight:1, transform: view===v ? "scale(1.08)" : "scale(1)", animation: view===v ? "tabGlow 0.5s ease-out" : "none" }}>{icon}</button>
           ))}
         </div>
         <button onClick={() => setMenuOpen((m) => !m)} style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:10, padding: desktop ? 7 : 9, color:P.txt, cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center" }}>
@@ -1204,7 +1226,7 @@ REGLAS GENERALES:
         {view === "dashboard" && (
           <div style={{ display: desktop && trees.length > 0 ? "grid" : "block", gridTemplateColumns: desktop && trees.length > 0 ? "1fr 1fr" : "1fr", gap: desktop ? 16 : 0 }}>
             {trees.length > 0 && (
-              <div style={{ gridColumn: desktop ? "1 / -1" : undefined, background:"linear-gradient(135deg,rgba(124,58,237,0.12),rgba(236,72,153,0.08))", border:`1px solid ${P.border}`, borderRadius:16, padding:"16px 20px", marginBottom: desktop ? 0 : 14, display:"flex", alignItems:"center", gap:14 }}>
+              <div style={{ gridColumn: desktop ? "1 / -1" : undefined, background:"linear-gradient(135deg,rgba(124,58,237,0.12),rgba(236,72,153,0.08))", border:`1px solid ${P.border}`, borderRadius:16, padding:"16px 20px", marginBottom: desktop ? 0 : 14, display:"flex", alignItems:"center", gap:14, animation:"floatIn 0.55s cubic-bezier(0.34,1.56,0.64,1) both" }}>
                 <svg width={64} height={64} viewBox="0 0 72 72">
                   <circle cx={36} cy={36} r={30} fill="none" stroke="rgba(168,85,247,0.15)" strokeWidth={6}/>
                   <circle cx={36} cy={36} r={30} fill="none" stroke="url(#rg)" strokeWidth={6}
@@ -1263,7 +1285,7 @@ REGLAS GENERALES:
                 </div>
               </div>
             ) : chatLog.map((m, i) => (
-              <div key={i} style={{ display:"flex", justifyContent: m.role==="user" ? "flex-end" : "flex-start", marginBottom:10 }}>
+              <div key={i} style={{ display:"flex", justifyContent: m.role==="user" ? "flex-end" : "flex-start", marginBottom:10, animation:"floatIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both" }}>
                 {m.role === "ai" && (
                   <div style={{ width:28, height:28, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, marginRight:7, flexShrink:0, alignSelf:"flex-end" }}>✨</div>
                 )}
@@ -1289,7 +1311,7 @@ REGLAS GENERALES:
       <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:maxW, background:"rgba(13,10,26,0.97)", backdropFilter:"blur(10px)", borderTop:`1px solid ${P.border}`, padding: desktop ? "12px 28px 18px" : "10px 14px", paddingBottom: desktop ? 18 : "calc(10px + env(safe-area-inset-bottom))", zIndex:100, display: view === "vision" ? "none" : "block" }}>
         <div style={{ display:"flex", gap:8, alignItems:"flex-end" }}>
           <div style={{ flex:1, background:"rgba(255,255,255,0.05)", border:`1px solid ${P.borderHi}`, borderRadius:18, padding:"9px 14px", display:"flex", alignItems:"center", gap:7 }}>
-            <Sparkles size={14} color={P.p1}/>
+            <Sparkles size={14} color={P.p1} style={{ animation:"sparkleSpin 3.5s ease-in-out infinite", flexShrink:0 }}/>
             <textarea
               ref={inputRef}
               value={input}
@@ -1304,7 +1326,7 @@ REGLAS GENERALES:
           <button
             onClick={send}
             disabled={!input.trim() || loading}
-            style={{ width:42, height:42, borderRadius:"50%", background: input.trim() && !loading ? `linear-gradient(135deg,${P.p1},${P.p3})` : "rgba(255,255,255,0.08)", border:"none", display:"flex", alignItems:"center", justifyContent:"center", cursor: input.trim() && !loading ? "pointer" : "not-allowed", flexShrink:0 }}
+            style={{ width:42, height:42, borderRadius:"50%", background: input.trim() && !loading ? `linear-gradient(135deg,${P.p1},${P.p3})` : "rgba(255,255,255,0.08)", border:"none", display:"flex", alignItems:"center", justifyContent:"center", cursor: input.trim() && !loading ? "pointer" : "not-allowed", flexShrink:0, boxShadow: input.trim() && !loading ? "0 4px 16px rgba(147,51,234,0.45)" : "none", animation: input.trim() && !loading ? "breathe 2s ease-in-out infinite" : "none" }}
           >
             {loading
               ? <div style={{ width:16, height:16, border:"2px solid #fff", borderTopColor:"transparent", borderRadius:"50%", animation:"spin 0.7s linear infinite" }}/>
