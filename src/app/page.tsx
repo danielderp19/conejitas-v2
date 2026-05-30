@@ -597,7 +597,7 @@ export default function ConejitasDashboard() {
       setTimeout(() => setShowWelcome(true), 800);
     }
     // Ventana de presentación de iconos — solo una vez en la vida
-    const iconsIntroSeen = !!localStorage.getItem("conjita-icons-intro-v2");
+    const iconsIntroSeen = !!localStorage.getItem("conjita-icons-intro-v3");
     if (welcomeSeen && !iconsIntroSeen) {
       setTimeout(() => setShowIconsIntro(true), 900);
     }
@@ -1751,12 +1751,12 @@ REGLAS GENERALES:
       {/* Ventana de presentación de iconos — solo una vez */}
       {showIconsIntro && (
         <div
-          onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro-v2", "1"); }}
+          onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro-v3", "1"); }}
           style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.8)", zIndex:520, display:"flex", alignItems:"center", justifyContent:"center", padding:`calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))`, overflowY:"auto" }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:24, padding: desktop ? "30px 24px 24px" : "24px 18px 20px", width:"100%", maxWidth:360, maxHeight:"100%", overflowY:"auto", textAlign:"center", animation:"toastBounce 0.5s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(147,51,234,0.35)", margin:"auto" }}
+            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:24, padding: desktop ? "30px 24px 24px" : "24px 18px 20px", width:"100%", maxWidth:360, maxHeight:"100%", overflowY:"auto", textAlign:"center", animation:"slideIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(147,51,234,0.35)" }}
           >
             {/* Trío de iconos protagonistas */}
             <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap: desktop ? 10 : 6, marginBottom: desktop ? 18 : 14 }}>
@@ -1771,7 +1771,7 @@ REGLAS GENERALES:
               Los iconos son <b style={{ color:P.txt }}>perfectos para la coneja perfecta</b>. Ahora diviértete, siendo la <b style={{ color:P.txt }}>coneja más estilizada de todas</b> 🐰👑
             </p>
             <button
-              onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro-v2", "1"); }}
+              onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro-v3", "1"); }}
               style={{ width:"100%", marginTop: desktop ? 22 : 18, background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:16, padding:"13px", color:"#fff", fontSize:15, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
             >
               ¡A divertirme! 🚀
