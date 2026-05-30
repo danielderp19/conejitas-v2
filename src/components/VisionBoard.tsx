@@ -165,6 +165,17 @@ export default function VisionBoard() {
     setTimeout(() => setCreativeToast(false), 3800);
   }, []);
 
+  // Coordenadas del puntero: para touch sigue el MISMO dedo por identifier (evita saltos con multi-touch)
+  const ptr = (ev: MouseEvent | TouchEvent, touchId: number | null): { x: number; y: number } | null => {
+    if ("touches" in ev) {
+      const t = touchId != null
+        ? Array.from(ev.touches).find(tt => tt.identifier === touchId)
+        : ev.touches[0];
+      return t ? { x: t.clientX, y: t.clientY } : null;
+    }
+    return { x: (ev as MouseEvent).clientX, y: (ev as MouseEvent).clientY };
+  };
+
   // ── Drag ──────────────────────────────────────────────────────────────────
   const startDrag = useCallback((e: React.MouseEvent | React.TouchEvent, id: string) => {
     if (editingText === id) return;
@@ -174,22 +185,23 @@ export default function VisionBoard() {
     const rect = board.getBoundingClientRect();
     const el = elements.find(x => x.id === id);
     if (!el) return;
+    const touchId = "touches" in e ? e.touches[0].identifier : null;
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
     dragRef.current = { id, startX: clientX - rect.left, startY: clientY - rect.top, elX: el.x, elY: el.y };
     setSelected(id);
 
     const onMove = (ev: MouseEvent | TouchEvent) => {
-      if (!dragRef.current || !board) return;
+      const d = dragRef.current;
+      if (!d || !board) return;
+      if (ev.cancelable) ev.preventDefault(); // evita que la página haga scroll al arrastrar
+      const p = ptr(ev, touchId);
+      if (!p) return;
       const r = board.getBoundingClientRect();
-      const cx = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
-      const cy = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-      const dx = (cx - r.left) - dragRef.current.startX;
-      const dy = (cy - r.top)  - dragRef.current.startY;
+      const dx = (p.x - r.left) - d.startX;
+      const dy = (p.y - r.top)  - d.startY;
       setElements(prev => prev.map(x =>
-        x.id === dragRef.current!.id
-          ? { ...x, x: Math.max(0, dragRef.current!.elX + dx), y: Math.max(0, dragRef.current!.elY + dy) }
-          : x
+        x.id === d.id ? { ...x, x: Math.max(0, d.elX + dx), y: Math.max(0, d.elY + dy) } : x
       ));
     };
     const onUp = () => {
@@ -208,24 +220,25 @@ export default function VisionBoard() {
   // ── Rotate ────────────────────────────────────────────────────────────────
   const startRotate = useCallback((e: React.MouseEvent | React.TouchEvent, el: BoardEl) => {
     e.stopPropagation();
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     const board = boardRef.current;
-    const scroll = scrollRef.current;
     if (!board) return;
     const rect = board.getBoundingClientRect();
-    const scrollTop = scroll?.scrollTop ?? 0;
-    // Centro del elemento en coords de viewport (corregido con scroll)
+    // getBoundingClientRect ya está en coords de viewport (incluye scroll) → NO restar scrollTop
     const cx = rect.left + el.x + el.w / 2;
-    const cy = rect.top  + el.y + el.h / 2 - scrollTop;
+    const cy = rect.top  + el.y + el.h / 2;
+    const touchId = "touches" in e ? e.touches[0].identifier : null;
     rotRef.current = { id: el.id, cx, cy };
 
     const onMove = (ev: MouseEvent | TouchEvent) => {
-      if (!rotRef.current) return;
-      const mx = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
-      const my = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-      const angle = Math.atan2(my - rotRef.current.cy, mx - rotRef.current.cx) * 180 / Math.PI + 90;
+      const r = rotRef.current;
+      if (!r) return;
+      if (ev.cancelable) ev.preventDefault();
+      const p = ptr(ev, touchId);
+      if (!p) return;
+      const angle = Math.atan2(p.y - r.cy, p.x - r.cx) * 180 / Math.PI + 90;
       setElements(prev => prev.map(x =>
-        x.id === rotRef.current!.id ? { ...x, rotation: Math.round(angle) } : x
+        x.id === r.id ? { ...x, rotation: Math.round(angle) } : x
       ));
     };
     const onUp = () => {
@@ -253,13 +266,15 @@ export default function VisionBoard() {
     const startY  = "touches" in e ? e.touches[0].clientY : e.clientY;
     const startW  = el.w;
     const startH  = el.h;
+    const touchId = "touches" in e ? e.touches[0].identifier : null;
 
     const onMove = (ev: MouseEvent | TouchEvent) => {
-      const mx = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
-      const my = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+      if (ev.cancelable) ev.preventDefault();
+      const p = ptr(ev, touchId);
+      if (!p) return;
       setElements(prev => prev.map(x =>
         x.id === el.id
-          ? { ...x, w: Math.max(40, startW + (mx - startX) * cx), h: Math.max(30, startH + (my - startY) * cy) }
+          ? { ...x, w: Math.max(40, startW + (p.x - startX) * cx), h: Math.max(30, startH + (p.y - startY) * cy) }
           : x
       ));
     };
@@ -587,10 +602,11 @@ export default function VisionBoard() {
                       onTouchStart={e => startResize(e, el, cx, cy)}
                       style={{
                         position:"absolute",
-                        [cy === -1 ? "top" : "bottom"]: -5,
-                        [cx === -1 ? "left" : "right"]: -5,
-                        width:10, height:10, borderRadius:"50%",
-                        background:P.p1, border:"2px solid #fff",
+                        [cy === -1 ? "top" : "bottom"]: -9,
+                        [cx === -1 ? "left" : "right"]: -9,
+                        width:18, height:18, borderRadius:"50%",
+                        background:P.p1, border:"2.5px solid #fff",
+                        boxShadow:"0 1px 6px rgba(0,0,0,0.4)",
                         cursor:"nwse-resize", zIndex:10, touchAction:"none",
                       }}
                     />
