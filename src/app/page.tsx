@@ -201,7 +201,7 @@ interface NodeProps {
 }
 
 const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onToggle, onExpand, onDelete, onReorder, onSchedule, onPriority }: NodeProps) {
-  const isExp = expanded[node.id];
+  const isExp = expanded[node.id] !== false; // desplegado por defecto
   const isDone = done[node.id];
   const hasKids = (node.children || []).length > 0;
   const kDone = hasKids ? node.children.reduce((s, c) => s + doneNodes(c, done), 0) : 0;
@@ -763,7 +763,7 @@ export default function ConejitasDashboard() {
       return { ...p, [id]: !wasDone };
     });
   }, []);
-  const expandToggle = useCallback((id: string) => setExpanded((p) => ({ ...p, [id]: !p[id] })), []);
+  const expandToggle = useCallback((id: string) => setExpanded((p) => ({ ...p, [id]: p[id] === false ? true : false })), []);
 
   const handleReorder = useCallback((dragId: string, dropId: string) => {
     setTrees((prev) => reorderSiblings(prev, dragId, dropId));
