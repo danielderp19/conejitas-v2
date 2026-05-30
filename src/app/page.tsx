@@ -597,7 +597,7 @@ export default function ConejitasDashboard() {
       setTimeout(() => setShowWelcome(true), 800);
     }
     // Ventana de presentación de iconos — solo una vez en la vida
-    const iconsIntroSeen = !!localStorage.getItem("conjita-icons-intro");
+    const iconsIntroSeen = !!localStorage.getItem("conjita-icons-intro-v2");
     if (welcomeSeen && !iconsIntroSeen) {
       setTimeout(() => setShowIconsIntro(true), 900);
     }
@@ -1751,32 +1751,32 @@ REGLAS GENERALES:
       {/* Ventana de presentación de iconos — solo una vez */}
       {showIconsIntro && (
         <div
-          onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro", "1"); }}
-          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.78)", zIndex:520, display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}
+          onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro-v2", "1"); }}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.8)", zIndex:520, display:"flex", alignItems:"center", justifyContent:"center", padding:`calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))`, overflowY:"auto" }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:26, padding:"30px 24px 26px", width:"100%", maxWidth:380, textAlign:"center", animation:"toastBounce 0.5s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(147,51,234,0.35)" }}
+            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:24, padding: desktop ? "30px 24px 24px" : "24px 18px 20px", width:"100%", maxWidth:360, maxHeight:"100%", overflowY:"auto", textAlign:"center", animation:"toastBounce 0.5s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(147,51,234,0.35)", margin:"auto" }}
           >
             {/* Trío de iconos protagonistas */}
-            <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"center", gap:10, marginBottom:18 }}>
-              <PriorityHighIcon size={42}/>
-              <MascotBunnyIcon size={84}/>
-              <CompleteCelebrationIcon size={42}/>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap: desktop ? 10 : 6, marginBottom: desktop ? 18 : 14 }}>
+              <PriorityHighIcon size={desktop ? 40 : 34}/>
+              <MascotBunnyIcon size={desktop ? 80 : 64}/>
+              <CompleteCelebrationIcon size={desktop ? 40 : 34}/>
             </div>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:21, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
+            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize: desktop ? 21 : 19, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
               Iconos nuevos ✨
             </div>
-            <p style={{ margin:"14px 0 0", fontSize:14, color:"rgba(240,230,255,0.8)", lineHeight:1.7 }}>
+            <p style={{ margin: desktop ? "14px 0 0" : "10px 0 0", fontSize: desktop ? 14 : 13.5, color:"rgba(240,230,255,0.82)", lineHeight:1.65 }}>
               Los iconos son <b style={{ color:P.txt }}>perfectos para la coneja perfecta</b>. Ahora diviértete, siendo la <b style={{ color:P.txt }}>coneja más estilizada de todas</b> 🐰👑
             </p>
             <button
-              onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro", "1"); }}
-              style={{ width:"100%", marginTop:22, background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:18, padding:"14px", color:"#fff", fontSize:15, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
+              onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro-v2", "1"); }}
+              style={{ width:"100%", marginTop: desktop ? 22 : 18, background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:16, padding:"13px", color:"#fff", fontSize:15, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
             >
               ¡A divertirme! 🚀
             </button>
-            <div style={{ marginTop:12, fontSize:10, color:"rgba(240,230,255,0.3)", fontStyle:"italic" }}>
+            <div style={{ marginTop:10, fontSize:10, color:"rgba(240,230,255,0.32)", fontStyle:"italic" }}>
               Este mensaje no volverá a aparecer
             </div>
           </div>
