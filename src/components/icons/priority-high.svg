@@ -61,7 +61,7 @@
     <filter id="glw_priorityhigh" x="-80%" y="-80%" width="260%" height="260%">
       <feGaussianBlur stdDeviation="2.6"></feGaussianBlur>
     </filter>
-  </defs><ellipse cx="32" cy="34" rx="16" ry="17" fill="#FF4D8D" opacity=".55" filter="url(#glw_priorityhigh)"></ellipse><g filter="url(#sh_priorityhigh)">
+  </defs><ellipse cx="32" cy="34" rx="16" ry="17" class="cnj-pulse" fill="#FF4D8D" opacity=".55" filter="url(#glw_priorityhigh)"></ellipse><g filter="url(#sh_priorityhigh)">
   <path d="M22,23 L42,23 L46.5,28 L32,50 L17.5,28 Z" fill="url(#gemHi_priorityhigh)" stroke="#fff" stroke-width=".6" stroke-opacity=".4"></path>
   <path d="M22,23 L26,28 L17.5,28 Z" fill="#fff" fill-opacity=".22"></path>
   <path d="M42,23 L38,28 L46.5,28 Z" fill="#000" fill-opacity=".12"></path>

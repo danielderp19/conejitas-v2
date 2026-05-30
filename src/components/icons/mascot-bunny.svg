@@ -61,7 +61,7 @@
     <filter id="glw_mascotbunny" x="-80%" y="-80%" width="260%" height="260%">
       <feGaussianBlur stdDeviation="2.6"></feGaussianBlur>
     </filter>
-  </defs><g transform="translate(25.5,23) rotate(-8)"><g>
+  </defs><g class="cnj-bob"><g transform="translate(25.5,23) rotate(-8)"><g>
     <path d="M0,1 C-5,-1 -7.5,-9 -6.4,-16.5 C-5.4,-22 -2.2,-25 0,-25 C2.2,-25 5.4,-22 6.4,-16.5 C7.5,-9 5,-1 0,1 Z" fill="url(#fur_mascotbunny)" stroke="#3D2257" stroke-width=".7" stroke-opacity=".45"></path>
     <path d="M0,-3 C-3,-5 -5,-10 -4,-15.5 C-3.2,-19.5 -1.2,-22 0,-22 C1.2,-22 3.2,-19.5 4,-15.5 C5,-10 3,-5 0,-3 Z" fill="url(#ear_mascotbunny)"></path>
     <path d="M-1,-8 C-3,-13 -2.4,-18 -0.6,-21.5" stroke="#FFFFFF" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".5"></path>
@@ -81,4 +81,4 @@
     <circle cx="22" cy="-15" r="3.6" fill="url(#gem_mascotbunny)"></circle>
     <circle cx="0" cy="-24" r="5" fill="url(#gem_mascotbunny)"></circle>
     <path d="M -20,-2 Q 0,5 20,-2" stroke="#FFF6D8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".7"></path>
-  </g><path d="M 52,13.6 Q 52.528,15.472 54.4,16 Q 52.528,16.528 52,18.4 Q 51.472,16.528 49.6,16 Q 51.472,15.472 52,13.6 Z" fill="url(#spark_mascotbunny)" opacity="0.9"></path><path d="M 12,20.2 Q 12.396,21.604 13.8,22 Q 12.396,22.396 12,23.8 Q 11.604,22.396 10.2,22 Q 11.604,21.604 12,20.2 Z" fill="url(#spark_mascotbunny)" opacity="0.8"></path></svg>
+  </g></g><path d="M 52,13.6 Q 52.528,15.472 54.4,16 Q 52.528,16.528 52,18.4 Q 51.472,16.528 49.6,16 Q 51.472,15.472 52,13.6 Z" fill="url(#spark_mascotbunny)" opacity="0.9"></path><path d="M 12,20.2 Q 12.396,21.604 13.8,22 Q 12.396,22.396 12,23.8 Q 11.604,22.396 10.2,22 Q 11.604,21.604 12,20.2 Z" fill="url(#spark_mascotbunny)" opacity="0.8"></path></svg>

@@ -446,6 +446,7 @@ export default function ConejitasDashboard() {
   const [showFreqPicker, setShowFreqPicker] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showMotivation, setShowMotivation] = useState(false);
+  const [showIconsIntro, setShowIconsIntro] = useState(false);
 
   // ── Toast de motivación al ver tareas ────────────────────────────────────────
   const TASK_TOASTS = [
@@ -591,13 +592,19 @@ export default function ConejitasDashboard() {
     } catch { /* fresh start */ }
     setHydrated(true);
     // Mostrar bienvenida solo la primera vez (v3 incluye Vision Board y guía Calendar)
-    if (!localStorage.getItem("conjita-welcome-v3")) {
+    const welcomeSeen = !!localStorage.getItem("conjita-welcome-v3");
+    if (!welcomeSeen) {
       setTimeout(() => setShowWelcome(true), 800);
     }
-    // Mensaje motivacional — una vez cada 8 días
+    // Ventana de presentación de iconos — solo una vez en la vida
+    const iconsIntroSeen = !!localStorage.getItem("conjita-icons-intro");
+    if (welcomeSeen && !iconsIntroSeen) {
+      setTimeout(() => setShowIconsIntro(true), 900);
+    }
+    // Mensaje motivacional — una vez cada 8 días (no si va a salir otra ventana)
     const lastMotiv = localStorage.getItem("conjita-motiv-last");
     const eightDays = 8 * 24 * 60 * 60 * 1000;
-    if (!lastMotiv || Date.now() - Number(lastMotiv) >= eightDays) {
+    if (welcomeSeen && iconsIntroSeen && (!lastMotiv || Date.now() - Number(lastMotiv) >= eightDays)) {
       setTimeout(() => setShowMotivation(true), 4000);
     }
   }, []);
@@ -1741,6 +1748,41 @@ REGLAS GENERALES:
       )}
       <style>{`@keyframes slideInDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
 
+      {/* Ventana de presentación de iconos — solo una vez */}
+      {showIconsIntro && (
+        <div
+          onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro", "1"); }}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.78)", zIndex:520, display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:26, padding:"30px 24px 26px", width:"100%", maxWidth:380, textAlign:"center", animation:"toastBounce 0.5s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(147,51,234,0.35)" }}
+          >
+            {/* Trío de iconos protagonistas */}
+            <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"center", gap:10, marginBottom:18 }}>
+              <PriorityHighIcon size={42}/>
+              <MascotBunnyIcon size={84}/>
+              <CompleteCelebrationIcon size={42}/>
+            </div>
+            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:21, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
+              Iconos nuevos ✨
+            </div>
+            <p style={{ margin:"14px 0 0", fontSize:14, color:"rgba(240,230,255,0.8)", lineHeight:1.7 }}>
+              Los iconos son <b style={{ color:P.txt }}>perfectos para la coneja perfecta</b>. Ahora diviértete, siendo la <b style={{ color:P.txt }}>coneja más estilizada de todas</b> 🐰👑
+            </p>
+            <button
+              onClick={() => { setShowIconsIntro(false); localStorage.setItem("conjita-icons-intro", "1"); }}
+              style={{ width:"100%", marginTop:22, background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:18, padding:"14px", color:"#fff", fontSize:15, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
+            >
+              ¡A divertirme! 🚀
+            </button>
+            <div style={{ marginTop:12, fontSize:10, color:"rgba(240,230,255,0.3)", fontStyle:"italic" }}>
+              Este mensaje no volverá a aparecer
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast motivacional — una vez cada 8 días */}
       {showMotivation && (() => {
         const MOTIV_MSGS = [
@@ -1788,7 +1830,7 @@ REGLAS GENERALES:
 
       {/* Version tag */}
       <div style={{ position:"fixed", bottom:8, right:10, fontSize:10, color:"rgba(240,230,255,0.25)", pointerEvents:"none", zIndex:9 }}>
-        v1.3
+        v1.4
       </div>
     </div>
   );

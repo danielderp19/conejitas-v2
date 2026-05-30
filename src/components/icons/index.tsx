@@ -7,6 +7,10 @@ import React from 'react';
  * Usage:
  *   import { MascotBunnyIcon, CheckDoneIcon } from '@/components/icons';
  *   <MascotBunnyIcon size={48} />
+ *
+ * A few icons loop subtly (loading spins, sparkle twinkles, celebration bounces,
+ * bell-on rings, priority-high glows, mascot-bunny bobs). The keyframes are
+ * injected once on first render and honour prefers-reduced-motion.
  */
 
 export type IconName = 'mascot-bunny' | 'empty-state' | 'complete-celebration' | 'loading' | 'check-done' | 'close' | 'expand' | 'refresh' | 'sparkle' | 'work' | 'study' | 'health' | 'check-empty' | 'delete' | 'reset' | 'drag' | 'save-cloud' | 'menu' | 'send' | 'bell-on' | 'bell-off' | 'calendar-add' | 'tab-dashboard' | 'tab-chat' | 'tab-vision' | 'priority-high' | 'priority-medium' | 'priority-low' | 'fitness' | 'personal' | 'shopping' | 'finance' | 'travel' | 'creative' | 'home';
@@ -14,6 +18,37 @@ export type IconName = 'mascot-bunny' | 'empty-state' | 'complete-celebration' |
 export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
   /** rendered px size (square). Default 64. */
   size?: number;
+}
+
+/** Looping animation keyframes (inert unless this stylesheet is present). */
+export const ICON_ANIM_CSS = `
+.cnj-spin{transform-box:fill-box;transform-origin:center;animation:cnjSpin 1.1s linear infinite;}
+.cnj-twinkle{transform-box:fill-box;transform-origin:center;animation:cnjTwinkle 2.6s ease-in-out infinite;}
+.cnj-bob{transform-box:fill-box;transform-origin:center;animation:cnjBob 3s ease-in-out infinite;}
+.cnj-bounce{transform-box:fill-box;transform-origin:bottom;animation:cnjBounce 1.9s ease-in-out infinite;}
+.cnj-ring{transform-box:fill-box;transform-origin:top center;animation:cnjRing 2.4s ease-in-out infinite;}
+.cnj-pulse{transform-box:fill-box;transform-origin:center;animation:cnjPulse 1.9s ease-in-out infinite;}
+.cnj-confetti{transform-box:fill-box;transform-origin:center;animation:cnjConfetti 1.9s ease-in-out infinite;}
+@keyframes cnjSpin{to{transform:rotate(360deg);}}
+@keyframes cnjTwinkle{0%,100%{transform:scale(1) rotate(0deg);opacity:1;}50%{transform:scale(1.13) rotate(16deg);opacity:.82;}}
+@keyframes cnjBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-2.4px);}}
+@keyframes cnjBounce{0%,100%{transform:translateY(0) scaleY(1);}28%{transform:translateY(-3.2px);}50%{transform:translateY(0) scaleY(.96);}}
+@keyframes cnjRing{0%,100%{transform:rotate(0deg);}18%{transform:rotate(12deg);}38%{transform:rotate(-10deg);}58%{transform:rotate(6deg);}78%{transform:rotate(-3deg);}}
+@keyframes cnjPulse{0%,100%{transform:scale(1);opacity:.45;}50%{transform:scale(1.2);opacity:.82;}}
+@keyframes cnjConfetti{0%{transform:translateY(2px);opacity:.55;}50%{transform:translateY(-2.4px);opacity:1;}100%{transform:translateY(2px);opacity:.55;}}
+@media (prefers-reduced-motion: reduce){
+  .cnj-spin,.cnj-twinkle,.cnj-bob,.cnj-bounce,.cnj-ring,.cnj-pulse,.cnj-confetti{animation:none!important;}
+}
+`;
+
+let __cnjInjected = false;
+function ensureAnimStyles() {
+  if (__cnjInjected || typeof document === 'undefined') return;
+  __cnjInjected = true;
+  const s = document.createElement('style');
+  s.setAttribute('data-conejita-icons', '');
+  s.textContent = ICON_ANIM_CSS;
+  document.head.appendChild(s);
 }
 
 const RAW: Record<IconName, string> = {
@@ -80,7 +115,7 @@ const RAW: Record<IconName, string> = {
     <filter id="glw_mascotbunny" x="-80%" y="-80%" width="260%" height="260%">
       <feGaussianBlur stdDeviation="2.6"/>
     </filter>
-  </defs><g transform="translate(25.5,23) rotate(-8)"><g>
+  </defs><g class="cnj-bob"><g transform="translate(25.5,23) rotate(-8)"><g>
     <path d="M0,1 C-5,-1 -7.5,-9 -6.4,-16.5 C-5.4,-22 -2.2,-25 0,-25 C2.2,-25 5.4,-22 6.4,-16.5 C7.5,-9 5,-1 0,1 Z" fill="url(#fur_mascotbunny)" stroke="#3D2257" stroke-width=".7" stroke-opacity=".45"/>
     <path d="M0,-3 C-3,-5 -5,-10 -4,-15.5 C-3.2,-19.5 -1.2,-22 0,-22 C1.2,-22 3.2,-19.5 4,-15.5 C5,-10 3,-5 0,-3 Z" fill="url(#ear_mascotbunny)"/>
     <path d="M-1,-8 C-3,-13 -2.4,-18 -0.6,-21.5" stroke="#FFFFFF" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".5"/>
@@ -100,7 +135,7 @@ const RAW: Record<IconName, string> = {
     <circle cx="22" cy="-15" r="3.6" fill="url(#gem_mascotbunny)"/>
     <circle cx="0" cy="-24" r="5" fill="url(#gem_mascotbunny)"/>
     <path d="M -20,-2 Q 0,5 20,-2" stroke="#FFF6D8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".7"/>
-  </g><path d="M 52,13.6 Q 52.528,15.472 54.4,16 Q 52.528,16.528 52,18.4 Q 51.472,16.528 49.6,16 Q 51.472,15.472 52,13.6 Z" fill="url(#spark_mascotbunny)" opacity="0.9"/><path d="M 12,20.2 Q 12.396,21.604 13.8,22 Q 12.396,22.396 12,23.8 Q 11.604,22.396 10.2,22 Q 11.604,21.604 12,20.2 Z" fill="url(#spark_mascotbunny)" opacity="0.8"/></svg>`,
+  </g></g><path d="M 52,13.6 Q 52.528,15.472 54.4,16 Q 52.528,16.528 52,18.4 Q 51.472,16.528 49.6,16 Q 51.472,15.472 52,13.6 Z" fill="url(#spark_mascotbunny)" opacity="0.9"/><path d="M 12,20.2 Q 12.396,21.604 13.8,22 Q 12.396,22.396 12,23.8 Q 11.604,22.396 10.2,22 Q 11.604,21.604 12,20.2 Z" fill="url(#spark_mascotbunny)" opacity="0.8"/></svg>`,
   'empty-state': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="empty-state"><defs>
     <radialGradient id="fur_emptystate" cx="40%" cy="30%" r="80%">
       <stop offset="0%" stop-color="#FFFFFF"/><stop offset="48%" stop-color="#F4EBFF"/>
@@ -243,7 +278,7 @@ const RAW: Record<IconName, string> = {
     <filter id="glw_completecelebration" x="-80%" y="-80%" width="260%" height="260%">
       <feGaussianBlur stdDeviation="2.6"/>
     </filter>
-  </defs>
+  </defs><g class="cnj-bounce">
     <g filter="url(#sh_completecelebration)">
       <ellipse cx="14" cy="30" rx="3.6" ry="5" fill="url(#fur_completecelebration)" stroke="#3D2257" stroke-width=".7" stroke-opacity=".4" transform="rotate(38 14 30)"/>
       <ellipse cx="50" cy="30" rx="3.6" ry="5" fill="url(#fur_completecelebration)" stroke="#3D2257" stroke-width=".7" stroke-opacity=".4" transform="rotate(-38 50 30)"/>
@@ -267,7 +302,7 @@ const RAW: Record<IconName, string> = {
     <circle cx="22" cy="-15" r="3.6" fill="url(#gem_completecelebration)"/>
     <circle cx="0" cy="-24" r="5" fill="url(#gem_completecelebration)"/>
     <path d="M -20,-2 Q 0,5 20,-2" stroke="#FFF6D8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".7"/>
-  </g><rect x="10.4" y="12.4" width="3.2" height="3.2" rx=".8" fill="#FFD05C" transform="rotate(18 12 14)"/><rect x="50.4" y="14.4" width="3.2" height="3.2" rx=".8" fill="#FF6FA5" transform="rotate(-22 52 16)"/><rect x="6.4" y="28.4" width="3.2" height="3.2" rx=".8" fill="#A24BF0" transform="rotate(12 8 30)"/><rect x="54.4" y="30.4" width="3.2" height="3.2" rx=".8" fill="#FF93C6" transform="rotate(30 56 32)"/><rect x="16.4" y="6.4" width="3.2" height="3.2" rx=".8" fill="#E0468C" transform="rotate(-15 18 8)"/><rect x="44.4" y="7.4" width="3.2" height="3.2" rx=".8" fill="#FFD05C" transform="rotate(24 46 9)"/><circle cx="10" cy="44" r="1.6" fill="#FF6FA5"/><circle cx="54" cy="44" r="1.6" fill="#FFD05C"/></svg>`,
+  </g></g><g class="cnj-confetti"><rect x="10.4" y="12.4" width="3.2" height="3.2" rx=".8" fill="#FFD05C" transform="rotate(18 12 14)"/><rect x="50.4" y="14.4" width="3.2" height="3.2" rx=".8" fill="#FF6FA5" transform="rotate(-22 52 16)"/><rect x="6.4" y="28.4" width="3.2" height="3.2" rx=".8" fill="#A24BF0" transform="rotate(12 8 30)"/><rect x="54.4" y="30.4" width="3.2" height="3.2" rx=".8" fill="#FF93C6" transform="rotate(30 56 32)"/><rect x="16.4" y="6.4" width="3.2" height="3.2" rx=".8" fill="#E0468C" transform="rotate(-15 18 8)"/><rect x="44.4" y="7.4" width="3.2" height="3.2" rx=".8" fill="#FFD05C" transform="rotate(24 46 9)"/><circle cx="10" cy="44" r="1.6" fill="#FF6FA5"/><circle cx="54" cy="44" r="1.6" fill="#FFD05C"/></g></svg>`,
   'loading': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="loading"><defs>
     <radialGradient id="fur_loading" cx="40%" cy="30%" r="80%">
       <stop offset="0%" stop-color="#FFFFFF"/><stop offset="48%" stop-color="#F4EBFF"/>
@@ -345,7 +380,7 @@ const RAW: Record<IconName, string> = {
     <path d="M32,19 C20.5,18 13.5,26 13.5,36 C13.5,46 22,53.5 32,53.5 C42,53.5 50.5,46 50.5,36 C50.5,26 43.5,18 32,19 Z" fill="url(#occ_loading)"/>
     <path d="M32,21 C23.5,21 17.5,26 16.5,32 C23.5,27 40.5,27 47.5,32 C46.5,26 40.5,21 32,21 Z" fill="url(#gloss_loading)"/>
     <path d="M48,32 C51,38 49.5,46 44,50.5" stroke="#FF93C6" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".55"/>
-  </g><ellipse cx="22.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush_loading)"/><ellipse cx="41.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush_loading)"/><path d="M 22.6,35 Q 26,38.5 29.4,35" stroke="#3D2257" stroke-width="1.5" fill="none" stroke-linecap="round"/><ellipse cx="38" cy="35.5" rx="4" ry="5" fill="url(#eye_loading)"/><circle cx="36.64" cy="33.7" r="1.68" fill="#fff"/><circle cx="39.44" cy="37" r="0.8" fill="#fff" opacity=".8"/><path d="M undefined,43.9 C NaN,42.1 NaN,41.5 NaN,39.9 C NaN,38.1 NaN,37.8 undefined,39.8 C NaN,37.8 NaN,38.1 NaN,39.9 C NaN,41.5 NaN,42.1 undefined,43.9 Z" fill="url(#nose_loading)"/><path d="M 29.4,45 Q 32,47.4 34.6,45" stroke="#3D2257" stroke-width="1.4" fill="none" stroke-linecap="round"/></g><circle cx="32" cy="33" r="25" fill="none" stroke="url(#acc_loading)" stroke-width="4.6" stroke-linecap="round" stroke-dasharray="100 57" transform="rotate(-90 32 33)"/><path d="M 32,3.4 Q 32.572,5.428 34.6,6 Q 32.572,6.572 32,8.6 Q 31.428,6.572 29.4,6 Q 31.428,5.428 32,3.4 Z" fill="url(#spark_loading)" opacity="0.95"/></svg>`,
+  </g><ellipse cx="22.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush_loading)"/><ellipse cx="41.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush_loading)"/><path d="M 22.6,35 Q 26,38.5 29.4,35" stroke="#3D2257" stroke-width="1.5" fill="none" stroke-linecap="round"/><ellipse cx="38" cy="35.5" rx="4" ry="5" fill="url(#eye_loading)"/><circle cx="36.64" cy="33.7" r="1.68" fill="#fff"/><circle cx="39.44" cy="37" r="0.8" fill="#fff" opacity=".8"/><path d="M undefined,43.9 C NaN,42.1 NaN,41.5 NaN,39.9 C NaN,38.1 NaN,37.8 undefined,39.8 C NaN,37.8 NaN,38.1 NaN,39.9 C NaN,41.5 NaN,42.1 undefined,43.9 Z" fill="url(#nose_loading)"/><path d="M 29.4,45 Q 32,47.4 34.6,45" stroke="#3D2257" stroke-width="1.4" fill="none" stroke-linecap="round"/></g><g class="cnj-spin"><circle cx="32" cy="33" r="25" fill="none" stroke="url(#acc_loading)" stroke-width="4.6" stroke-linecap="round" stroke-dasharray="100 57" transform="rotate(-90 32 33)"/></g><path d="M 32,3.4 Q 32.572,5.428 34.6,6 Q 32.572,6.572 32,8.6 Q 31.428,6.572 29.4,6 Q 31.428,5.428 32,3.4 Z" fill="url(#spark_loading)" opacity="0.95"/></svg>`,
   'check-done': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="check-done"><defs>
     <radialGradient id="fur_checkdone" cx="40%" cy="30%" r="80%">
       <stop offset="0%" stop-color="#FFFFFF"/><stop offset="48%" stop-color="#F4EBFF"/>
@@ -671,9 +706,9 @@ const RAW: Record<IconName, string> = {
     <filter id="glw_sparkle" x="-80%" y="-80%" width="260%" height="260%">
       <feGaussianBlur stdDeviation="2.6"/>
     </filter>
-  </defs><path d="M32,9 C34,22 36,24 49,26 C36,28 34,30 32,43 C30,30 28,28 15,26 C28,24 30,22 32,9 Z" fill="url(#acc_sparkle)" stroke="#7a2ba8" stroke-width=".8" stroke-opacity=".4" filter="url(#sh_sparkle)"/>
+  </defs><g class="cnj-twinkle"><path d="M32,9 C34,22 36,24 49,26 C36,28 34,30 32,43 C30,30 28,28 15,26 C28,24 30,22 32,9 Z" fill="url(#acc_sparkle)" stroke="#7a2ba8" stroke-width=".8" stroke-opacity=".4" filter="url(#sh_sparkle)"/>
       <path d="M32,14 C33.4,22.6 34.6,24 42,25.6 C34.6,27.2 33.4,28.6 32,36" stroke="url(#accHi_sparkle)" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M49,42 C50,47 50.6,47.6 55,48.6 C50.6,49.6 50,50.2 49,55 C48,50.2 47.4,49.6 43,48.6 C47.4,47.6 48,47 49,42 Z" fill="url(#gem_sparkle)"/></svg>`,
+      <path d="M49,42 C50,47 50.6,47.6 55,48.6 C50.6,49.6 50,50.2 49,55 C48,50.2 47.4,49.6 43,48.6 C47.4,47.6 48,47 49,42 Z" fill="url(#gem_sparkle)"/></g></svg>`,
   'work': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="work"><defs>
     <radialGradient id="fur_work" cx="40%" cy="30%" r="80%">
       <stop offset="0%" stop-color="#FFFFFF"/><stop offset="48%" stop-color="#F4EBFF"/>
@@ -1464,10 +1499,10 @@ const RAW: Record<IconName, string> = {
     <path d="M32,19 C20.5,18 13.5,26 13.5,36 C13.5,46 22,53.5 32,53.5 C42,53.5 50.5,46 50.5,36 C50.5,26 43.5,18 32,19 Z" fill="url(#occ_bellon)"/>
     <path d="M32,21 C23.5,21 17.5,26 16.5,32 C23.5,27 40.5,27 47.5,32 C46.5,26 40.5,21 32,21 Z" fill="url(#gloss_bellon)"/>
     <path d="M48,32 C51,38 49.5,46 44,50.5" stroke="#FF93C6" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".55"/>
-  </g><ellipse cx="22.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush_bellon)"/><ellipse cx="41.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush_bellon)"/><ellipse cx="26" cy="35.5" rx="3.7" ry="4.7" fill="url(#eye_bellon)"/><circle cx="24.742" cy="33.808" r="1.554" fill="#fff"/><circle cx="27.332" cy="36.91" r="0.7400000000000001" fill="#fff" opacity=".8"/><ellipse cx="38" cy="35.5" rx="3.7" ry="4.7" fill="url(#eye_bellon)"/><circle cx="36.742" cy="33.808" r="1.554" fill="#fff"/><circle cx="39.332" cy="36.91" r="0.7400000000000001" fill="#fff" opacity=".8"/><path d="M undefined,43.9 C NaN,42.1 NaN,41.5 NaN,39.9 C NaN,38.1 NaN,37.8 undefined,39.8 C NaN,37.8 NaN,38.1 NaN,39.9 C NaN,41.5 NaN,42.1 undefined,43.9 Z" fill="url(#nose_bellon)"/><path d="M 29.4,45 Q 32,47.4 34.6,45" stroke="#3D2257" stroke-width="1.4" fill="none" stroke-linecap="round"/><g filter="url(#sh_bellon)" transform="translate(46.5,46)">
+  </g><ellipse cx="22.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush_bellon)"/><ellipse cx="41.5" cy="41.5" rx="3.2" ry="1.9" fill="url(#blush_bellon)"/><ellipse cx="26" cy="35.5" rx="3.7" ry="4.7" fill="url(#eye_bellon)"/><circle cx="24.742" cy="33.808" r="1.554" fill="#fff"/><circle cx="27.332" cy="36.91" r="0.7400000000000001" fill="#fff" opacity=".8"/><ellipse cx="38" cy="35.5" rx="3.7" ry="4.7" fill="url(#eye_bellon)"/><circle cx="36.742" cy="33.808" r="1.554" fill="#fff"/><circle cx="39.332" cy="36.91" r="0.7400000000000001" fill="#fff" opacity=".8"/><path d="M undefined,43.9 C NaN,42.1 NaN,41.5 NaN,39.9 C NaN,38.1 NaN,37.8 undefined,39.8 C NaN,37.8 NaN,38.1 NaN,39.9 C NaN,41.5 NaN,42.1 undefined,43.9 Z" fill="url(#nose_bellon)"/><path d="M 29.4,45 Q 32,47.4 34.6,45" stroke="#3D2257" stroke-width="1.4" fill="none" stroke-linecap="round"/><g class="cnj-ring"><g filter="url(#sh_bellon)" transform="translate(46.5,46)">
   <path d="M0,-7.2 Q5.4,-6.6 5.4,0.4 Q5.4,3 7,4.4 L-7,4.4 Q-5.4,3 -5.4,0.4 Q-5.4,-6.6 0,-7.2 Z" fill="url(#gold_bellon)" stroke="#C97E12" stroke-width=".8"/>
   <circle cx="0" cy="6.4" r="1.9" fill="url(#gold_bellon)" stroke="#C97E12" stroke-width=".5"/>
-  <path d="M-3,-4 Q-2,-5.6 0.2,-5.6" stroke="#FFF6D8" stroke-width="1" fill="none" stroke-linecap="round" opacity=".7"/></g><g fill="none" stroke="#FFD05C" stroke-width="1.7" stroke-linecap="round" opacity=".95"><path d="M55,42 Q58,47 55,52"/><path d="M51,44 Q52.6,47 51,50"/></g><path d="M 53,35 Q 53.44,36.56 55,37 Q 53.44,37.44 53,39 Q 52.56,37.44 51,37 Q 52.56,36.56 53,35 Z" fill="url(#spark_bellon)" opacity="0.85"/></svg>`,
+  <path d="M-3,-4 Q-2,-5.6 0.2,-5.6" stroke="#FFF6D8" stroke-width="1" fill="none" stroke-linecap="round" opacity=".7"/></g></g><g fill="none" stroke="#FFD05C" stroke-width="1.7" stroke-linecap="round" opacity=".95"><path d="M55,42 Q58,47 55,52"/><path d="M51,44 Q52.6,47 51,50"/></g><path d="M 53,35 Q 53.44,36.56 55,37 Q 53.44,37.44 53,39 Q 52.56,37.44 51,37 Q 52.56,36.56 53,35 Z" fill="url(#spark_bellon)" opacity="0.85"/></svg>`,
   'bell-off': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="bell-off"><defs>
     <radialGradient id="fur_belloff" cx="40%" cy="30%" r="80%">
       <stop offset="0%" stop-color="#FFFFFF"/><stop offset="48%" stop-color="#F4EBFF"/>
@@ -1879,7 +1914,7 @@ const RAW: Record<IconName, string> = {
     <filter id="glw_priorityhigh" x="-80%" y="-80%" width="260%" height="260%">
       <feGaussianBlur stdDeviation="2.6"/>
     </filter>
-  </defs><ellipse cx="32" cy="34" rx="16" ry="17" fill="#FF4D8D" opacity=".55" filter="url(#glw_priorityhigh)"/><g filter="url(#sh_priorityhigh)">
+  </defs><ellipse cx="32" cy="34" rx="16" ry="17" class="cnj-pulse" fill="#FF4D8D" opacity=".55" filter="url(#glw_priorityhigh)"/><g filter="url(#sh_priorityhigh)">
   <path d="M22,23 L42,23 L46.5,28 L32,50 L17.5,28 Z" fill="url(#gemHi_priorityhigh)" stroke="#fff" stroke-width=".6" stroke-opacity=".4"/>
   <path d="M22,23 L26,28 L17.5,28 Z" fill="#fff" fill-opacity=".22"/>
   <path d="M42,23 L38,28 L46.5,28 Z" fill="#000" fill-opacity=".12"/>
@@ -1957,7 +1992,7 @@ const RAW: Record<IconName, string> = {
     <filter id="glw_prioritymedium" x="-80%" y="-80%" width="260%" height="260%">
       <feGaussianBlur stdDeviation="2.6"/>
     </filter>
-  </defs><ellipse cx="32" cy="34" rx="16" ry="17" fill="#E0468C" opacity=".55" filter="url(#glw_prioritymedium)"/><g filter="url(#sh_prioritymedium)">
+  </defs><ellipse cx="32" cy="34" rx="16" ry="17" class="cnj-pulse" fill="#E0468C" opacity=".55" filter="url(#glw_prioritymedium)"/><g filter="url(#sh_prioritymedium)">
   <path d="M22,23 L42,23 L46.5,28 L32,50 L17.5,28 Z" fill="url(#gem_prioritymedium)" stroke="#fff" stroke-width=".6" stroke-opacity=".4"/>
   <path d="M22,23 L26,28 L17.5,28 Z" fill="#fff" fill-opacity=".22"/>
   <path d="M42,23 L38,28 L46.5,28 Z" fill="#000" fill-opacity=".12"/>
@@ -2600,20 +2635,23 @@ const RAW: Record<IconName, string> = {
 /** Generic renderer — inlines the self-contained SVG (own gradients per icon). */
 export const ConejitaIcon: React.FC<IconProps & { name: IconName }> = ({
   name, size = 64, style, ...rest
-}) => (
-  <span
-    role="img"
-    aria-label={name.replace(/-/g, ' ')}
-    style={{ display: 'inline-flex', lineHeight: 0, width: size, height: size, ...style }}
-    {...rest}
-    dangerouslySetInnerHTML={{
-      __html: RAW[name].replace(
-        'width="64" height="64"',
-        `width="${size}" height="${size}"`
-      ),
-    }}
-  />
-);
+}) => {
+  React.useEffect(ensureAnimStyles, []);
+  return (
+    <span
+      role="img"
+      aria-label={name.replace(/-/g, ' ')}
+      style={{ display: 'inline-flex', lineHeight: 0, width: size, height: size, ...style }}
+      {...rest}
+      dangerouslySetInnerHTML={{
+        __html: RAW[name].replace(
+          'width="64" height="64"',
+          `width="${size}" height="${size}"`
+        ),
+      }}
+    />
+  );
+};
 
 export const MascotBunnyIcon = (p: IconProps) => <ConejitaIcon name="mascot-bunny" {...p} />;
 export const EmptyStateIcon = (p: IconProps) => <ConejitaIcon name="empty-state" {...p} />;

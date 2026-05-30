@@ -61,7 +61,7 @@
     <filter id="glw_completecelebration" x="-80%" y="-80%" width="260%" height="260%">
       <feGaussianBlur stdDeviation="2.6"></feGaussianBlur>
     </filter>
-  </defs>
+  </defs><g class="cnj-bounce">
     <g filter="url(#sh_completecelebration)">
       <ellipse cx="14" cy="30" rx="3.6" ry="5" fill="url(#fur_completecelebration)" stroke="#3D2257" stroke-width=".7" stroke-opacity=".4" transform="rotate(38 14 30)"></ellipse>
       <ellipse cx="50" cy="30" rx="3.6" ry="5" fill="url(#fur_completecelebration)" stroke="#3D2257" stroke-width=".7" stroke-opacity=".4" transform="rotate(-38 50 30)"></ellipse>
@@ -85,4 +85,4 @@
     <circle cx="22" cy="-15" r="3.6" fill="url(#gem_completecelebration)"></circle>
     <circle cx="0" cy="-24" r="5" fill="url(#gem_completecelebration)"></circle>
     <path d="M -20,-2 Q 0,5 20,-2" stroke="#FFF6D8" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".7"></path>
-  </g><rect x="10.4" y="12.4" width="3.2" height="3.2" rx=".8" fill="#FFD05C" transform="rotate(18 12 14)"></rect><rect x="50.4" y="14.4" width="3.2" height="3.2" rx=".8" fill="#FF6FA5" transform="rotate(-22 52 16)"></rect><rect x="6.4" y="28.4" width="3.2" height="3.2" rx=".8" fill="#A24BF0" transform="rotate(12 8 30)"></rect><rect x="54.4" y="30.4" width="3.2" height="3.2" rx=".8" fill="#FF93C6" transform="rotate(30 56 32)"></rect><rect x="16.4" y="6.4" width="3.2" height="3.2" rx=".8" fill="#E0468C" transform="rotate(-15 18 8)"></rect><rect x="44.4" y="7.4" width="3.2" height="3.2" rx=".8" fill="#FFD05C" transform="rotate(24 46 9)"></rect><circle cx="10" cy="44" r="1.6" fill="#FF6FA5"></circle><circle cx="54" cy="44" r="1.6" fill="#FFD05C"></circle></svg>
+  </g></g><g class="cnj-confetti"><rect x="10.4" y="12.4" width="3.2" height="3.2" rx=".8" fill="#FFD05C" transform="rotate(18 12 14)"></rect><rect x="50.4" y="14.4" width="3.2" height="3.2" rx=".8" fill="#FF6FA5" transform="rotate(-22 52 16)"></rect><rect x="6.4" y="28.4" width="3.2" height="3.2" rx=".8" fill="#A24BF0" transform="rotate(12 8 30)"></rect><rect x="54.4" y="30.4" width="3.2" height="3.2" rx=".8" fill="#FF93C6" transform="rotate(30 56 32)"></rect><rect x="16.4" y="6.4" width="3.2" height="3.2" rx=".8" fill="#E0468C" transform="rotate(-15 18 8)"></rect><rect x="44.4" y="7.4" width="3.2" height="3.2" rx=".8" fill="#FFD05C" transform="rotate(24 46 9)"></rect><circle cx="10" cy="44" r="1.6" fill="#FF6FA5"></circle><circle cx="54" cy="44" r="1.6" fill="#FFD05C"></circle></g></svg>
