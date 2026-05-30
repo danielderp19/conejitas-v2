@@ -262,11 +262,12 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
         }
         <button
           onClick={(e) => { e.stopPropagation(); onToggle(node.id); }}
-          style={{ background:"none", border:"none", padding:0, cursor:"pointer", flexShrink:0, lineHeight:0 }}
+          title={isDone ? "Marcar como pendiente" : "Marcar como completada"}
+          style={{ background:"none", border:"none", padding:2, cursor:"pointer", flexShrink:0, lineHeight:0, display:"flex", alignItems:"center" }}
         >
           {isDone
-            ? <CheckDoneIcon size={20} style={{ animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>
-            : <CheckEmptyIcon size={20}/>
+            ? <CheckDoneIcon size={30} style={{ animation: popping ? "checkBurst 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none" }}/>
+            : <CheckEmptyIcon size={30}/>
           }
         </button>
         {/* Semáforo de prioridad */}
