@@ -4,10 +4,24 @@ import { useState, useRef, useEffect, useCallback, memo } from "react";
 import dynamic from "next/dynamic";
 const VisionBoard = dynamic(() => import("@/components/VisionBoard"), { ssr: false });
 import {
-  CheckCircle2, Circle, ChevronRight, Trash2,
-  RefreshCw, Smartphone, Cloud, Menu, X,
-  Send, Sparkles, RotateCcw, GripVertical, Bell, BellOff, CalendarPlus,
-} from "lucide-react";
+  IconContext,
+  CheckCircle as CheckCircle2,
+  Circle,
+  CaretRight as ChevronRight,
+  Trash as Trash2,
+  ArrowsClockwise as RefreshCw,
+  DeviceMobile as Smartphone,
+  Cloud,
+  List as Menu,
+  X,
+  PaperPlaneRight as Send,
+  Sparkle as Sparkles,
+  ArrowCounterClockwise as RotateCcw,
+  DotsSixVertical as GripVertical,
+  Bell,
+  BellSlash as BellOff,
+  CalendarPlus,
+} from "@phosphor-icons/react";
 
 const GCAL_CLIENT_ID_ENV = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 const GCAL_ID_KEY   = "conjita-gcal-clientid";
@@ -39,6 +53,32 @@ const lvlGrad = (l: number) => {
 
 let _id = Date.now();
 const uid = () => `n${_id++}`;
+
+// ── Emoji 3D (Apple glossy via jsDelivr) con fallback a emoji nativo ──────────
+function emojiCodepoints(emoji: string): string[] {
+  const full = Array.from(emoji).map(c => c.codePointAt(0)!.toString(16)).join("-");
+  const stripped = full.replace(/-?fe0f/g, ""); // sin selector de variación
+  return stripped && stripped !== full ? [full, stripped] : [full];
+}
+function Emoji3D({ char, size = 24, style }: { char: string; size?: number; style?: React.CSSProperties }) {
+  const candidates = emojiCodepoints(char);
+  const [idx, setIdx] = useState(0);
+  const [failed, setFailed] = useState(false);
+  if (failed || !candidates[0]) {
+    return <span style={{ fontSize: size, lineHeight: 1, ...style }}>{char}</span>;
+  }
+  return (
+    <img
+      src={`https://cdn.jsdelivr.net/npm/emoji-datasource-apple/img/apple/64/${candidates[idx]}.png`}
+      alt={char}
+      width={size}
+      height={size}
+      draggable={false}
+      onError={() => { if (idx < candidates.length - 1) setIdx(idx + 1); else setFailed(true); }}
+      style={{ objectFit: "contain", verticalAlign: "middle", filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.3))", ...style }}
+    />
+  );
+}
 
 type Priority = "high" | "medium" | "low" | null;
 
@@ -372,8 +412,8 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, schedul
       }}>
       {isComplete && <Confetti/>}
       <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12, paddingBottom:10, borderBottom:`1px solid ${isComplete ? "rgba(134,239,172,0.2)" : P.border}` }}>
-        <span style={{ fontSize:22, animation: isComplete ? "shimmer 1.5s infinite" : "none" }}>
-          {isComplete ? "🎉" : (tree.icon || "🌱")}
+        <span style={{ display:"flex", alignItems:"center", flexShrink:0, animation: isComplete ? "breathe 1.8s ease-in-out infinite" : "floatIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+          <Emoji3D char={isComplete ? "🎉" : (tree.icon || "🌱")} size={30}/>
         </span>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize: desktop ? 15 : 13, color: isComplete ? "#86efac" : P.txt, whiteSpace:"normal", wordBreak:"break-word", lineHeight:1.3, transition:"color 0.4s" }}>
@@ -1023,6 +1063,7 @@ REGLAS GENERALES:
   const maxW = 960;
 
   return (
+    <IconContext.Provider value={{ weight: "duotone", mirrored: false }}>
     <div style={{ minHeight:"100dvh", background:P.bg, fontFamily:"'Poppins',sans-serif", color:P.txt, display:"flex", flexDirection:"column", maxWidth:maxW, margin:"0 auto", position:"relative" }}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg);}}
@@ -1251,7 +1292,7 @@ REGLAS GENERALES:
 
             {trees.length === 0 ? (
               <div style={{ gridColumn:"1 / -1", textAlign:"center", padding:"50px 20px" }}>
-                <div style={{ fontSize:48, marginBottom:12 }}>🌱</div>
+                <div style={{ marginBottom:12, animation:"breathe 2.5s ease-in-out infinite" }}><Emoji3D char="🌱" size={56}/></div>
                 <div style={{ fontFamily:"'Syne',sans-serif", fontSize:16, fontWeight:800, color:P.txt, marginBottom:6 }}>Dashboard vacío</div>
                 <div style={{ fontSize:12, color:P.muted, lineHeight:1.7 }}>
                   Escribe tus tareas abajo y la IA las organiza automáticamente.
@@ -1277,7 +1318,7 @@ REGLAS GENERALES:
           <div>
             {chatLog.length === 0 ? (
               <div style={{ textAlign:"center", padding:"36px 18px" }}>
-                <div style={{ fontSize:44 }}>💬</div>
+                <div style={{ animation:"breathe 2.5s ease-in-out infinite" }}><Emoji3D char="💬" size={52}/></div>
                 <div style={{ fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:800, color:P.txt, marginTop:10 }}>Cuéntame tus tareas</div>
                 <div style={{ fontSize:12, color:P.muted, marginTop:6, lineHeight:1.8 }}>
                   Ejemplo:<br/>
@@ -1780,8 +1821,9 @@ REGLAS GENERALES:
 
       {/* Version tag */}
       <div style={{ position:"fixed", bottom:8, right:10, fontSize:10, color:"rgba(240,230,255,0.25)", pointerEvents:"none", zIndex:9 }}>
-        v1.2
+        v1.3
       </div>
     </div>
+    </IconContext.Provider>
   );
 }
