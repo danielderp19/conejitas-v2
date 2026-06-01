@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { MascotBunnyIcon, HealthIcon, CompleteCelebrationIcon } from "@/components/icons";
 import { CONEJITA } from "@/lib/moodBunny";
-import StoryPanel from "@/components/StoryPanel";
 
 const P = {
   bg: "#0d0a1a", card: "rgba(168,85,247,0.12)", border: "rgba(168,85,247,0.25)",
@@ -90,7 +89,6 @@ export default function LovePanel() {
   const [aiLoading, setAiLoading] = useState(false);
   const [desktop, setDesktop]   = useState(false);
   const [showIntro, setShowIntro] = useState(false);
-  const [showStory, setShowStory] = useState(false);
 
   // Onboarding de la pestaña — solo una vez (reabrible con el botón ?)
   useEffect(() => {
@@ -201,18 +199,6 @@ REGLAS IMPORTANTES:
         <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, background: `linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Tu rinconcito 💛</div>
         <div style={{ fontSize: 12, color: P.muted, marginTop: 4 }}>Fechas especiales y cómo te sientes hoy</div>
       </div>
-
-      {/* ── Nuestra historia ── */}
-      <button onClick={() => setShowStory(true)} style={{ width: "100%", background: "linear-gradient(135deg,rgba(147,51,234,0.3),rgba(219,39,119,0.25))", border: `1px solid ${P.borderHi}`, borderRadius: 18, padding: "16px 18px", marginBottom: 24, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 4px 20px rgba(147,51,234,0.2)" }}>
-        <span style={{ fontSize: 30, flexShrink: 0 }}>💞</span>
-        <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-          <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 16, color: P.txt }}>Nuestra historia</div>
-          <div style={{ fontSize: 11.5, color: "rgba(240,230,255,0.7)", marginTop: 2 }}>Un viaje por nuestros momentos juntos 💜</div>
-        </div>
-        <span style={{ fontSize: 20, color: "#f9a8d4", flexShrink: 0 }}>›</span>
-      </button>
-
-      {showStory && <StoryPanel onClose={() => setShowStory(false)} />}
 
       {/* ── Cuenta regresiva ── */}
       <div style={{ marginBottom: 30 }}>
