@@ -83,6 +83,7 @@ export default function LovePanel() {
   const [newDate, setNewDate]   = useState("");
   const [history, setHistory]   = useState<MoodDay[]>([]);
   const [savedToday, setSavedToday] = useState<MoodDay | null>(null);
+  const [addingMore, setAddingMore] = useState(false);
   const [selMoods, setSelMoods] = useState<string[]>([]);
   const [title, setTitle]       = useState("");
   const [note, setNote]         = useState("");
@@ -116,6 +117,18 @@ export default function LovePanel() {
         if (t) setSavedToday(t);
       }
     } catch { /* ok */ }
+  }, []);
+
+  // Reactivar al empezar un nuevo día (aunque la app quede abierta): si el día guardado
+  // ya no es hoy, se libera el selector inmediatamente.
+  useEffect(() => {
+    const check = () => {
+      setSavedToday(prev => (prev && prev.date !== todayStr() ? null : prev));
+    };
+    const iv = setInterval(check, 60_000);
+    document.addEventListener("visibilitychange", check);
+    window.addEventListener("focus", check);
+    return () => { clearInterval(iv); document.removeEventListener("visibilitychange", check); window.removeEventListener("focus", check); };
   }, []);
 
   const saveCustom = (arr: CountdownItem[]) => {
@@ -180,6 +193,7 @@ REGLAS IMPORTANTES:
       return next;
     });
     setAiLoading(false);
+    setAddingMore(false);
   }, [selMoods, title, note]);
 
   const pad = desktop ? "20px 28px 60px" : "16px 16px 120px";
@@ -254,8 +268,8 @@ REGLAS IMPORTANTES:
           </div>
         </div>
 
-        {savedToday ? (
-          // ── Vista bloqueada (ya guardó su día) ──
+        {savedToday && !addingMore ? (
+          // ── Vista del día guardado (puede agregar más) ──
           <div style={{ animation: "lpIn 0.4s ease" }}>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
               {savedToday.moods.map(k => {
@@ -280,7 +294,13 @@ REGLAS IMPORTANTES:
                 </div>
               </div>
             )}
-            <div style={{ textAlign: "center", marginTop: 16, fontSize: 12, color: P.muted }}>🌙 Tu día ya está guardado. Vuelve mañana para registrar cómo te sientes 💜</div>
+            <button
+              onClick={() => { setSelMoods(savedToday.moods); setTitle(savedToday.title || ""); setNote(savedToday.note || ""); setAddingMore(true); }}
+              style={{ width: "100%", marginTop: 16, background: "rgba(168,85,247,0.15)", border: `1.5px dashed ${P.borderHi}`, borderRadius: 14, padding: "13px", color: P.txt, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Poppins',sans-serif" }}
+            >
+              ➕ Agregar más emociones de hoy
+            </button>
+            <div style={{ textAlign: "center", marginTop: 10, fontSize: 11, color: P.muted }}>Puedes seguir agregando hoy. Mañana empieza un día nuevo 🌙</div>
           </div>
         ) : (
           // ── Selector (puede elegir varios) ──
@@ -305,8 +325,11 @@ REGLAS IMPORTANTES:
             <button onClick={saveDay} disabled={selMoods.length === 0 || aiLoading} style={{ width: "100%", background: selMoods.length && !aiLoading ? `linear-gradient(135deg,${P.p1},${P.p3})` : "rgba(255,255,255,0.08)", border: "none", borderRadius: 16, padding: "15px", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: selMoods.length && !aiLoading ? "pointer" : "not-allowed", fontFamily: "'Syne',sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               {aiLoading
                 ? <><span style={{ display: "flex", gap: 4 }}>{[0,1,2].map(i => <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#fff", animation: `lpBlink 1.1s ${i*0.2}s infinite` }} />)}</span> Guardando…</>
-                : "Guardar mi día 💜"}
+                : addingMore ? "Actualizar mi día 💜" : "Guardar mi día 💜"}
             </button>
+            {addingMore && !aiLoading && (
+              <button onClick={() => setAddingMore(false)} style={{ width: "100%", marginTop: 8, background: "none", border: "none", color: P.muted, fontSize: 12, cursor: "pointer", padding: 6 }}>Cancelar</button>
+            )}
             {selMoods.length === 0 && <div style={{ textAlign: "center", marginTop: 8, fontSize: 11, color: P.muted }}>Elige al menos un ánimo (puedes marcar varios)</div>}
           </div>
         )}
