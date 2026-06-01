@@ -1117,11 +1117,11 @@ REGLAS GENERALES:
           )}
         </button>
         <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:28, padding:3, flexShrink:0, gap:2 }}>
-          {([{v:"dashboard",Icon:TabDashboardIcon},{v:"chat",Icon:TabChatIcon},{v:"vision",Icon:TabVisionIcon}] as const).map(({v,Icon}) => (
-            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} title={v} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:20, width:38, height:34, cursor:"pointer", lineHeight:0, display:"flex", alignItems:"center", justifyContent:"center", opacity: view===v ? 1 : 0.5, transition:"opacity 0.2s, background 0.2s", animation: view===v ? "tabGlow 0.5s ease-out" : "none" }}><Icon size={22}/></button>
+          {([{v:"dashboard",Icon:TabDashboardIcon,label:"Tareas"},{v:"chat",Icon:TabChatIcon,label:"Chat con la IA"},{v:"vision",Icon:TabVisionIcon,label:"Vision Board"}] as const).map(({v,Icon,label}) => (
+            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} title={label} aria-label={label} aria-pressed={view===v} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:20, width:38, height:34, cursor:"pointer", lineHeight:0, display:"flex", alignItems:"center", justifyContent:"center", opacity: view===v ? 1 : 0.5, transition:"opacity 0.2s, background 0.2s", animation: view===v ? "tabGlow 0.5s ease-out" : "none" }}><Icon size={22}/></button>
           ))}
         </div>
-        <button onClick={() => setMenuOpen((m) => !m)} style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:10, padding: desktop ? 7 : 9, cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center" }}>
+        <button onClick={() => setMenuOpen((m) => !m)} title="Menú" aria-label="Menú" aria-expanded={menuOpen} style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:10, padding: desktop ? 7 : 9, cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center" }}>
           {menuOpen ? <CloseIcon size={18}/> : <MenuIcon size={18}/>}
         </button>
       </header>

@@ -28,7 +28,6 @@ interface BoardEl {
 
 // ─── Constantes (fuera del componente para no recrear en cada render) ─────────
 const uid = () => Math.random().toString(36).slice(2);
-const randPos = (base: number) => base + Math.floor(Math.random() * 80);
 
 const FONTS = ["Poppins", "Syne", "Georgia", "Courier New", "Arial", "Dancing Script"];
 const EMOJIS = ["🌸","✨","💜","🌙","⭐","🦋","🌺","💫","🌈","🎀","🍀","🌻","🦄","💎","🔮","🌿","🕊️","💝","🌙","🫧"];
@@ -65,6 +64,14 @@ const CREATIVE_MSGS = [
 ];
 const MAX_IMG_BYTES = 1_500_000; // 1.5 MB en base64 por imagen
 const STORAGE_KEY = "conjita-visionboard-v1";
+// Paleta para formas (rota al agregar para que no salgan todas iguales)
+const SHAPE_COLORS = ["#9333ea", "#db2777", "#ec4899", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ef4444"];
+// Posición en cascada según cuántos elementos hay (evita que se apilen)
+const cascadePos = (n: number, baseX = 26, baseY = 26) => {
+  const i = n % 8;
+  return { x: baseX + i * 30 + Math.round(Math.random() * 10), y: baseY + i * 28 + Math.round(Math.random() * 10) };
+};
+const isValidImgUrl = (u: string) => /^(https?:\/\/|data:image\/)/i.test(u.trim());
 
 const P = {
   bg: "#0d0a1a", card: "rgba(168,85,247,0.12)", border: "rgba(168,85,247,0.25)",
@@ -113,6 +120,7 @@ export default function VisionBoard() {
   const [creativeToast, setCreativeToast] = useState(false);
   const [creativeMsg, setCreativeMsg]   = useState("");
   const [draftStatus, setDraftStatus]   = useState<"saved"|"error"|null>(null);
+  const [brokenImgs, setBrokenImgs]     = useState<Record<string, boolean>>({});
 
   const boardRef    = useRef<HTMLDivElement>(null);
   const scrollRef   = useRef<HTMLDivElement>(null);
@@ -296,55 +304,47 @@ export default function VisionBoard() {
       alert("La imagen es demasiado grande. Usa una imagen más pequeña o una URL.");
       return;
     }
-    setElements(prev => [...prev, {
-      id: uid(), type: "image",
-      x: randPos(30), y: randPos(30),
-      w: 200, h: 200, rotation: 0, src, opacity: 1,
-    }]);
+    setElements(prev => {
+      const p = cascadePos(prev.length);
+      return [...prev, { id: uid(), type: "image", x: p.x, y: p.y, w: 200, h: 200, rotation: 0, src, opacity: 1 }];
+    });
     triggerCreativeToast();
   }, [triggerCreativeToast]);
 
   const addText = useCallback(() => {
     const id = uid();
-    setElements(prev => [...prev, {
-      id, type: "text",
-      x: randPos(40), y: randPos(40),
-      w: 220, h: 60, rotation: 0,
-      content: "Escribe aquí ✨", fontSize: 18, color: "#f0e6ff",
-      fontFamily: "Poppins", bold: false, italic: false, align: "center", opacity: 1,
-    }]);
+    setElements(prev => {
+      const p = cascadePos(prev.length);
+      return [...prev, { id, type: "text", x: p.x, y: p.y, w: 220, h: 60, rotation: 0, content: "Escribe aquí ✨", fontSize: 18, color: "#f0e6ff", fontFamily: "Poppins", bold: false, italic: false, align: "center", opacity: 1 }];
+    });
     setSelected(id);
     setTimeout(() => setEditingText(id), 100);
     triggerCreativeToast();
   }, [triggerCreativeToast]);
 
   const addShape = useCallback((shape: ShapeKind) => {
-    setElements(prev => [...prev, {
-      id: uid(), type: "shape",
-      x: randPos(60), y: randPos(60),
-      w: 120, h: 120, rotation: 0, shape, fill: "#9333ea", stroke: "transparent", opacity: 1,
-    }]);
+    setElements(prev => {
+      const p = cascadePos(prev.length);
+      const fill = SHAPE_COLORS[prev.length % SHAPE_COLORS.length];
+      return [...prev, { id: uid(), type: "shape", x: p.x, y: p.y, w: 120, h: 120, rotation: 0, shape, fill, stroke: "transparent", opacity: 1 }];
+    });
     triggerCreativeToast();
   }, [triggerCreativeToast]);
 
   const addEmoji = useCallback((emoji: string) => {
-    setElements(prev => [...prev, {
-      id: uid(), type: "emoji",
-      x: randPos(80), y: randPos(80),
-      w: 80, h: 80, rotation: 0, emoji, opacity: 1,
-    }]);
+    setElements(prev => {
+      const p = cascadePos(prev.length, 60, 60);
+      return [...prev, { id: uid(), type: "emoji", x: p.x, y: p.y, w: 80, h: 80, rotation: 0, emoji, opacity: 1 }];
+    });
     setShowEmojiPicker(false);
     triggerCreativeToast();
   }, [triggerCreativeToast]);
 
   const addQuote = useCallback((q: string) => {
-    setElements(prev => [...prev, {
-      id: uid(), type: "quote",
-      x: randPos(20), y: randPos(100),
-      w: 280, h: 80, rotation: 0,
-      content: q, fontSize: 16, color: "#f0e6ff",
-      fontFamily: "Georgia", bold: false, italic: true, align: "center", opacity: 1,
-    }]);
+    setElements(prev => {
+      const p = cascadePos(prev.length, 20, 90);
+      return [...prev, { id: uid(), type: "quote", x: p.x, y: p.y, w: 280, h: 80, rotation: 0, content: q, fontSize: 16, color: "#f0e6ff", fontFamily: "Georgia", bold: false, italic: true, align: "center", opacity: 1 }];
+    });
     setShowQuotes(false);
     triggerCreativeToast();
   }, [triggerCreativeToast]);
@@ -465,7 +465,7 @@ export default function VisionBoard() {
       {showUrlInput && (
         <div style={{ background:"rgba(26,15,46,0.98)", border:`1px solid ${P.border}`, borderRadius:12, padding:"12px 14px", margin:"6px 12px 0", display:"flex", gap:8, animation:"fadeIn 0.2s" }}>
           <input value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="https://... URL de la imagen" style={{ flex:1, background:"rgba(255,255,255,0.07)", border:`1px solid ${P.border}`, borderRadius:8, padding:"8px 12px", color:P.txt, fontSize:13, outline:"none", fontFamily:"Poppins" }}/>
-          <button onClick={() => { if (urlInput.trim()) { addImage(urlInput.trim()); setUrlInput(""); setShowUrlInput(false); } }} style={{ background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:8, padding:"8px 14px", color:"#fff", fontSize:12, fontWeight:700, cursor:"pointer" }}>Agregar</button>
+          <button onClick={() => { const u = urlInput.trim(); if (!u) return; if (!isValidImgUrl(u)) { alert("Pega una URL de imagen válida (debe empezar con http:// o https://)"); return; } addImage(u); setUrlInput(""); setShowUrlInput(false); }} style={{ background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:8, padding:"8px 14px", color:"#fff", fontSize:12, fontWeight:700, cursor:"pointer" }}>Agregar</button>
         </div>
       )}
       {showEmojiPicker && (
@@ -533,7 +533,7 @@ export default function VisionBoard() {
             <input type="color" value={selectedEl.stroke || "#ffffff"} onChange={e => updateEl({ stroke:e.target.value })} style={{ width:30, height:30, border:"none", borderRadius:6, cursor:"pointer" }}/>
           </>}
           <label style={{ fontSize:11, color:P.muted }}>Opacidad</label>
-          <input type="range" min={0.1} max={1} step={0.05} value={selectedEl.opacity ?? 1} onChange={e => updateEl({ opacity:+e.target.value })} style={{ width:70 }}/>
+          <input type="range" min={0} max={1} step={0.05} value={selectedEl.opacity ?? 1} onChange={e => updateEl({ opacity:+e.target.value })} style={{ width:70 }}/>
           <span style={{ fontSize:11, color:P.muted, marginLeft:4 }}>↻ {selectedEl.rotation}°</span>
           <button onClick={bringForward} title="Traer adelante" style={{ background:"rgba(255,255,255,0.07)", border:"none", borderRadius:6, padding:"4px 8px", color:P.txt, cursor:"pointer", fontSize:14 }}>↑</button>
           <button onClick={sendBack}    title="Enviar atrás"   style={{ background:"rgba(255,255,255,0.07)", border:"none", borderRadius:6, padding:"4px 8px", color:P.txt, cursor:"pointer", fontSize:14 }}>↓</button>
@@ -581,14 +581,14 @@ export default function VisionBoard() {
             >
               {/* Handle de rotación */}
               {selected === el.id && (
-                <div style={{ position:"absolute", top:-46, left:"50%", transform:"translateX(-50%)", display:"flex", flexDirection:"column", alignItems:"center", zIndex:20, pointerEvents:"none" }}>
+                <div style={{ position:"absolute", top:-58, left:"50%", transform:"translateX(-50%)", display:"flex", flexDirection:"column", alignItems:"center", zIndex:20, pointerEvents:"none" }}>
                   <div
                     onMouseDown={e => startRotate(e, el)}
                     onTouchStart={e => startRotate(e, el)}
                     title="Girar"
-                    style={{ width:20, height:20, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"2.5px solid #fff", cursor:"grab", pointerEvents:"all", boxShadow:"0 2px 10px rgba(147,51,234,0.6)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:10, color:"#fff", fontWeight:700, userSelect:"none" }}
+                    style={{ width:30, height:30, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"3px solid #fff", cursor:"grab", pointerEvents:"all", boxShadow:"0 2px 12px rgba(147,51,234,0.7)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:15, color:"#fff", fontWeight:700, userSelect:"none", touchAction:"none" }}
                   >↻</div>
-                  <div style={{ width:2, height:24, background:`linear-gradient(to bottom,${P.p1},rgba(168,85,247,0.3))` }}/>
+                  <div style={{ width:2, height:30, background:`linear-gradient(to bottom,${P.p1},rgba(168,85,247,0.3))` }}/>
                 </div>
               )}
 
@@ -616,9 +616,9 @@ export default function VisionBoard() {
 
               {/* Contenido */}
               {el.type === "image" && (
-                el.src
-                  ? <img src={el.src} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", borderRadius:4, pointerEvents:"none", display:"block" }} crossOrigin="anonymous"/>
-                  : <div style={{ width:"100%", height:"100%", background:"rgba(168,85,247,0.15)", borderRadius:4, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, color:P.muted }}>⚠️ Img no guardada</div>
+                el.src && !brokenImgs[el.id]
+                  ? <img src={el.src} alt="" onError={() => setBrokenImgs(b => ({ ...b, [el.id]: true }))} style={{ width:"100%", height:"100%", objectFit:"cover", borderRadius:4, pointerEvents:"none", display:"block" }} crossOrigin="anonymous"/>
+                  : <div style={{ width:"100%", height:"100%", background:"rgba(168,85,247,0.15)", border:"1px dashed rgba(168,85,247,0.4)", borderRadius:4, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:4, fontSize:11, color:P.muted, textAlign:"center", padding:4 }}><span style={{fontSize:20}}>🖼️</span>{el.src ? "No se pudo cargar" : "Img no guardada"}</div>
               )}
               {el.type === "shape" && renderShape(el)}
               {el.type === "emoji" && (
