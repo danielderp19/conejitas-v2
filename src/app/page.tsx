@@ -479,6 +479,7 @@ export default function ConejitasDashboard() {
   const [showMotivation, setShowMotivation] = useState(false);
   const [showIconsIntro, setShowIconsIntro] = useState(false);
   const [loveNote, setLoveNote] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // ── Toast de motivación al ver tareas ────────────────────────────────────────
   const TASK_TOASTS = [
@@ -623,6 +624,12 @@ export default function ConejitasDashboard() {
       }
     } catch { /* fresh start */ }
     setHydrated(true);
+    // ── Onboarding romántico — solo una vez, prioridad sobre lo demás ──
+    const onboardingSeen = !!localStorage.getItem("conjita-onboarding-v1");
+    if (!onboardingSeen) {
+      setTimeout(() => setShowOnboarding(true), 700);
+      return; // no mostrar otras ventanas este load
+    }
     // Mostrar bienvenida solo la primera vez (v3 incluye Vision Board y guía Calendar)
     const welcomeSeen = !!localStorage.getItem("conjita-welcome-v3");
     if (!welcomeSeen) {
@@ -1695,6 +1702,55 @@ REGLAS GENERALES:
         </div>
       )}
 
+      {/* ── Onboarding romántico — solo una vez ── */}
+      {showOnboarding && (
+        <div
+          onClick={() => { setShowOnboarding(false); localStorage.setItem("conjita-onboarding-v1", "1"); }}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.82)", zIndex:600, display:"flex", alignItems:"center", justifyContent:"center", padding:`calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))`, overflowY:"auto" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:26, padding: desktop ? "28px 26px 24px" : "24px 18px 20px", width:"100%", maxWidth:400, maxHeight:"100%", overflowY:"auto", animation:"slideIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(147,51,234,0.4)" }}
+          >
+            {/* Saludo */}
+            <div style={{ textAlign:"center", marginBottom:18 }}>
+              <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}><MascotBunnyIcon size={84}/></div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:21, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
+                Mira mi reina, mira mi vida 💛
+              </div>
+              <div style={{ fontSize:12.5, color:"rgba(240,230,255,0.7)", marginTop:6, lineHeight:1.6 }}>
+                Preparé todo esto con muchísimo amor para ti. Mira lo que tu dashboard puede hacer:
+              </div>
+            </div>
+
+            {/* Recap de funciones */}
+            <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:20 }}>
+              {[
+                { icon:<span style={{ display:"flex", gap:4 }}><span style={{width:11,height:11,borderRadius:"50%",background:"#ef4444",boxShadow:"0 0 6px #ef4444"}}/><span style={{width:11,height:11,borderRadius:"50%",background:"#f59e0b"}}/><span style={{width:11,height:11,borderRadius:"50%",background:"#22c55e"}}/></span>, t:"Semáforo de prioridad", d:"La IA marca qué es urgente, importante o tranquilo." },
+                { icon:<CalendarAddIcon size={26}/>, t:"Agenda en Google Calendar", d:"Pasa cualquier tarea a tu calendario con un toque." },
+                { icon:<TabVisionIcon size={26}/>, t:"Vision Board 🌟", d:"Tu lienzo de sueños: imágenes, frases y formas." },
+                { icon:<HealthIcon size={26}/>, t:"Tu rinconcito 💛", d:"Notas sorpresa, cuenta regresiva y cómo te sientes hoy." },
+              ].map((f,i) => (
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:12, background:"rgba(168,85,247,0.08)", border:`1px solid ${P.border}`, borderRadius:14, padding:"11px 13px" }}>
+                  <div style={{ flexShrink:0, width:30, display:"flex", justifyContent:"center" }}>{f.icon}</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontWeight:700, fontSize:13, color:P.txt }}>{f.t}</div>
+                    <div style={{ fontSize:11.5, color:P.muted, lineHeight:1.5, marginTop:1 }}>{f.d}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => { setShowOnboarding(false); localStorage.setItem("conjita-onboarding-v1", "1"); setView("amor"); }}
+              style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:18, padding:"15px 14px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif", lineHeight:1.4, boxShadow:"0 6px 24px rgba(147,51,234,0.4)" }}
+            >
+              Empecemos mi amor 💜<br/><span style={{ fontSize:11, fontWeight:600, opacity:0.95 }}>este es el primer paso a tu mejor versión</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Modal de bienvenida — solo primera vez */}
       {showWelcome && (
         <div
@@ -1899,7 +1955,7 @@ REGLAS GENERALES:
 
       {/* Version tag */}
       <div style={{ position:"fixed", bottom:8, right:10, fontSize:10, color:"rgba(240,230,255,0.25)", pointerEvents:"none", zIndex:9 }}>
-        v1.5
+        v1.6
       </div>
     </div>
   );
