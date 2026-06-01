@@ -88,6 +88,16 @@ export default function LovePanel() {
   const [note, setNote]         = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [desktop, setDesktop]   = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
+
+  // Onboarding de la pestaña — solo una vez (reabrible con el botón ?)
+  useEffect(() => {
+    if (!localStorage.getItem("conjita-rinconcito-intro")) {
+      const t = setTimeout(() => setShowIntro(true), 500);
+      return () => clearTimeout(t);
+    }
+  }, []);
+  const closeIntro = () => { setShowIntro(false); try { localStorage.setItem("conjita-rinconcito-intro", "1"); } catch { /* ok */ } };
 
   useEffect(() => {
     const c = () => setDesktop(window.innerWidth >= 768);
@@ -183,7 +193,8 @@ REGLAS IMPORTANTES:
       <svg width={0} height={0} style={{ position: "absolute" }} aria-hidden dangerouslySetInnerHTML={{ __html: CONEJITA.defsMarkup() }} />
 
       {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: 22, animation: "lpIn 0.5s ease both" }}>
+      <div style={{ position: "relative", textAlign: "center", marginBottom: 22, animation: "lpIn 0.5s ease both" }}>
+        <button onClick={() => setShowIntro(true)} title="¿Cómo funciona?" aria-label="Cómo funciona" style={{ position: "absolute", top: 0, right: 0, width: 32, height: 32, borderRadius: "50%", background: "rgba(168,85,247,0.2)", border: `1px solid ${P.border}`, color: "#c084fc", fontSize: 15, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>?</button>
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}><MascotBunnyIcon size={52} /></div>
         <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, background: `linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Tu rinconcito 💛</div>
         <div style={{ fontSize: 12, color: P.muted, marginTop: 4 }}>Fechas especiales y cómo te sientes hoy</div>
@@ -323,6 +334,41 @@ REGLAS IMPORTANTES:
           </div>
         )}
       </div>
+
+      {/* ── Onboarding de la pestaña 💛 (una vez + reabrible con ?) ── */}
+      {showIntro && (
+        <div onClick={closeIntro} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.82)", zIndex: 600, display: "flex", alignItems: "center", justifyContent: "center", padding: `calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))`, overflowY: "auto" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border: `1px solid ${P.borderHi}`, borderRadius: 24, padding: desktop ? "28px 24px 22px" : "24px 18px 20px", width: "100%", maxWidth: 380, maxHeight: "100%", overflowY: "auto", animation: "lpIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow: "0 20px 70px rgba(147,51,234,0.4)" }}>
+            <div style={{ textAlign: "center", marginBottom: 18 }}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}><MascotBunnyIcon size={70} /></div>
+              <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, background: `linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Tu rinconcito 💛</div>
+              <div style={{ fontSize: 12.5, color: "rgba(240,230,255,0.7)", marginTop: 6, lineHeight: 1.6 }}>Un espacio solo tuyo, mi reina. Aquí puedes:</div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+              {[
+                { icon: "⏳", t: "Cuenta regresiva", d: "Cuento los días para nuestras fechas especiales 💜, y puedes agregar las tuyas con \"+ Agregar\"." },
+                { icon: "💭", t: "Cómo te sientes hoy", d: "Elige uno o varios ánimos (la conejita los lleva con corona), ponle un título a tu día y guárdalo." },
+                { icon: "🐰", t: "La conejita te responde", d: "Según cómo te sientas, te deja un mensajito con cariño. Se guarda y vuelves mañana 🌙." },
+                { icon: "📖", t: "Tu registro", d: "Mira cómo has estado estos días — tu diario de emociones." },
+              ].map((f, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, background: "rgba(168,85,247,0.08)", border: `1px solid ${P.border}`, borderRadius: 14, padding: "11px 13px" }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>{f.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: P.txt }}>{f.t}</div>
+                    <div style={{ fontSize: 11.5, color: P.muted, lineHeight: 1.5, marginTop: 1 }}>{f.d}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button onClick={closeIntro} style={{ width: "100%", background: `linear-gradient(135deg,${P.p1},${P.p3})`, border: "none", borderRadius: 16, padding: "14px", color: "#fff", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "'Syne',sans-serif" }}>
+              ¡Entendido, mi amor! 💜
+            </button>
+            <div style={{ textAlign: "center", marginTop: 10, fontSize: 10, color: "rgba(240,230,255,0.3)", fontStyle: "italic" }}>Puedes volver a ver esto con el botón ? de arriba</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
