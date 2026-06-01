@@ -197,8 +197,8 @@ REGLAS IMPORTANTES:
         </div>
         {showAdd && (
           <div style={{ background: "rgba(26,15,46,0.9)", border: `1px solid ${P.border}`, borderRadius: 14, padding: 12, marginBottom: 12, display: "flex", flexDirection: "column", gap: 8, animation: "lpIn 0.25s ease" }}>
-            <input value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="¿Qué celebramos? (ej: Viaje a la playa)" style={{ background: "rgba(255,255,255,0.07)", border: `1px solid ${P.border}`, borderRadius: 10, padding: "10px 12px", color: P.txt, fontSize: 14, outline: "none", fontFamily: "Poppins" }} />
-            <input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} style={{ background: "rgba(255,255,255,0.07)", border: `1px solid ${P.border}`, borderRadius: 10, padding: "10px 12px", color: P.txt, fontSize: 14, outline: "none", fontFamily: "Poppins" }} />
+            <input value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="¿Qué celebramos? (ej: Viaje a la playa)" style={{ background: "rgba(255,255,255,0.07)", border: `1px solid ${P.border}`, borderRadius: 10, padding: "10px 12px", color: P.txt, fontSize: 16, outline: "none", fontFamily: "Poppins" }} />
+            <input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} style={{ background: "rgba(255,255,255,0.07)", border: `1px solid ${P.border}`, borderRadius: 10, padding: "10px 12px", color: P.txt, fontSize: 16, outline: "none", fontFamily: "Poppins" }} />
             <button onClick={addCountdown} style={{ background: `linear-gradient(135deg,${P.p1},${P.p3})`, border: "none", borderRadius: 10, padding: "10px", color: "#fff", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Guardar fecha 💜</button>
           </div>
         )}
@@ -288,8 +288,8 @@ REGLAS IMPORTANTES:
             </div>
 
             {/* Título + nota */}
-            <input value={title} onChange={e => setTitle(e.target.value)} maxLength={60} placeholder="Ponle un título a tu día… (ej: Mi día lindo)" style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px", color: P.txt, fontSize: 14, outline: "none", fontFamily: "Poppins", marginBottom: 8, boxSizing: "border-box" }} />
-            <textarea value={note} onChange={e => setNote(e.target.value)} rows={2} placeholder="¿Quieres contarme algo más de tu día? (opcional)" style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px", color: P.txt, fontSize: 14, outline: "none", fontFamily: "Poppins", resize: "none", lineHeight: 1.5, marginBottom: 14, boxSizing: "border-box" }} />
+            <input value={title} onChange={e => setTitle(e.target.value)} maxLength={60} placeholder="Ponle un título a tu día… (ej: Mi día lindo)" style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px", color: P.txt, fontSize: 16, outline: "none", fontFamily: "Poppins", marginBottom: 8, boxSizing: "border-box" }} />
+            <textarea value={note} onChange={e => setNote(e.target.value)} rows={2} placeholder="¿Quieres contarme algo más de tu día? (opcional)" style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px", color: P.txt, fontSize: 16, outline: "none", fontFamily: "Poppins", resize: "none", lineHeight: 1.5, marginBottom: 14, boxSizing: "border-box" }} />
 
             <button onClick={saveDay} disabled={selMoods.length === 0 || aiLoading} style={{ width: "100%", background: selMoods.length && !aiLoading ? `linear-gradient(135deg,${P.p1},${P.p3})` : "rgba(255,255,255,0.08)", border: "none", borderRadius: 16, padding: "15px", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: selMoods.length && !aiLoading ? "pointer" : "not-allowed", fontFamily: "'Syne',sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               {aiLoading
