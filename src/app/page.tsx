@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback, memo } from "react";
 import dynamic from "next/dynamic";
 const VisionBoard = dynamic(() => import("@/components/VisionBoard"), { ssr: false });
+const LovePanel = dynamic(() => import("@/components/LovePanel"), { ssr: false });
 import {
   CheckDoneIcon, CheckEmptyIcon, ExpandIcon, DeleteIcon, RefreshIcon,
   SaveCloudIcon, MenuIcon, CloseIcon, SendIcon, SparkleIcon, ResetIcon,
@@ -86,6 +87,40 @@ const PRIORITY_GLOW: Record<string, string> = {
   medium: "0 0 8px #f59e0b, 0 0 16px rgba(245,158,11,0.4)",
   low:    "0 0 8px #22c55e, 0 0 16px rgba(34,197,94,0.4)",
 };
+// Notas sorpresa de amor (aparecen de vez en cuando al abrir la app)
+const LOVE_NOTES = [
+  "Eres mi persona favorita en todo el universo 💜",
+  "Cada día me enamoro más de ti, mi reina 👑",
+  "Gracias por existir, conejita — me alegras la vida entera 🌸",
+  "El que programó esto te ama con locura 🐰💕",
+  "Eres lo más bonito que me ha pasado, y lo sabes ✨",
+  "Eres mi hogar, mi paz y mi locura favorita 💗",
+  "Te amo en cada versión tuya: ocupada, dormida, despeinada, toda 🥰",
+  "Eres brillante, talentosa y grande — nunca lo olvides 🌟",
+  "No hay corona que brille más que tú, mi traviesa 👑✨",
+  "La mujer más espectacular del mundo está leyendo esto 👑",
+  "Tu esfuerzo de hoy es tu corona de mañana ✨",
+  "Vas a lograr todo lo que te propongas, lo sé 💪",
+  "Eres más fuerte de lo que crees y más capaz de lo que imaginas 🦋",
+  "No te rindas, reina — el mundo necesita tu brillo 🌙",
+  "¡Ostia chaval! Mira nada más lo productiva que eres hoy 🔥",
+  "Venga conejita, que tú puedes con esto y con más 🐰",
+  "Oye tú, sí, la de la corona — estás preciosa 👑😘",
+  "¿Otra tarea hecha? Vas imparable, fiera 💥",
+  "Conejita traviesa, deja de ser tan perfecta (es broma, sigue así) 😏",
+  "Eres mi notificación favorita del día 📲💜",
+  "Respira. Lo estás haciendo mejor de lo que crees 💜",
+  "Está bien descansar, mi amor — también es ser productiva 🌿",
+  "Hoy recuerda: eres suficiente, tal como eres 🤍",
+  "Si el día está pesado, aquí estoy yo, siempre 💗",
+  "Tómate tu tiempo, conejita. No hay prisa para brillar ✨",
+  "Un abrazo de conejita para ti justo ahora 🐰💞",
+  "Salté de felicidad al verte abrir la app otra vez 🐰✨",
+  "Mereces todo lo bonito del mundo, y un poquito más 🌸",
+  "Eres mi cuento favorito, mi final feliz 📖💜",
+  "Pase lo que pase hoy, eres amada inmensamente 💕",
+];
+
 const PRIORITY_CYCLE: Priority[] = ["high", "medium", "low", null];
 const nextPriority = (p: Priority): Priority => PRIORITY_CYCLE[(PRIORITY_CYCLE.indexOf(p) + 1) % PRIORITY_CYCLE.length];
 
@@ -439,7 +474,7 @@ export default function ConejitasDashboard() {
   const [loading, setLoading] = useState(false);
   const [chatLog, setChatLog] = useState<{ role: string; text: string }[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [view, setView] = useState<"dashboard" | "chat" | "vision">("dashboard");
+  const [view, setView] = useState<"dashboard" | "chat" | "vision" | "amor">("dashboard");
   const [desktop, setDesktop] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle"|"saving"|"saved"|"error">("idle");
   const [hydrated, setHydrated] = useState(false);
@@ -449,6 +484,7 @@ export default function ConejitasDashboard() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showMotivation, setShowMotivation] = useState(false);
   const [showIconsIntro, setShowIconsIntro] = useState(false);
+  const [loveNote, setLoveNote] = useState<string | null>(null);
 
   // ── Toast de motivación al ver tareas ────────────────────────────────────────
   const TASK_TOASTS = [
@@ -606,8 +642,21 @@ export default function ConejitasDashboard() {
     // Mensaje motivacional — una vez cada 8 días (no si va a salir otra ventana)
     const lastMotiv = localStorage.getItem("conjita-motiv-last");
     const eightDays = 8 * 24 * 60 * 60 * 1000;
-    if (welcomeSeen && iconsIntroSeen && (!lastMotiv || Date.now() - Number(lastMotiv) >= eightDays)) {
+    const motivWillShow = welcomeSeen && iconsIntroSeen && (!lastMotiv || Date.now() - Number(lastMotiv) >= eightDays);
+    if (motivWillShow) {
       setTimeout(() => setShowMotivation(true), 4000);
+    }
+    // Notas sorpresa — al abrir la app (de vez en cuando), sin chocar con otras ventanas
+    if (welcomeSeen && iconsIntroSeen && !motivWillShow && Math.random() < 0.4) {
+      const hour = new Date().getHours();
+      let note: string;
+      if (hour < 12) note = "Buenos días, mi reina ☀️ Hoy también vas a brillar 👑";
+      else if (hour >= 21) note = "Descansa, conejita 🌙 Hoy lo hiciste increíble, como siempre 💜";
+      else note = LOVE_NOTES[Math.floor(Math.random() * LOVE_NOTES.length)];
+      setTimeout(() => {
+        setLoveNote(note);
+        setTimeout(() => setLoveNote(null), 7000);
+      }, 2500);
     }
   }, []);
 
@@ -1117,7 +1166,7 @@ REGLAS GENERALES:
           )}
         </button>
         <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:28, padding:3, flexShrink:0, gap:2 }}>
-          {([{v:"dashboard",Icon:TabDashboardIcon,label:"Tareas"},{v:"chat",Icon:TabChatIcon,label:"Chat con la IA"},{v:"vision",Icon:TabVisionIcon,label:"Vision Board"}] as const).map(({v,Icon,label}) => (
+          {([{v:"dashboard",Icon:TabDashboardIcon,label:"Tareas"},{v:"chat",Icon:TabChatIcon,label:"Chat con la IA"},{v:"vision",Icon:TabVisionIcon,label:"Vision Board"},{v:"amor",Icon:HealthIcon,label:"Tu rinconcito"}] as const).map(({v,Icon,label}) => (
             <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} title={label} aria-label={label} aria-pressed={view===v} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:20, width:38, height:34, cursor:"pointer", lineHeight:0, display:"flex", alignItems:"center", justifyContent:"center", opacity: view===v ? 1 : 0.5, transition:"opacity 0.2s, background 0.2s", animation: view===v ? "tabGlow 0.5s ease-out" : "none" }}><Icon size={22}/></button>
           ))}
         </div>
@@ -1234,10 +1283,13 @@ REGLAS GENERALES:
         </div>
       )}
 
-      <main style={{ flex:1, overflowY: view === "vision" ? "hidden" : "auto", WebkitOverflowScrolling:"touch", padding: view === "vision" ? 0 : desktop ? "20px 28px 150px" : "14px 14px", paddingBottom: view === "vision" ? 0 : desktop ? 150 : "calc(120px + env(safe-area-inset-bottom))", display: view === "vision" ? "flex" : "block", flexDirection: "column" }}>
+      <main style={{ flex:1, overflowY: (view === "vision" || view === "amor") ? "hidden" : "auto", WebkitOverflowScrolling:"touch", padding: (view === "vision" || view === "amor") ? 0 : desktop ? "20px 28px 150px" : "14px 14px", paddingBottom: (view === "vision" || view === "amor") ? 0 : desktop ? 150 : "calc(120px + env(safe-area-inset-bottom))", display: (view === "vision" || view === "amor") ? "flex" : "block", flexDirection: "column" }}>
 
         {/* VISION BOARD */}
         {view === "vision" && <VisionBoard/>}
+
+        {/* RINCONCITO (amor) */}
+        {view === "amor" && <LovePanel/>}
 
         {/* DASHBOARD */}
         {view === "dashboard" && (
@@ -1325,7 +1377,7 @@ REGLAS GENERALES:
       </main>
 
       {/* Input bar */}
-      <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:maxW, background:"rgba(13,10,26,0.97)", backdropFilter:"blur(10px)", borderTop:`1px solid ${P.border}`, padding: desktop ? "12px 28px 18px" : "10px 14px", paddingBottom: desktop ? 18 : "calc(10px + env(safe-area-inset-bottom))", zIndex:100, display: view === "vision" ? "none" : "block" }}>
+      <div style={{ position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:maxW, background:"rgba(13,10,26,0.97)", backdropFilter:"blur(10px)", borderTop:`1px solid ${P.border}`, padding: desktop ? "12px 28px 18px" : "10px 14px", paddingBottom: desktop ? 18 : "calc(10px + env(safe-area-inset-bottom))", zIndex:100, display: (view === "vision" || view === "amor") ? "none" : "block" }}>
         <div style={{ display:"flex", gap:8, alignItems:"flex-end" }}>
           <div style={{ flex:1, background:"rgba(255,255,255,0.05)", border:`1px solid ${P.borderHi}`, borderRadius:18, padding:"9px 14px", display:"flex", alignItems:"center", gap:7 }}>
             <span style={{ display:"flex", flexShrink:0, animation:"sparkleSpin 3.5s ease-in-out infinite" }}><SparkleIcon size={18}/></span>
@@ -1829,6 +1881,27 @@ REGLAS GENERALES:
         </div>
         );
       })()}
+
+      {/* Nota sorpresa de amor */}
+      {loveNote && (
+        <div
+          onClick={() => setLoveNote(null)}
+          style={{
+            position:"fixed", bottom: desktop ? 28 : "calc(24px + env(safe-area-inset-bottom))", left:"50%",
+            background:"linear-gradient(135deg,rgba(147,51,234,0.96),rgba(219,39,119,0.96))",
+            backdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.18)",
+            borderRadius:20, padding:"13px 18px 13px 14px",
+            display:"flex", alignItems:"center", gap:11,
+            maxWidth:"calc(100vw - 28px)", width:340,
+            boxShadow:"0 8px 36px rgba(147,51,234,0.5)",
+            animation:"toastUp 0.45s cubic-bezier(0.34,1.56,0.64,1)",
+            cursor:"pointer", zIndex:260,
+          }}
+        >
+          <div style={{ flexShrink:0, display:"flex" }}><MascotBunnyIcon size={38}/></div>
+          <span style={{ fontSize:13, fontWeight:600, color:"#fff", lineHeight:1.45 }}>{loveNote}</span>
+        </div>
+      )}
 
       {/* Version tag */}
       <div style={{ position:"fixed", bottom:8, right:10, fontSize:10, color:"rgba(240,230,255,0.25)", pointerEvents:"none", zIndex:9 }}>
