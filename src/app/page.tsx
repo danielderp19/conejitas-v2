@@ -315,16 +315,20 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
           title={node.priority === "high" ? "Alta prioridad" : node.priority === "medium" ? "Media prioridad" : node.priority === "low" ? "Baja prioridad" : "Toca para asignar prioridad"}
           style={{ background:"none", border:"none", padding:0, cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", width:34, height:40 }}
         >
-          <div style={{
-            width: 12, height: 12, borderRadius:"50%",
-            background: node.priority ? PRIORITY_COLORS[node.priority] : "rgba(255,255,255,0.15)",
-            boxShadow: node.priority ? `0 0 6px ${PRIORITY_COLORS[node.priority]}` : "none",
-            border: node.priority ? "none" : "1.5px solid rgba(255,255,255,0.3)",
-            transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-            ...(node.priority === "high" && !isDone
-              ? { ["--pc" as string]: PRIORITY_COLORS.high, animation: "priorityPulse 1.8s ease-in-out infinite" }
-              : {}),
-          }}/>
+          {node.priority ? (
+            <div style={{
+              width: 12, height: 12, borderRadius:"50%",
+              background: PRIORITY_COLORS[node.priority],
+              boxShadow: `0 0 6px ${PRIORITY_COLORS[node.priority]}`,
+              transition: "all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+              ...(node.priority === "high" && !isDone
+                ? { ["--pc" as string]: PRIORITY_COLORS.high, animation: "priorityPulse 1.8s ease-in-out infinite" }
+                : {}),
+            }}/>
+          ) : (
+            // Sin prioridad: anillo visible con "+" para invitar a asignar
+            <div style={{ width: 15, height: 15, borderRadius:"50%", border:"1.6px dashed rgba(240,230,255,0.55)", display:"flex", alignItems:"center", justifyContent:"center", color:"rgba(240,230,255,0.6)", fontSize:11, fontWeight:700, lineHeight:1 }}>+</div>
+          )}
         </button>
 
         {hasKids && (
@@ -345,7 +349,7 @@ const Node = memo(function Node({ node, done, expanded, desktop, scheduled, onTo
           </button>
         )}
         <button
-          onClick={(e) => { e.stopPropagation(); if (window.confirm("¿Eliminar esta tarea?")) onDelete(node.id); }}
+          onClick={(e) => { e.stopPropagation(); onDelete(node.id); }}
           title="Eliminar tarea"
           style={{ background:"none", border:"none", borderRadius:10, padding:0, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, width:40, height:40 }}
         >
@@ -480,6 +484,7 @@ export default function ConejitasDashboard() {
   const [showIconsIntro, setShowIconsIntro] = useState(false);
   const [loveNote, setLoveNote] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [confirmDel, setConfirmDel] = useState<{ kind: "node" | "tree"; id: string; title: string } | null>(null);
 
   // ── Toast de motivación al ver tareas ────────────────────────────────────────
   const TASK_TOASTS = [
@@ -824,11 +829,37 @@ export default function ConejitasDashboard() {
     setTrees((prev) => {
       const target = find(prev);
       const toRemove = target ? collectIds(target) : [nodeId];
-      setDone((p) => { const nd = { ...p }; toRemove.forEach((id) => delete nd[id]); return nd; });
-      setExpanded((p) => { const ne = { ...p }; toRemove.forEach((id) => delete ne[id]); return ne; });
-      return del(prev);
+      // Categorías de nivel superior que TENÍAN tareas y quedan vacías → eliminarlas
+      const emptiedTreeIds = prev
+        .filter((t) => (t.children?.length ?? 0) > 0)
+        .map((t) => ({ id: t.id, after: del(t.children || []) }))
+        .filter((x) => x.after.length === 0)
+        .map((x) => x.id);
+      if (emptiedTreeIds.length) {
+        const treesToClear = prev.filter((t) => emptiedTreeIds.includes(t.id));
+        const extra = treesToClear.flatMap((t) => collectIds(t));
+        setDone((p) => { const nd = { ...p }; [...toRemove, ...extra].forEach((id) => delete nd[id]); return nd; });
+        setExpanded((p) => { const ne = { ...p }; [...toRemove, ...extra].forEach((id) => delete ne[id]); return ne; });
+      } else {
+        setDone((p) => { const nd = { ...p }; toRemove.forEach((id) => delete nd[id]); return nd; });
+        setExpanded((p) => { const ne = { ...p }; toRemove.forEach((id) => delete ne[id]); return ne; });
+      }
+      // borra el nodo y poda las categorías que quedaron sin tareas
+      return del(prev).filter((t) => !emptiedTreeIds.includes(t.id));
     });
   }, []);
+
+  // Confirmación de borrado con modal lindo (en vez de window.confirm)
+  const requestDeleteNode = useCallback((id: string) => {
+    let title = "esta tarea";
+    const search = (nodes: TreeNode[]): void => { for (const n of nodes) { if (n.id === id) { title = n.title; return; } search(n.children || []); } };
+    search(trees);
+    setConfirmDel({ kind: "node", id, title });
+  }, [trees]);
+  const requestDeleteTree = useCallback((id: string) => {
+    const t = trees.find((x) => x.id === id);
+    setConfirmDel({ kind: "tree", id, title: t?.title || "esta categoría" });
+  }, [trees]);
 
   const deleteTree = useCallback((treeId: string) => {
     setTrees((prev) => {
@@ -984,7 +1015,6 @@ REGLAS GENERALES:
         body:JSON.stringify({ model:"gpt-4o-mini", max_tokens:2500, system:sys, messages:[{ role:"user", content:msg }] }),
       });
       const data = await res.json();
-      console.log("API response:", data.content);
       const newTrees = parseResponse(data.content);
       if (!newTrees || newTrees.length === 0) {
         setChatLog((p) => [...p, { role:"ai", text:"No detecté tareas concretas. Intenta algo como: \"preparar informe, llamar cliente, revisar correos\"" }]);
@@ -1135,9 +1165,9 @@ REGLAS GENERALES:
       {/* Header */}
       <header style={{ padding: desktop ? "14px 28px" : "12px 14px", paddingTop: desktop ? 14 : "calc(12px + env(safe-area-inset-top))", background:"rgba(13,10,26,0.97)", backdropFilter:"blur(10px)", borderBottom:`1px solid ${P.border}`, display:"flex", alignItems:"center", gap: desktop ? 10 : 7, position:"sticky", top:0, zIndex:100 }}>
         <div style={{ flex:1, minWidth:0 }}>
-          <div className="grad-anim" style={{ fontFamily:"'Syne',sans-serif", fontSize: desktop ? 22 : 17, fontWeight:800, backgroundImage:`linear-gradient(135deg,${P.p1},${P.p3},${P.p1})`, WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+          <h1 className="grad-anim" style={{ margin:0, fontFamily:"'Syne',sans-serif", fontSize: desktop ? 22 : 15.5, fontWeight:800, backgroundImage:`linear-gradient(135deg,${P.p1},${P.p3},${P.p1})`, WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.05, whiteSpace: desktop ? "nowrap" : "normal" }}>
             Conjita&apos;s Dashboard
-          </div>
+          </h1>
           <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:1 }}>
             <div style={{ fontSize:11, color:P.muted, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
               {totalT ? `${doneT} de ${totalT} tareas • ${pct}%` : "Escribe tus tareas"}
@@ -1168,7 +1198,7 @@ REGLAS GENERALES:
         </button>
         <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:28, padding:3, flexShrink:0, gap:2 }}>
           {([{v:"dashboard",Icon:TabDashboardIcon,label:"Tareas"},{v:"chat",Icon:TabChatIcon,label:"Chat con la IA"},{v:"vision",Icon:TabVisionIcon,label:"Vision Board"},{v:"amor",Icon:HealthIcon,label:"Tu rinconcito"}] as const).map(({v,Icon,label}) => (
-            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} title={label} aria-label={label} aria-pressed={view===v} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:20, width:38, height:34, cursor:"pointer", lineHeight:0, display:"flex", alignItems:"center", justifyContent:"center", opacity: view===v ? 1 : 0.5, transition:"opacity 0.2s, background 0.2s", animation: view===v ? "tabGlow 0.5s ease-out" : "none" }}><Icon size={22}/></button>
+            <button key={v} onClick={() => { setView(v); setMenuOpen(false); }} title={label} aria-label={label} aria-pressed={view===v} style={{ background: view===v ? `linear-gradient(135deg,${P.p1},${P.p3})` : "none", border:"none", borderRadius:18, width:40, height:38, cursor:"pointer", lineHeight:0, display:"flex", alignItems:"center", justifyContent:"center", opacity: view===v ? 1 : 0.5, transition:"opacity 0.2s, background 0.2s", animation: view===v ? "tabGlow 0.5s ease-out" : "none" }}><Icon size={22}/></button>
           ))}
         </div>
         <button onClick={() => setMenuOpen((m) => !m)} title="Menú" aria-label="Menú" aria-expanded={menuOpen} style={{ background:"rgba(255,255,255,0.06)", border:"none", borderRadius:10, padding: desktop ? 7 : 9, cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center" }}>
@@ -1176,6 +1206,9 @@ REGLAS GENERALES:
         </button>
       </header>
 
+      {menuOpen && (
+        <div onClick={() => setMenuOpen(false)} style={{ position:"fixed", inset:0, zIndex:190 }}/>
+      )}
       {menuOpen && (
         <div style={{ position:"fixed", top: desktop ? 62 : "calc(64px + env(safe-area-inset-top))", right: desktop ? "calc(50% - 480px + 12px)" : 12, background:"rgba(13,10,26,0.98)", border:`1px solid ${P.border}`, borderRadius:14, padding:8, zIndex:200, minWidth:210, boxShadow:"0 12px 40px rgba(0,0,0,0.8)" }}>
           <div style={{ padding:"8px 12px 6px", fontSize:10, color:P.muted, fontWeight:700 }}>MEMORIA</div>
@@ -1335,8 +1368,8 @@ REGLAS GENERALES:
             ) : (
               trees.map((tree) => (
                 <TreeCard key={tree.id} tree={tree} done={done} expanded={expanded} desktop={desktop}
-                  scheduled={scheduled} onToggle={toggle} onExpand={expandToggle} onDeleteNode={deleteNode}
-                  onDeleteTree={deleteTree} onReorder={handleReorder} onSchedule={openCalModal} onPriority={cyclePriority}/>
+                  scheduled={scheduled} onToggle={toggle} onExpand={expandToggle} onDeleteNode={requestDeleteNode}
+                  onDeleteTree={requestDeleteTree} onReorder={handleReorder} onSchedule={openCalModal} onPriority={cyclePriority}/>
               ))
             )}
           </div>
@@ -1698,6 +1731,25 @@ REGLAS GENERALES:
             <button onClick={() => setShowClientIdGuide(false)} style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:14, padding:"13px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}>
               ¡Entendido! 🐰
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Confirmar borrado (modal lindo) ── */}
+      {confirmDel && (
+        <div onClick={() => setConfirmDel(null)} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:620, display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background:"#1a0f2e", border:`1px solid ${P.borderHi}`, borderRadius:22, padding:"24px 22px", width:"100%", maxWidth:340, textAlign:"center", animation:"slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 60px rgba(0,0,0,0.6)" }}>
+            <div style={{ fontSize:30, marginBottom:8 }}>🗑️</div>
+            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:17, color:P.txt, marginBottom:6 }}>
+              {confirmDel.kind === "tree" ? "¿Eliminar la categoría?" : "¿Eliminar la tarea?"}
+            </div>
+            <div style={{ fontSize:13, color:P.muted, lineHeight:1.5, marginBottom:20, wordBreak:"break-word" }}>
+              “{confirmDel.title}”{confirmDel.kind === "tree" ? " y todas sus tareas" : ""} se borrará{confirmDel.kind === "tree" ? "n" : ""} para siempre.
+            </div>
+            <div style={{ display:"flex", gap:10 }}>
+              <button onClick={() => setConfirmDel(null)} style={{ flex:1, background:"rgba(255,255,255,0.08)", border:`1px solid ${P.border}`, borderRadius:14, padding:"12px", color:P.txt, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"'Poppins',sans-serif" }}>Cancelar</button>
+              <button onClick={() => { if (confirmDel.kind === "tree") deleteTree(confirmDel.id); else deleteNode(confirmDel.id); setConfirmDel(null); }} style={{ flex:1, background:"linear-gradient(135deg,#ef4444,#db2777)", border:"none", borderRadius:14, padding:"12px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Poppins',sans-serif" }}>Eliminar</button>
+            </div>
           </div>
         </div>
       )}
