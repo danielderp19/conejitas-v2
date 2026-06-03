@@ -157,11 +157,11 @@ export default function LovePanel() {
     setAiLoading(true);
     const labels = selMoods.map(k => MOOD_BY_KEY[k]?.label || k).join(", ");
     const FALLBACKS = [
-      "Gracias por contarme cómo te sientes hoy 💜 Recuerda que tus emociones son válidas, todas. Date un ratito para ti hoy, lo mereces 🐰",
-      "Te leo y te entiendo 🌸 Hoy intenta hacer una cosa pequeña que te dé gustito — un té, tu canción favorita, lo que sea tuyo ✨",
-      "Sea como sea tu día, estás haciéndolo increíble 🌟 Respira hondo y sé amable contigo misma, como lo eres con todos 💜",
-      "Anotado, mi reina 👑 Permítete sentir sin juzgarte. Si algo te pesa, escríbelo o suéltalo; si algo te alegra, disfrútalo a fondo 💫",
-      "Aquí estoy contigo siempre 🐰 Hoy regálate un momento de calma, aunque sea chiquito. Tú también necesitas cuidarte 🌿",
+      "Gracias por contarme cómo te sientes hoy 💜 Tus emociones son válidas, todas. Date un ratito para ti, lo mereces 🐰",
+      "Te leo y te entiendo 🌸 Hoy intenta una cosa pequeña que te dé gustito — un té, tu canción favorita. Y si te animas, lee Salmos 23 💜",
+      "Sea como sea tu día, lo estás haciendo increíble 🌟 Respira hondo y sé amable contigo, como lo eres con los demás.",
+      "Anotado, mi reina 👑 Permítete sentir sin juzgarte. Escribir lo que pasa por tu mente suele aligerar el corazón 💫",
+      "Aquí estoy contigo 🐰 Regálate un momento de calma hoy. Si algo te pesa mucho, apóyate en alguien de confianza — no tienes que con todo sola 🌿",
     ];
     let msg = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
     try {
@@ -175,9 +175,14 @@ REGLAS IMPORTANTES:
 - Incluye UNA sola recomendación concreta y que ENCAJE con el ánimo específico de hoy. VARÍA mucho la recomendación entre respuestas: no repitas siempre lo mismo. Elige según el momento entre ideas como: un placer pequeño (un té, su canción favorita, un dulce), descansar/dormir, salir a caminar o tomar aire, estirarse o respirar, escribir lo que siente, escuchar música o bailar, ver algo que le guste, celebrar un logro por pequeño que sea, ordenar una sola cosa, darse permiso de no hacer nada, un momento de sol, un baño rico, etc.
 - NO recomiendes "abrazar" ni hablar de la familia en cada respuesta. La familia puede mencionarse muy de vez en cuando, pero NO debe ser el tema recurrente.
 - NUNCA la llames "amiga", "amigui", "bestie" ni etiquetas parecidas. Háblale directo, o de vez en cuando como "mi reina" o "conejita" (sin abusar).
-- Tono dulce y genuino, con 1 o 2 emojis. Nada de listas. Respuestas variadas y frescas, no acartonadas.`,
+
+- CUANDO ENCAJE de forma natural con el ánimo (no siempre, no a la fuerza), puedes sumar UNA de estas dos cosas (o ambas si fluye, pero sin alargarte):
+  • 📖 Una cita bíblica para leer, SOLO la referencia (libro capítulo:versículo), de una versión vigente como NVI o Reina-Valera. NO escribas el texto del versículo, solo invítala a leerlo (ej: "Hoy te invito a leer Filipenses 4:6-7 💜"). Que sea pertinente al sentimiento.
+  • 🧠 Un tip psicológico de bienestar, sencillo y cálido (respiración consciente, escribir lo que siente, una pausa, gratitud, dividir lo grande en pasos pequeños). En días difíciles (triste, llorando, abrumada, ansiosa, frustrada, enojada) anímala con cariño a apoyarse en alguien de confianza o, si lo necesita, en un profesional. NO diagnostiques ni des consejo clínico; eres un acompañamiento cariñoso, no un terapeuta.
+
+- Tono dulce y genuino, con 1 o 2 emojis. Nada de listas con viñetas; escribe natural como la conejita, en 3-4 frases máximo.`,
           messages: [{ role: "user", content: `Hoy me siento: ${labels}.${title.trim() ? ` Título de mi día: "${title.trim()}".` : ""}${note.trim() ? ` Nota: ${note.trim()}` : ""}` }],
-          max_tokens: 170,
+          max_tokens: 230,
         }),
       });
       const data = await res.json();
