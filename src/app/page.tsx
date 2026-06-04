@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback, memo } from "react";
 import dynamic from "next/dynamic";
 const VisionBoard = dynamic(() => import("@/components/VisionBoard"), { ssr: false });
 const LovePanel = dynamic(() => import("@/components/LovePanel"), { ssr: false });
+const SyncManager = dynamic(() => import("@/components/SyncManager"), { ssr: false });
 import {
   CheckDoneIcon, CheckEmptyIcon, ExpandIcon, DeleteIcon, RefreshIcon,
   SaveCloudIcon, MenuIcon, CloseIcon, SendIcon, SparkleIcon, ResetIcon,
@@ -485,6 +486,8 @@ export default function ConejitasDashboard() {
   const [loveNote, setLoveNote] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [confirmDel, setConfirmDel] = useState<{ kind: "node" | "tree"; id: string; title: string } | null>(null);
+  const [showSync, setShowSync] = useState(false);
+  const [syncCodeInput, setSyncCodeInput] = useState("");
 
   // ── Toast de motivación al ver tareas ────────────────────────────────────────
   const TASK_TOASTS = [
@@ -1127,6 +1130,7 @@ REGLAS GENERALES:
 
   return (
     <div style={{ minHeight:"100dvh", background:P.bg, fontFamily:"'Poppins',sans-serif", color:P.txt, display:"flex", flexDirection:"column", maxWidth:maxW, margin:"0 auto", position:"relative" }}>
+      <SyncManager/>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg);}}
         @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
@@ -1239,6 +1243,13 @@ REGLAS GENERALES:
               <span style={{ width:8, height:8, borderRadius:"50%", background:"#22c55e", display:"inline-block", boxShadow:"0 0 5px #22c55e" }}/>
             </span>
             Re-analizar prioridades
+          </button>
+          <div style={{ padding:"8px 12px 4px", fontSize:10, color:P.muted, fontWeight:700, borderTop:`1px solid ${P.border}`, marginTop:4 }}>DISPOSITIVOS</div>
+          <button
+            onClick={() => { setSyncCodeInput(localStorage.getItem("conjita-sync-code") || ""); setShowSync(true); setMenuOpen(false); }}
+            style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", color: localStorage.getItem("conjita-sync-code") ? "#86efac" : P.txt, padding:"9px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:600 }}
+          >
+            🔗 {localStorage.getItem("conjita-sync-code") ? "Dispositivos vinculados" : "Vincular compu y celular"}
           </button>
           <button onClick={reset} style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", color:"#f87171", padding:"9px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:600, marginTop:4 }}>
             <ResetIcon size={17}/> Borrar todo y memoria
@@ -1731,6 +1742,49 @@ REGLAS GENERALES:
             <button onClick={() => setShowClientIdGuide(false)} style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:14, padding:"13px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}>
               ¡Entendido! 🐰
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Vincular dispositivos (sincronización) ── */}
+      {showSync && (
+        <div onClick={() => setShowSync(false)} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.78)", zIndex:620, display:"flex", alignItems:"center", justifyContent:"center", padding:`calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))`, overflowY:"auto" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background:"#1a0f2e", border:`1px solid ${P.borderHi}`, borderRadius:22, padding:"24px 22px", width:"100%", maxWidth:380, animation:"slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 60px rgba(0,0,0,0.6)" }}>
+            <div style={{ textAlign:"center", marginBottom:16 }}>
+              <div style={{ fontSize:30, marginBottom:6 }}>🔗</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:17, color:P.txt }}>Vincular tus dispositivos</div>
+              <div style={{ fontSize:12, color:P.muted, marginTop:6, lineHeight:1.6 }}>
+                Pon el <b style={{ color:P.txt }}>mismo código secreto</b> en tu compu y en tu celular, y tus tareas, ánimos y fechas se mantendrán iguales en ambos 💜
+              </div>
+            </div>
+            <input
+              value={syncCodeInput}
+              onChange={(e) => setSyncCodeInput(e.target.value)}
+              placeholder="Tu código secreto (ej: conejita2024)"
+              style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:`1px solid ${P.border}`, borderRadius:12, padding:"12px 14px", color:P.txt, fontSize:16, outline:"none", fontFamily:"Poppins", boxSizing:"border-box", marginBottom:6 }}
+            />
+            <div style={{ fontSize:10.5, color:P.muted, marginBottom:16, lineHeight:1.5 }}>
+              💡 Vincula primero el dispositivo que ya tiene tus datos. Mínimo 3 caracteres. Guárdalo como un secreto: quien lo sepa puede ver tu información.
+            </div>
+            <div style={{ display:"flex", gap:10 }}>
+              {localStorage.getItem("conjita-sync-code") && (
+                <button onClick={() => { localStorage.removeItem("conjita-sync-code"); localStorage.removeItem("conjita-sync-rev"); localStorage.removeItem("conjita-sync-hash"); setShowSync(false); }} style={{ flex:1, background:"rgba(255,255,255,0.08)", border:`1px solid ${P.border}`, borderRadius:14, padding:"12px", color:"#f87171", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"'Poppins',sans-serif" }}>Desvincular</button>
+              )}
+              <button
+                onClick={() => {
+                  const c = syncCodeInput.trim();
+                  if (c.length < 3) { alert("El código debe tener al menos 3 caracteres."); return; }
+                  localStorage.setItem("conjita-sync-code", c);
+                  localStorage.removeItem("conjita-sync-rev");  // forzar pull si la nube es más nueva
+                  localStorage.removeItem("conjita-sync-hash"); // forzar push de lo nuestro
+                  setShowSync(false);
+                  setTimeout(() => location.reload(), 200);
+                }}
+                style={{ flex:2, background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:14, padding:"12px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}
+              >
+                Vincular 🔗
+              </button>
+            </div>
           </div>
         </div>
       )}
