@@ -20,12 +20,17 @@ export async function GET(req: NextRequest) {
     const prefix = `conjita-sync/${codeHash(code)}.json`;
     const { blobs } = await list({ prefix });
     if (blobs.length === 0) return NextResponse.json({ data: null, updatedAt: 0 });
-    const res = await fetch(blobs[0].url + `?t=${Date.now()}`); // evitar caché
+    // Blob privado → leer con el token de lectura/escritura
+    const token = process.env.BLOB_READ_WRITE_TOKEN || "";
+    const res = await fetch(blobs[0].url + `?t=${Date.now()}`, {
+      headers: token ? { authorization: `Bearer ${token}` } : undefined,
+    });
+    if (!res.ok) return NextResponse.json({ data: null, updatedAt: 0 });
     const json = await res.json();
     return NextResponse.json({ data: json.data ?? null, updatedAt: json.updatedAt ?? 0 });
   } catch (err) {
     console.error("sync GET error:", err);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    return NextResponse.json({ error: "Failed", detail: err instanceof Error ? err.message : String(err) }, { status: 500 });
   }
 }
 
