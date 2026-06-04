@@ -620,6 +620,23 @@ export default function ConejitasDashboard() {
     }
   }, [gcalClientId]);
 
+  // Aplicar en vivo los datos que llegan del otro dispositivo (sin recargar)
+  useEffect(() => {
+    const apply = () => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const s = JSON.parse(raw);
+        setTrees(s.trees || []);
+        setDone(s.done || {});
+        setExpanded(s.expanded || {});
+        if (s.chatLog) setChatLog(s.chatLog.slice(-20));
+      } catch { /* ok */ }
+    };
+    window.addEventListener("conjita-sync-applied", apply);
+    return () => window.removeEventListener("conjita-sync-applied", apply);
+  }, []);
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);

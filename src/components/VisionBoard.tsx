@@ -138,17 +138,22 @@ export default function VisionBoard() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // ── Carga inicial ─────────────────────────────────────────────────────────
+  // ── Carga inicial + aplicar en vivo cambios del otro dispositivo ──────────
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const s = JSON.parse(raw);
-        setElements(s.elements || []);
-        setBg(s.bg || BACKGROUNDS[0].value);
-        if (s.bgImage) setBgImage(s.bgImage);
-      }
-    } catch { /* ok */ }
+    const load = () => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const s = JSON.parse(raw);
+          setElements(s.elements || []);
+          setBg(s.bg || BACKGROUNDS[0].value);
+          setBgImage(s.bgImage || null);
+        }
+      } catch { /* ok */ }
+    };
+    load();
+    window.addEventListener("conjita-sync-applied", load);
+    return () => window.removeEventListener("conjita-sync-applied", load);
   }, []);
 
   // ── Guardado con debounce + indicador ─────────────────────────────────────

@@ -105,19 +105,26 @@ export default function LovePanel() {
     c(); window.addEventListener("resize", c); return () => window.removeEventListener("resize", c);
   }, []);
 
-  useEffect(() => {
+  const loadFromStorage = useCallback(() => {
     try {
       const raw = localStorage.getItem(DATES_KEY);
-      if (raw) setCustom(JSON.parse(raw));
+      setCustom(raw ? JSON.parse(raw) : []);
       const mh = localStorage.getItem(MOOD_KEY);
       if (mh) {
         const arr: MoodDay[] = JSON.parse(mh);
         setHistory(arr);
-        const t = arr.find(e => e.date === todayStr());
-        if (t) setSavedToday(t);
+        setSavedToday(arr.find(e => e.date === todayStr()) || null);
       }
     } catch { /* ok */ }
   }, []);
+
+  useEffect(() => { loadFromStorage(); }, [loadFromStorage]);
+
+  // Aplicar en vivo los datos que llegan del otro dispositivo (sin recargar)
+  useEffect(() => {
+    window.addEventListener("conjita-sync-applied", loadFromStorage);
+    return () => window.removeEventListener("conjita-sync-applied", loadFromStorage);
+  }, [loadFromStorage]);
 
   // Reactivar al empezar un nuevo día (aunque la app quede abierta): si el día guardado
   // ya no es hoy, se libera el selector inmediatamente.

@@ -44,13 +44,17 @@ export default function SyncManager() {
         const res = await fetch(`/api/sync?code=${encodeURIComponent(code)}`);
         const remote = await res.json();
         if (remote && remote.data && Number(remote.updatedAt) > rev) {
+          // Si está escribiendo, no pisamos nada todavía; reintenta en el próximo ciclo
+          const active = document.activeElement as HTMLElement | null;
+          if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) return;
           for (const k of SYNC_KEYS) {
             if (remote.data[k] != null) localStorage.setItem(k, remote.data[k]);
             else localStorage.removeItem(k);
           }
           localStorage.setItem(REV_KEY, String(remote.updatedAt));
           localStorage.setItem(HASH_KEY, hashOf(remote.data));
-          location.reload(); // refresca la app con los datos nuevos
+          // Aplica en vivo (sin recargar) avisando a las pantallas
+          window.dispatchEvent(new Event("conjita-sync-applied"));
           return;
         }
 
@@ -72,7 +76,7 @@ export default function SyncManager() {
     };
 
     sync();
-    const interval = setInterval(sync, 12000);
+    const interval = setInterval(sync, 5000);
     const onVis = () => { if (document.visibilityState === "visible") sync(); };
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("focus", sync);
