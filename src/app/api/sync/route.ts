@@ -38,11 +38,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "código inválido (mínimo 3 caracteres)" }, { status: 400 });
     }
     await put(`conjita-sync/${codeHash(code)}.json`, JSON.stringify({ data: data || {}, updatedAt: updatedAt || Date.now() }), {
-      access: "public",
       addRandomSuffix: false,
       allowOverwrite: true,
       contentType: "application/json",
-    });
+    } as Parameters<typeof put>[2]);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("sync POST error:", err);
