@@ -46,6 +46,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("sync POST error:", err);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    return NextResponse.json({ error: "Failed", detail: err instanceof Error ? err.message : String(err) }, { status: 500 });
   }
 }
