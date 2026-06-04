@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     await put(`conjita-sync/${codeHash(code)}.json`, JSON.stringify({ data: data || {}, updatedAt: updatedAt || Date.now() }), {
       access: "public",
       addRandomSuffix: false,
+      allowOverwrite: true,
       contentType: "application/json",
     });
     return NextResponse.json({ ok: true });
