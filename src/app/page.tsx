@@ -485,6 +485,7 @@ export default function ConejitasDashboard() {
   const [showIconsIntro, setShowIconsIntro] = useState(false);
   const [loveNote, setLoveNote] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showSyncIntro, setShowSyncIntro] = useState(false);
   const [confirmDel, setConfirmDel] = useState<{ kind: "node" | "tree"; id: string; title: string } | null>(null);
   const [showSync, setShowSync] = useState(false);
   const [syncCodeInput, setSyncCodeInput] = useState("");
@@ -654,6 +655,11 @@ export default function ConejitasDashboard() {
     if (!onboardingSeen) {
       setTimeout(() => setShowOnboarding(true), 700);
       return; // no mostrar otras ventanas este load
+    }
+    // ── Aviso de sincronización entre dispositivos — solo una vez ──
+    if (!localStorage.getItem("conjita-sync-intro")) {
+      setTimeout(() => setShowSyncIntro(true), 800);
+      return; // no apilar con otras ventanas
     }
     // Mostrar bienvenida solo la primera vez (v3 incluye Vision Board y guía Calendar)
     const welcomeSeen = !!localStorage.getItem("conjita-welcome-v3");
@@ -1758,6 +1764,62 @@ REGLAS GENERALES:
 
             <button onClick={() => setShowClientIdGuide(false)} style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:14, padding:"13px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}>
               ¡Entendido! 🐰
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Aviso amoroso de sincronización (una vez) ── */}
+      {showSyncIntro && (
+        <div
+          onClick={() => { setShowSyncIntro(false); localStorage.setItem("conjita-sync-intro", "1"); }}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.82)", zIndex:610, display:"flex", alignItems:"center", justifyContent:"center", padding:`calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))`, overflowY:"auto" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:26, padding: desktop ? "28px 26px 24px" : "24px 18px 20px", width:"100%", maxWidth:380, maxHeight:"100%", overflowY:"auto", animation:"slideIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(147,51,234,0.4)" }}
+          >
+            <div style={{ textAlign:"center", marginBottom:18 }}>
+              <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}><MascotBunnyIcon size={80}/></div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:21, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
+                Mira mi reina conejita 💜
+              </div>
+              <div style={{ fontSize:12.5, color:"rgba(240,230,255,0.75)", marginTop:8, lineHeight:1.65 }}>
+                Ahora tu <b style={{ color:P.txt }}>compu y tu celular pueden ir de la mano</b> 🤍 Todo lo que escribas en uno aparecerá en el otro, al instante, como si fueran uno solo.
+              </div>
+            </div>
+
+            <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:18 }}>
+              {[
+                { n:"1", t:"Abre el menú ☰", d:"Toca arriba a la derecha y elige \"🔗 Vincular compu y celular\"." },
+                { n:"2", t:"Pon un código secreto", d:"Inventa una palabra solo tuya (ej: nuestronombre23) y guárdala." },
+                { n:"3", t:"El mismo código en el otro", d:"Repite el mismo código en tu otro dispositivo. ¡Y listo, mi amor! 💫" },
+              ].map((s) => (
+                <div key={s.n} style={{ display:"flex", alignItems:"flex-start", gap:12, background:"rgba(168,85,247,0.08)", border:`1px solid ${P.border}`, borderRadius:14, padding:"11px 13px" }}>
+                  <div style={{ flexShrink:0, width:26, height:26, borderRadius:"50%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:800, color:"#fff" }}>{s.n}</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontWeight:700, fontSize:13, color:P.txt }}>{s.t}</div>
+                    <div style={{ fontSize:11.5, color:P.muted, lineHeight:1.5, marginTop:1 }}>{s.d}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ fontSize:10.5, color:"rgba(240,230,255,0.4)", textAlign:"center", marginBottom:14, lineHeight:1.5 }}>
+              Tu código es como un secreto entre nosotros — guárdalo bien 💜
+            </div>
+
+            <button
+              onClick={() => { setShowSyncIntro(false); localStorage.setItem("conjita-sync-intro", "1"); setSyncCodeInput(localStorage.getItem("conjita-sync-code") || ""); setShowSync(true); }}
+              style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:16, padding:"14px", color:"#fff", fontSize:14.5, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif", marginBottom:8 }}
+            >
+              Vincular ahora 🔗
+            </button>
+            <button
+              onClick={() => { setShowSyncIntro(false); localStorage.setItem("conjita-sync-intro", "1"); }}
+              style={{ width:"100%", background:"none", border:"none", color:P.muted, fontSize:12.5, fontWeight:600, cursor:"pointer", padding:6 }}
+            >
+              Después, mi amor 💜
             </button>
           </div>
         </div>
