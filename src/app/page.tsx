@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, memo } from "react";
 import dynamic from "next/dynamic";
+import { localDateStr } from "@/lib/date";
 const VisionBoard = dynamic(() => import("@/components/VisionBoard"), { ssr: false });
 const LovePanel = dynamic(() => import("@/components/LovePanel"), { ssr: false });
 const SyncManager = dynamic(() => import("@/components/SyncManager"), { ssr: false });
@@ -501,6 +502,7 @@ export default function ConejitasDashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showSyncIntro, setShowSyncIntro] = useState(false);
+  const [showStatsIntro, setShowStatsIntro] = useState(false);
   const [confirmDel, setConfirmDel] = useState<{ kind: "node" | "tree"; id: string; title: string } | null>(null);
   const [showSync, setShowSync] = useState(false);
   const [syncCodeInput, setSyncCodeInput] = useState("");
@@ -676,6 +678,11 @@ export default function ConejitasDashboard() {
       setTimeout(() => setShowSyncIntro(true), 800);
       return; // no apilar con otras ventanas
     }
+    // ── Aviso de las nuevas estadísticas — solo una vez ──
+    if (!localStorage.getItem("conjita-stats-intro")) {
+      setTimeout(() => setShowStatsIntro(true), 800);
+      return; // no apilar con otras ventanas
+    }
     // Mostrar bienvenida solo la primera vez (v3 incluye Vision Board y guía Calendar)
     const welcomeSeen = !!localStorage.getItem("conjita-welcome-v3");
     if (!welcomeSeen) {
@@ -837,31 +844,32 @@ export default function ConejitasDashboard() {
   const pct = totalT ? Math.round((doneT / totalT) * 100) : 0;
 
   const toggle = useCallback((id: string) => {
-    setDone((p) => {
-      const wasDone = p[id];
-      if (!wasDone) {
-        // Tarea recién completada → mostrar el gato
-        if (catTimer.current) clearTimeout(catTimer.current);
-        setCatMsg(CAT_MSGS[Math.floor(Math.random() * CAT_MSGS.length)]);
-        setShowCat(true);
-        catTimer.current = setTimeout(() => setShowCat(false), 2800);
+    // Efectos secundarios FUERA del actualizador de setDone (debe ser puro:
+    // React StrictMode invoca los updaters dos veces en desarrollo, lo que
+    // duplicaría el gato y las entradas de estadísticas si vivieran ahí dentro).
+    const wasDone = done[id];
+    if (!wasDone) {
+      // Tarea recién completada → mostrar el gato
+      if (catTimer.current) clearTimeout(catTimer.current);
+      setCatMsg(CAT_MSGS[Math.floor(Math.random() * CAT_MSGS.length)]);
+      setShowCat(true);
+      catTimer.current = setTimeout(() => setShowCat(false), 2800);
 
-        // Registrar para estadísticas (solo tareas hoja, sin subtareas)
-        for (const tree of trees) {
-          const found = (function search(n: TreeNode): TreeNode | null {
-            if (n.id === id) return n;
-            for (const c of n.children || []) { const f = search(c); if (f) return f; }
-            return null;
-          })(tree);
-          if (found && (!found.children || found.children.length === 0)) {
-            logCompletion({ date: new Date().toISOString().split("T")[0], ts: Date.now(), title: found.title, category: tree.title, categoryIcon: tree.icon });
-          }
-          if (found) break;
+      // Registrar para estadísticas (solo tareas hoja, sin subtareas)
+      for (const tree of trees) {
+        const found = (function search(n: TreeNode): TreeNode | null {
+          if (n.id === id) return n;
+          for (const c of n.children || []) { const f = search(c); if (f) return f; }
+          return null;
+        })(tree);
+        if (found && (!found.children || found.children.length === 0)) {
+          logCompletion({ date: localDateStr(), ts: Date.now(), title: found.title, category: tree.title, categoryIcon: tree.icon });
         }
+        if (found) break;
       }
-      return { ...p, [id]: !wasDone };
-    });
-  }, [trees]);
+    }
+    setDone((p) => ({ ...p, [id]: !p[id] }));
+  }, [done, trees]);
   const expandToggle = useCallback((id: string) => setExpanded((p) => ({ ...p, [id]: p[id] === false ? true : false })), []);
 
   const handleReorder = useCallback((dragId: string, dropId: string) => {
@@ -1115,7 +1123,7 @@ REGLAS GENERALES:
     // Fecha por defecto: mañana
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    setCalDate(tomorrow.toISOString().split("T")[0]);
+    setCalDate(localDateStr(tomorrow));
     setCalTime("09:00");
   }
 
@@ -1799,6 +1807,62 @@ REGLAS GENERALES:
 
             <button onClick={() => setShowClientIdGuide(false)} style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:14, padding:"13px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif" }}>
               ¡Entendido! 🐰
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Aviso amoroso de las nuevas estadísticas (una vez) ── */}
+      {showStatsIntro && (
+        <div
+          onClick={() => { setShowStatsIntro(false); localStorage.setItem("conjita-stats-intro", "1"); }}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.82)", zIndex:610, display:"flex", alignItems:"center", justifyContent:"center", padding:`calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))`, overflowY:"auto" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:26, padding: desktop ? "28px 26px 24px" : "24px 18px 20px", width:"100%", maxWidth:400, maxHeight:"100%", overflowY:"auto", animation:"slideIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(147,51,234,0.4)" }}
+          >
+            <div style={{ textAlign:"center", marginBottom:18 }}>
+              <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}><MascotBunnyIcon size={84}/></div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:21, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
+                Mira, mi princesa amada 📊
+              </div>
+              <div style={{ fontSize:12.5, color:"rgba(240,230,255,0.7)", marginTop:8, lineHeight:1.65 }}>
+                Ahora puedes ver <b style={{ color:P.txt }}>todo tu progreso bonito y ordenado</b> — cada tarea y cada ánimo cuentan tu historia.
+              </div>
+            </div>
+
+            <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:20 }}>
+              {[
+                { icon:"📅", t:"Tus últimos 7 días", d:"Cuántas tareas completas cada día, en una gráfica bien bonita." },
+                { icon:"🏆", t:"Donde más avanzas", d:"Descubre en qué categoría eres más productiva." },
+                { icon:"💭", t:"Tus ánimos del mes", d:"La conejita muestra cómo te has sentido, con tu ánimo más frecuente destacado." },
+              ].map((f,i) => (
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:12, background:"rgba(168,85,247,0.08)", border:`1px solid ${P.border}`, borderRadius:14, padding:"11px 13px" }}>
+                  <div style={{ flexShrink:0, width:30, display:"flex", justifyContent:"center", fontSize:20 }}>{f.icon}</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontWeight:700, fontSize:13, color:P.txt }}>{f.t}</div>
+                    <div style={{ fontSize:11.5, color:P.muted, lineHeight:1.5, marginTop:1 }}>{f.d}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ fontSize:10.5, color:"rgba(240,230,255,0.4)", textAlign:"center", marginBottom:14, lineHeight:1.5 }}>
+              Toca &quot;📊 Estadísticas&quot; en tu Progreso Global cuando quieras verlo de nuevo
+            </div>
+
+            <button
+              onClick={() => { setShowStatsIntro(false); localStorage.setItem("conjita-stats-intro", "1"); setShowStats(true); }}
+              style={{ width:"100%", background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:16, padding:"14px", color:"#fff", fontSize:14.5, fontWeight:800, cursor:"pointer", fontFamily:"'Syne',sans-serif", marginBottom:8 }}
+            >
+              Ver mis estadísticas 📊
+            </button>
+            <button
+              onClick={() => { setShowStatsIntro(false); localStorage.setItem("conjita-stats-intro", "1"); }}
+              style={{ width:"100%", background:"none", border:"none", color:P.muted, fontSize:12.5, fontWeight:600, cursor:"pointer", padding:6 }}
+            >
+              Después, mi amor 💜
             </button>
           </div>
         </div>

@@ -27,10 +27,17 @@ const hashOf = (s: Record<string, string>) => JSON.stringify(s);
 
 export default function SyncManager() {
   const busy = useRef(false);
+  const lastPointerActivity = useRef(0);
 
   useEffect(() => {
     const code = (localStorage.getItem(CODE_KEY) || "").trim();
     if (!code) return;
+
+    // Marca cualquier interacción táctil/mouse reciente (drag en Vision Board,
+    // sliders, etc.) para no pisar cambios locales en pleno gesto.
+    const markActivity = () => { lastPointerActivity.current = Date.now(); };
+    window.addEventListener("mousedown", markActivity, true);
+    window.addEventListener("touchstart", markActivity, true);
 
     const sync = async () => {
       if (busy.current) return;
@@ -45,9 +52,12 @@ export default function SyncManager() {
         const res = await fetch(`/api/sync?code=${encodeURIComponent(code)}`);
         const remote = await res.json();
         if (remote && remote.data && Number(remote.updatedAt) > rev) {
-          // Si está escribiendo, no pisamos nada todavía; reintenta en el próximo ciclo
+          // Si está escribiendo o interactuando (arrastrando algo, un slider…),
+          // no pisamos nada todavía; reintenta en el próximo ciclo (5s)
           const active = document.activeElement as HTMLElement | null;
-          if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) return;
+          const typing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
+          const midGesture = Date.now() - lastPointerActivity.current < 1500;
+          if (typing || midGesture) return;
           for (const k of SYNC_KEYS) {
             if (remote.data[k] != null) localStorage.setItem(k, remote.data[k]);
             else localStorage.removeItem(k);
@@ -81,7 +91,13 @@ export default function SyncManager() {
     const onVis = () => { if (document.visibilityState === "visible") sync(); };
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("focus", sync);
-    return () => { clearInterval(interval); document.removeEventListener("visibilitychange", onVis); window.removeEventListener("focus", sync); };
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("focus", sync);
+      window.removeEventListener("mousedown", markActivity, true);
+      window.removeEventListener("touchstart", markActivity, true);
+    };
   }, []);
 
   return null;

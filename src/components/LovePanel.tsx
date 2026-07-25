@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { MascotBunnyIcon, HealthIcon, CompleteCelebrationIcon } from "@/components/icons";
 import { MOODS, MOOD_BY_KEY, MOOD_KEY, MoodBunny, type MoodDay } from "@/lib/moods";
 import { CONEJITA } from "@/lib/moodBunny";
+import { localDateStr } from "@/lib/date";
 
 const P = {
   bg: "#0d0a1a", card: "rgba(168,85,247,0.12)", border: "rgba(168,85,247,0.25)",
@@ -14,7 +15,7 @@ const DATES_KEY = "conjita-dates-v1";
 
 interface CountdownItem { id: string; label: string; date: string; fixed?: boolean; }
 
-const todayStr = () => new Date().toISOString().split("T")[0];
+const todayStr = () => localDateStr();
 const daysUntil = (iso: string) => {
   const now = new Date(); now.setHours(0,0,0,0);
   return Math.ceil((new Date(iso + "T00:00:00").getTime() - now.getTime()) / 86400000);
@@ -23,13 +24,13 @@ const next26 = () => {
   const now = new Date(); now.setHours(0,0,0,0);
   let y = now.getFullYear(), m = now.getMonth();
   if (now.getDate() >= 26) { m += 1; if (m > 11) { m = 0; y += 1; } }
-  return new Date(y, m, 26).toISOString().split("T")[0];
+  return localDateStr(new Date(y, m, 26));
 };
 const nextBirthday = () => {
   const now = new Date(); now.setHours(0,0,0,0);
   let y = now.getFullYear();
   if (new Date(y, 9, 20).getTime() < now.getTime()) y += 1;
-  return new Date(y, 9, 20).toISOString().split("T")[0];
+  return localDateStr(new Date(y, 9, 20));
 };
 
 export default function LovePanel() {

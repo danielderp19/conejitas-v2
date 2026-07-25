@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { MascotBunnyIcon, CompleteCelebrationIcon } from "@/components/icons";
 import { MOODS, MOOD_BY_KEY, MOOD_KEY, MoodBunny, type MoodDay } from "@/lib/moods";
+import { localDateStr } from "@/lib/date";
 
 const P = {
   border: "rgba(168,85,247,0.25)", borderHi: "rgba(168,85,247,0.6)",
@@ -19,7 +20,7 @@ function last7Days(): { date: string; label: string }[] {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() - i);
-    out.push({ date: d.toISOString().split("T")[0], label: DOW[d.getDay()] });
+    out.push({ date: localDateStr(d), label: DOW[d.getDay()] });
   }
   return out;
 }
@@ -67,7 +68,7 @@ export default function StatsPanel({ onClose }: { onClose: () => void }) {
 
   // Ánimos de los últimos 30 días
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
-  const cutoffStr = cutoff.toISOString().split("T")[0];
+  const cutoffStr = localDateStr(cutoff);
   const moodCount: Record<string, number> = {};
   for (const day of moodHistory) {
     if (day.date < cutoffStr) continue;
