@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 const VisionBoard = dynamic(() => import("@/components/VisionBoard"), { ssr: false });
 const LovePanel = dynamic(() => import("@/components/LovePanel"), { ssr: false });
 const SyncManager = dynamic(() => import("@/components/SyncManager"), { ssr: false });
+const StatsPanel = dynamic(() => import("@/components/StatsPanel"), { ssr: false });
 import {
   CheckDoneIcon, CheckEmptyIcon, ExpandIcon, DeleteIcon, RefreshIcon,
   SaveCloudIcon, MenuIcon, CloseIcon, SendIcon, SparkleIcon, ResetIcon,
@@ -464,6 +465,19 @@ const TreeCard = memo(function TreeCard({ tree, done, expanded, desktop, schedul
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 const STORAGE_KEY = "conejitas-state-v1";
+const STATS_KEY = "conjita-completions-v1";
+
+interface CompletionEntry { date: string; ts: number; title: string; category: string; categoryIcon?: string; }
+function logCompletion(entry: CompletionEntry) {
+  try {
+    const raw = localStorage.getItem(STATS_KEY);
+    const arr: CompletionEntry[] = raw ? JSON.parse(raw) : [];
+    arr.push(entry);
+    // conserva como máximo 400 registros (más que suficiente para meses de historial)
+    const trimmed = arr.length > 400 ? arr.slice(arr.length - 400) : arr;
+    localStorage.setItem(STATS_KEY, JSON.stringify(trimmed));
+  } catch { /* ok */ }
+}
 
 export default function ConejitasDashboard() {
   const [trees, setTrees] = useState<TreeNode[]>([]);
@@ -485,6 +499,7 @@ export default function ConejitasDashboard() {
   const [showIconsIntro, setShowIconsIntro] = useState(false);
   const [loveNote, setLoveNote] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const [showSyncIntro, setShowSyncIntro] = useState(false);
   const [confirmDel, setConfirmDel] = useState<{ kind: "node" | "tree"; id: string; title: string } | null>(null);
   const [showSync, setShowSync] = useState(false);
@@ -830,10 +845,23 @@ export default function ConejitasDashboard() {
         setCatMsg(CAT_MSGS[Math.floor(Math.random() * CAT_MSGS.length)]);
         setShowCat(true);
         catTimer.current = setTimeout(() => setShowCat(false), 2800);
+
+        // Registrar para estadísticas (solo tareas hoja, sin subtareas)
+        for (const tree of trees) {
+          const found = (function search(n: TreeNode): TreeNode | null {
+            if (n.id === id) return n;
+            for (const c of n.children || []) { const f = search(c); if (f) return f; }
+            return null;
+          })(tree);
+          if (found && (!found.children || found.children.length === 0)) {
+            logCompletion({ date: new Date().toISOString().split("T")[0], ts: Date.now(), title: found.title, category: tree.title, categoryIcon: tree.icon });
+          }
+          if (found) break;
+        }
       }
       return { ...p, [id]: !wasDone };
     });
-  }, []);
+  }, [trees]);
   const expandToggle = useCallback((id: string) => setExpanded((p) => ({ ...p, [id]: p[id] === false ? true : false })), []);
 
   const handleReorder = useCallback((dragId: string, dropId: string) => {
@@ -1379,10 +1407,17 @@ REGLAS GENERALES:
                   </defs>
                   <text x={36} y={40} textAnchor="middle" fill="#fff" fontSize={14} fontWeight={800}>{pct}%</text>
                 </svg>
-                <div>
+                <div style={{ flex:1 }}>
                   <div style={{ fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:800, color:P.txt }}>Progreso Global</div>
                   <div style={{ fontSize:12, color:P.muted, marginTop:2 }}>{doneT} / {totalT} completadas</div>
                 </div>
+                <button
+                  onClick={() => setShowStats(true)}
+                  title="Ver estadísticas"
+                  style={{ flexShrink:0, background:"rgba(168,85,247,0.18)", border:`1px solid ${P.border}`, borderRadius:12, padding:"9px 12px", color:P.txt, fontSize:12, fontWeight:700, cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}
+                >
+                  📊 <span style={{ display: desktop ? "inline" : "none" }}>Estadísticas</span>
+                </button>
               </div>
             )}
 
@@ -1824,6 +1859,9 @@ REGLAS GENERALES:
           </div>
         </div>
       )}
+
+      {/* ── Estadísticas ── */}
+      {showStats && <StatsPanel onClose={() => setShowStats(false)} />}
 
       {/* ── Vincular dispositivos (sincronización) ── */}
       {showSync && (

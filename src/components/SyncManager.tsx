@@ -9,6 +9,7 @@ const SYNC_KEYS = [
   "conjita-visionboard-v1", // vision board
   "conjita-story-v1",       // nuestra historia
   "conjita-gcal-clientid",  // client id de calendar
+  "conjita-completions-v1", // historial de completados (estadísticas)
 ];
 const CODE_KEY = "conjita-sync-code";
 const REV_KEY  = "conjita-sync-rev";  // updatedAt de los datos que tenemos
