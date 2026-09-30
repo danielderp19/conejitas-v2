@@ -100,7 +100,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 15, emoji: "❤️", year: "1951", title: "Todos amaban a Lucy",
     fact: "El 15 de octubre de 1951 se estrenó «Te quiero, Lucy» (I Love Lucy), la comedia que le enseñó a la televisión cómo se hace reír a todo un país en la sala de la casa.",
     love: "El título ya lo dice todo. Y como a Lucy, a ti te quiero por tu manera de ser, tan tuya. Gran estreno, pero tu día es mejor. Faltan 5 días 💋",
-    song: { title: "Easy on Me", artist: "Adele", year: "2021", note: "Adele lanzó «Easy on Me», la primera canción de su disco «30». Habla de ser humano, de equivocarse y de pedir cariño en vez de juicio.", dedication: "Te la dedico para que siempre recuerdes que con tus días buenos y tus días difíciles, conmigo puedes ser tú, sin miedo." },
+    song: { title: "You Light Up My Life", artist: "Debby Boone", year: "1977", note: "En octubre de 1977, «You Light Up My Life» de Debby Boone llegó al número 1 en Estados Unidos y se quedó ahí diez semanas seguidas, un récord para su época. Es una canción de agradecimiento a esa persona que le da luz a tus días.", dedication: "Te la dedico porque eso eres tú para mí: la persona que ilumina mis días, incluso los grises." },
   },
   {
     day: 16, emoji: "🐭", year: "1923", title: "Nació un ratón que cambió todo",
