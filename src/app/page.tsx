@@ -7,6 +7,9 @@ const VisionBoard = dynamic(() => import("@/components/VisionBoard"), { ssr: fal
 const LovePanel = dynamic(() => import("@/components/LovePanel"), { ssr: false });
 const SyncManager = dynamic(() => import("@/components/SyncManager"), { ssr: false });
 const StatsPanel = dynamic(() => import("@/components/StatsPanel"), { ssr: false });
+const CumpleCountdown = dynamic(() => import("@/components/CumpleCountdown"), { ssr: false });
+const CumpleFinale = dynamic(() => import("@/components/CumpleFinale"), { ssr: false });
+import { getCumpleNow, CUMPLE_DAYS, CUMPLE_NAME, SEEN_DAY_KEY, FINALE_SEEN_KEY, cumpleYear, type CumpleNow } from "@/lib/cumple";
 import {
   CheckDoneIcon, CheckEmptyIcon, ExpandIcon, DeleteIcon, RefreshIcon,
   SaveCloudIcon, MenuIcon, CloseIcon, SendIcon, SparkleIcon, ResetIcon,
@@ -503,6 +506,10 @@ export default function ConejitasDashboard() {
   const [showStats, setShowStats] = useState(false);
   const [showSyncIntro, setShowSyncIntro] = useState(false);
   const [showStatsIntro, setShowStatsIntro] = useState(false);
+  const [cumple, setCumple] = useState<CumpleNow | null>(null);
+  const [showCumple, setShowCumple] = useState(false);
+  const [showCumpleDaily, setShowCumpleDaily] = useState(false);
+  const [showFinale, setShowFinale] = useState(false);
   const [confirmDel, setConfirmDel] = useState<{ kind: "node" | "tree"; id: string; title: string } | null>(null);
   const [showSync, setShowSync] = useState(false);
   const [syncCodeInput, setSyncCodeInput] = useState("");
@@ -667,6 +674,8 @@ export default function ConejitasDashboard() {
       }
     } catch { /* fresh start */ }
     setHydrated(true);
+    const cumpleNow0 = getCumpleNow();
+    setCumple(cumpleNow0);
     // ── Onboarding romántico — solo una vez, prioridad sobre lo demás ──
     const onboardingSeen = !!localStorage.getItem("conjita-onboarding-v1");
     if (!onboardingSeen) {
@@ -682,6 +691,19 @@ export default function ConejitasDashboard() {
     if (!localStorage.getItem("conjita-stats-intro")) {
       setTimeout(() => setShowStatsIntro(true), 800);
       return; // no apilar con otras ventanas
+    }
+    // ── Cuenta regresiva al cumple de Cata (1–20 oct) ──
+    const cn = cumpleNow0;
+    if (cn.phase === "birthday") {
+      if (cn.preview || localStorage.getItem(FINALE_SEEN_KEY) !== cumpleYear()) {
+        setTimeout(() => setShowFinale(true), 900);
+        return;
+      }
+    } else if (cn.phase === "active") {
+      if (cn.preview || localStorage.getItem(SEEN_DAY_KEY) !== localDateStr()) {
+        setTimeout(() => setShowCumpleDaily(true), 900);
+        return;
+      }
     }
     // Mostrar bienvenida solo la primera vez (v3 incluye Vision Board y guía Calendar)
     const welcomeSeen = !!localStorage.getItem("conjita-welcome-v3");
@@ -1274,6 +1296,14 @@ REGLAS GENERALES:
       )}
       {menuOpen && (
         <div style={{ position:"fixed", top: desktop ? 62 : "calc(64px + env(safe-area-inset-top))", right: desktop ? "calc(50% - 480px + 12px)" : 12, background:"rgba(13,10,26,0.98)", border:`1px solid ${P.border}`, borderRadius:14, padding:8, zIndex:200, minWidth:210, boxShadow:"0 12px 40px rgba(0,0,0,0.8)" }}>
+          {cumple && cumple.phase !== "before" && (
+            <button
+              onClick={() => { setShowCumple(true); setMenuOpen(false); }}
+              style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", borderBottom:`1px solid ${P.border}`, color:P.txt, padding:"10px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:700 }}
+            >
+              🎂 Camino al cumple de {CUMPLE_NAME}
+            </button>
+          )}
           <div style={{ padding:"8px 12px 6px", fontSize:10, color:P.muted, fontWeight:700 }}>MEMORIA</div>
           <div style={{ padding:"4px 12px 10px", fontSize:11, color:P.txt, borderBottom:`1px solid ${P.border}` }}>
             💾 Tus tareas se guardan automáticamente.
@@ -1398,6 +1428,23 @@ REGLAS GENERALES:
         {/* DASHBOARD */}
         {view === "dashboard" && (
           <div style={{ display: desktop && trees.length > 0 ? "grid" : "block", gridTemplateColumns: desktop && trees.length > 0 ? "1fr 1fr" : "1fr", gap: desktop ? 16 : 0 }}>
+            {cumple && cumple.phase !== "before" && (
+              <button
+                onClick={() => setShowCumple(true)}
+                style={{ gridColumn: desktop ? "1 / -1" : undefined, width:"100%", textAlign:"left", cursor:"pointer", color:P.txt, background:"linear-gradient(135deg,rgba(251,191,36,0.18),rgba(219,39,119,0.22))", border:"1px solid rgba(244,114,182,0.45)", borderRadius:16, padding:"14px 18px", marginBottom: desktop ? 0 : 14, display:"flex", alignItems:"center", gap:12, animation:"floatIn 0.55s cubic-bezier(0.34,1.56,0.64,1) both" }}
+              >
+                <span style={{ fontSize:30, lineHeight:1 }}>{cumple.phase === "birthday" ? "🎁" : cumple.phase === "after" ? "💜" : "🎂"}</span>
+                <span style={{ flex:1 }}>
+                  <span style={{ display:"block", fontFamily:"'Syne',sans-serif", fontSize:14, fontWeight:800 }}>
+                    {cumple.phase === "birthday" ? `¡Hoy es el cumple de ${CUMPLE_NAME}! 🎉` : cumple.phase === "after" ? "Camino al cumple: tus recuerdos" : cumple.daysLeft === 1 ? "¡Mañana es tu cumpleaños!" : `Faltan ${cumple.daysLeft} días para tu cumpleaños`}
+                  </span>
+                  <span style={{ display:"block", fontSize:11.5, color:P.muted, marginTop:2 }}>
+                    {cumple.phase === "birthday" ? "Toca para abrir tu sorpresa" : cumple.phase === "after" ? "Vuelve a leer los 20 mensajes" : "Toca para ver el mensaje de hoy 💌"}
+                  </span>
+                </span>
+                <span style={{ fontSize:18, color:P.muted }}>›</span>
+              </button>
+            )}
             {trees.length > 0 && (
               <div style={{ gridColumn: desktop ? "1 / -1" : undefined, background:"linear-gradient(135deg,rgba(124,58,237,0.12),rgba(236,72,153,0.08))", border:`1px solid ${P.border}`, borderRadius:16, padding:"16px 20px", marginBottom: desktop ? 0 : 14, display:"flex", alignItems:"center", gap:14, animation:"floatIn 0.55s cubic-bezier(0.34,1.56,0.64,1) both" }}>
                 <svg width={64} height={64} viewBox="0 0 72 72">
@@ -1926,6 +1973,41 @@ REGLAS GENERALES:
 
       {/* ── Estadísticas ── */}
       {showStats && <StatsPanel onClose={() => setShowStats(false)} />}
+
+      {/* ── Cumple de Cata: aviso diario ── */}
+      {showCumpleDaily && cumple && cumple.phase === "active" && (() => {
+        const cd = CUMPLE_DAYS[cumple.day - 1];
+        const close = () => { setShowCumpleDaily(false); if (!cumple.preview) localStorage.setItem(SEEN_DAY_KEY, localDateStr()); };
+        return (
+          <div onClick={close} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.82)", zIndex:620, display:"flex", alignItems:"center", justifyContent:"center", padding:`calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))` }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:26, padding:"26px 20px 20px", width:"100%", maxWidth:380, textAlign:"center", animation:"slideIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(219,39,119,0.4)" }}>
+              <div style={{ fontSize:44, lineHeight:1 }}>{cd.emoji}</div>
+              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:22, marginTop:10, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
+                {cumple.daysLeft === 1 ? "¡Falta 1 día, Cata!" : `Faltan ${cumple.daysLeft} días, Cata`}
+              </div>
+              <div style={{ fontSize:13, color:"rgba(240,230,255,0.75)", marginTop:8, lineHeight:1.65 }}>
+                Hoy, {cumple.day} de octubre, tengo algo que contarte: <b style={{ color:P.txt }}>{cd.title}</b> 💌
+              </div>
+              <button onClick={() => { close(); setShowCumple(true); }} style={{ width:"100%", marginTop:18, background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:16, padding:"14px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer" }}>Leer el mensaje de hoy</button>
+              <button onClick={close} style={{ width:"100%", marginTop:8, background:"none", border:"none", color:P.muted, fontSize:12, padding:"8px", cursor:"pointer" }}>Después, mi amor 💜</button>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Cumple de Cata: pantalla y final ── */}
+      {showCumple && (
+        <CumpleCountdown
+          onClose={() => setShowCumple(false)}
+          onFinale={() => { setShowCumple(false); setShowFinale(true); }}
+        />
+      )}
+      {showFinale && (
+        <CumpleFinale
+          preview={!!cumple?.preview}
+          onClose={() => { setShowFinale(false); if (!cumple?.preview) localStorage.setItem(FINALE_SEEN_KEY, cumpleYear()); }}
+        />
+      )}
 
       {/* ── Vincular dispositivos (sincronización) ── */}
       {showSync && (
