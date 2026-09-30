@@ -57,7 +57,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 7, emoji: "🕊️", year: "1950", title: "Una vida entera de cariño",
     fact: "El 7 de octubre de 1950 se aprobó oficialmente la congregación de las Misioneras de la Caridad, fundada por la Madre Teresa de Calcuta para cuidar a quienes nadie más cuidaba.",
     love: "Hay quienes cambian el mundo cuidando. Tú cambias el mío igual. Un día enorme de esa historia, pero el 20 de octubre es aún más grande para mí. Faltan 13 días 🤍",
-    song: { title: "Got To Be There", artist: "Michael Jackson", year: "1971", note: "El primer sencillo solista de Michael Jackson, cuando aún era un niño con una voz enorme.", dedication: "Te la dedico porque siempre quiero estar ahí para ti, en las buenas, en las malas y en las de «no sé cómo me siento»." },
+    song: { title: "Solcito", artist: "Miguel Bueno & Juan Duque", year: "2025", note: "Esta no salió un 7 de octubre (la lanzaron los colombianos Miguel Bueno y Juan Duque en marzo de 2025), pero hoy quise dedicarte una canción nueva y de aquí. Es un tema de amor para esa persona que te alumbra los días y se volvió viral en toda Latinoamérica.", dedication: "Te la dedico porque eso eres tú: mi solcito, la persona que me alumbra los días." },
   },
   {
     day: 8, emoji: "🌹", year: "1968", title: "Romeo y Julieta llegó al cine",
@@ -70,10 +70,9 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     love: "Él tenía razón: todo lo que necesitas es amor. Yo solo necesito que tú sigas siendo tú. Importante nacimiento, pero ninguno más importante que el tuyo. Faltan 11 días 🎶",
   },
   {
-    day: 10, emoji: "🧠", year: "Hoy",
-    title: "Día Mundial de la Salud Mental",
-    fact: "Cada 10 de octubre se celebra el Día Mundial de la Salud Mental, para recordarnos que sentirse bien por dentro importa tanto como cualquier meta. Por eso existe el registro de ánimo en tu rinconcito.",
-    love: "Que tengas días felices, tristes, cansados o de mil ánimos a la vez, y que sepas que en todos me tienes a mí. Un día importante, pero no tanto como el 20. Faltan 10 días — ¡ya estamos a la mitad! 💜",
+    day: 10, emoji: "🎼", year: "1935", title: "Una canción de cuna en Broadway",
+    fact: "El 10 de octubre de 1935 se estrenó en Broadway «Porgy and Bess», la ópera de George Gershwin. Se abre con «Summertime», una canción de cuna tan hermosa que se convirtió en una de las más versionadas del mundo.",
+    love: "Una canción que nació para dormir a un bebé terminó cantándola medio planeta. A mí me pasa contigo: lo más simple de tu día se vuelve lo mejor del mío. Estreno enorme, pero no tanto como tu cumpleaños. Faltan 10 días, ¡ya estamos a la mitad! 💜",
     song: { title: "A Dios le pido", artist: "Juanes", year: "2002", note: "Esta no salió un 10 de octubre (Juanes la lanzó en marzo de 2002), pero hoy quise dedicarte una canción colombiana. Es una de las más queridas de nuestro país: una canción para pedir cosas buenas para la gente que uno quiere.", dedication: "Te la dedico porque yo también pido lo mismo para ti: que estés siempre bien, que sonrías mucho y que la vida te devuelva todo lo bonito que das." },
   },
   {
