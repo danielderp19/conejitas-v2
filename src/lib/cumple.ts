@@ -16,6 +16,7 @@ export interface CumpleDay {
   title: string;
   fact: string; // lo que pasó
   love: string; // el giro hacia ella
+  song?: { title: string; artist: string; year: string; note: string; dedication: string };
 }
 
 export const CUMPLE_DAYS: CumpleDay[] = [
@@ -23,6 +24,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 1, emoji: "🏰", year: "1971", title: "Se abrió la magia",
     fact: "Un 1 de octubre como hoy, pero de 1971, abrió sus puertas el Magic Kingdom de Walt Disney World, en Florida. Miles de personas cruzaron la entrada por primera vez para vivir un cuento de hadas de verdad.",
     love: "Fue un día importante para la historia de los sueños… pero no tanto como el 20 de octubre, el día en que nació la reina de MI cuento. Faltan 19 días, Cata 👑",
+    song: { title: "Something", artist: "The Beatles", year: "1969", note: "Ese día salió en Estados Unidos «Abbey Road», el último disco que grabaron juntos los cuatro Beatles, con «Something», una de las canciones de amor más bonitas de la historia.", dedication: "Te la dedico porque contigo me pasa exactamente eso: hay algo en ti, en tu forma de ser, que me atrapó y no me suelta." },
   },
   {
     day: 2, emoji: "🐶", year: "1950", title: "Empezó la pandilla de Charlie Brown",
@@ -44,6 +46,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 5, emoji: "💎", year: "1961", title: "Desayuno con diamantes",
     fact: "El 5 de octubre de 1961 se estrenó en Nueva York «Desayuno con diamantes» con Audrey Hepburn, y ese vestido negro se volvió el más famoso de la historia del cine.",
     love: "Audrey fue elegancia pura frente a una vitrina. Tú eres elegancia y ternura frente a cualquier cosa, incluso un lunes. Gran estreno, pero no tanto como tu día. Faltan 15 días ✨",
+    song: { title: "Love Me Do", artist: "The Beatles", year: "1962", note: "Un 5 de octubre de 1962 salió «Love Me Do», el primer sencillo de los Beatles. Todo un imperio musical empezó con una canción de amor sencillita.", dedication: "Te la dedico porque así empiezan las historias grandes: simple, sincero y con ganas de quedarse." },
   },
   {
     day: 6, emoji: "🎬", year: "1927", title: "El cine aprendió a hablar",
@@ -54,6 +57,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 7, emoji: "🕊️", year: "1950", title: "Una vida entera de cariño",
     fact: "El 7 de octubre de 1950 se aprobó oficialmente la congregación de las Misioneras de la Caridad, fundada por la Madre Teresa de Calcuta para cuidar a quienes nadie más cuidaba.",
     love: "Hay quienes cambian el mundo cuidando. Tú cambias el mío igual. Un día enorme de esa historia, pero el 20 de octubre es aún más grande para mí. Faltan 13 días 🤍",
+    song: { title: "Got To Be There", artist: "Michael Jackson", year: "1971", note: "El primer sencillo solista de Michael Jackson, cuando aún era un niño con una voz enorme.", dedication: "Te la dedico porque siempre quiero estar ahí para ti, en las buenas, en las malas y en las de «no sé cómo me siento»." },
   },
   {
     day: 8, emoji: "🌹", year: "1968", title: "Romeo y Julieta llegó al cine",
@@ -70,6 +74,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     title: "Día Mundial de la Salud Mental",
     fact: "Cada 10 de octubre se celebra el Día Mundial de la Salud Mental, para recordarnos que sentirse bien por dentro importa tanto como cualquier meta. Por eso existe el registro de ánimo en tu rinconcito.",
     love: "Que tengas días felices, tristes, cansados o de mil ánimos a la vez, y que sepas que en todos me tienes a mí. Un día importante, pero no tanto como el 20. Faltan 10 días — ¡ya estamos a la mitad! 💜",
+    song: { title: "Video Games", artist: "Lana Del Rey", year: "2011", note: "Lana Del Rey lanzó «Video Games» y se volvió la canción que le abrió las puertas al mundo. Es una historia de amor tranquilo, de tardes simples y de estar juntos.", dedication: "Te la dedico porque contigo hasta lo más simple, como una tarde cualquiera, se siente especial." },
   },
   {
     day: 11, emoji: "📺", year: "1975", title: "«¡En vivo desde Nueva York!»",
@@ -85,6 +90,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 13, emoji: "📱", year: "1983", title: "La primera llamada de celular",
     fact: "El 13 de octubre de 1983 se hizo en Chicago la primera llamada comercial desde un teléfono móvil, con un aparato que pesaba casi un kilo. Sin ese día, hoy no existirían los «buenos días, mi reina» por mensaje.",
     love: "Gracias a esa llamada puedo mandarte un audio desde cualquier lugar. Invento inmenso, pero la mejor llamada del año será la del 20. Faltan 7 días 📞",
+    song: { title: "Single Ladies (Put a Ring on It)", artist: "Beyoncé", year: "2008", note: "Beyoncé lanzó «Single Ladies», un himno de seguridad y de saber lo que uno vale.", dedication: "Te la dedico porque sabes lo que vales, y porque me encanta verte brillar con esa seguridad. Ponte tus mejores pasos, reina 💃" },
   },
   {
     day: 14, emoji: "🚀", year: "1947", title: "Romper la barrera del sonido",
@@ -95,11 +101,13 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 15, emoji: "❤️", year: "1951", title: "Todos amaban a Lucy",
     fact: "El 15 de octubre de 1951 se estrenó «Te quiero, Lucy» (I Love Lucy), la comedia que le enseñó a la televisión cómo se hace reír a todo un país en la sala de la casa.",
     love: "El título ya lo dice todo. Y como a Lucy, a ti te quiero por tu manera de ser, tan tuya. Gran estreno, pero tu día es mejor. Faltan 5 días 💋",
+    song: { title: "Easy on Me", artist: "Adele", year: "2021", note: "Adele lanzó «Easy on Me», la primera canción de su disco «30». Habla de ser humano, de equivocarse y de pedir cariño en vez de juicio.", dedication: "Te la dedico para que siempre recuerdes que con tus días buenos y tus días difíciles, conmigo puedes ser tú, sin miedo." },
   },
   {
     day: 16, emoji: "🐭", year: "1923", title: "Nació un ratón que cambió todo",
     fact: "El 16 de octubre de 1923 Walt y Roy Disney fundaron su estudio de animación, el mismo que años después crearía a Mickey Mouse, Blancanieves y tantos sueños más.",
     love: "Empezó con un dibujo y una idea, y terminó siendo magia. Yo empecé contigo con un «hola» y terminé enamorado. Día grande, pero no tanto como el 20. Faltan 4 días ✨",
+    song: { title: "Crazy", artist: "Patsy Cline", year: "1961", note: "«Crazy» de Patsy Cline salió a la venta y desde entonces es una de las canciones más queridas de toda la música country.", dedication: "Te la dedico porque quien me vuelve un poco loco (de amor, claro) eres tú." },
   },
   {
     day: 17, emoji: "🎃", year: "1998", title: "Bienvenida a Halloweentown",
@@ -170,14 +178,16 @@ export interface CumpleNow {
 }
 
 const PREVIEW_KEY = "conjita-cumple-preview";
+const PREVIEW_TOKEN = "d45aea6b22";
 
 // ?cumple=2026-10-20 simula otra fecha (solo esa pestaña, para probar).
 export function readPreview(): string | null {
   if (typeof window === "undefined") return null;
   try {
-    const q = new URLSearchParams(window.location.search).get("cumple");
+    const sp = new URLSearchParams(window.location.search);
+    const q = sp.get("cumple");
     if (q === "off") sessionStorage.removeItem(PREVIEW_KEY);
-    else if (q && /^\d{4}-\d{2}-\d{2}$/.test(q)) sessionStorage.setItem(PREVIEW_KEY, q);
+    else if (q && sp.get("k") === PREVIEW_TOKEN && /^\d{4}-\d{2}-\d{2}$/.test(q)) sessionStorage.setItem(PREVIEW_KEY, q);
     return sessionStorage.getItem(PREVIEW_KEY);
   } catch {
     return null;

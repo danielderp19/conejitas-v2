@@ -75,9 +75,19 @@ export default function CumpleCountdown({ onClose, onFinale }: { onClose: () => 
             <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, margin: "4px 0 10px" }}>{card.title}</div>
             <p style={{ fontSize: 14, lineHeight: 1.7, margin: "0 0 12px", color: "rgba(240,230,255,.88)" }}>{card.fact}</p>
             <p style={{ fontSize: 14, lineHeight: 1.7, margin: 0, fontWeight: 600, color: "#fbcfe8" }}>{card.love}</p>
-            {isBday && (
+            {card.song && (
+              <div style={{ marginTop: 16, background: "rgba(0,0,0,.28)", border: "1px solid rgba(244,114,182,.35)", borderRadius: 16, padding: "14px 14px 12px" }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, color: "#f0abfc", letterSpacing: ".05em" }}>🎵 CANCIÓN DEL DÍA</div>
+                <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 16, marginTop: 4 }}>{card.song.title}</div>
+                <div style={{ fontSize: 12, color: P.muted }}>{card.song.artist} · {card.song.year}</div>
+                <p style={{ fontSize: 13, lineHeight: 1.65, margin: "8px 0", color: "rgba(240,230,255,.85)" }}>{card.song.note}</p>
+                <p style={{ fontSize: 13, lineHeight: 1.65, margin: "0 0 12px", fontWeight: 600, color: "#fbcfe8" }}>💌 {card.song.dedication}</p>
+                <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(card.song.title + " " + card.song.artist)}`} target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", textDecoration: "none", color: "#fff", fontSize: 13, fontWeight: 800, background: `linear-gradient(135deg,${P.p1},${P.p3})`, borderRadius: 14, padding: "11px" }}>▶ Escucharla</a>
+              </div>
+            )}
+            {isBday && now.phase !== "after" && (
               <button onClick={onFinale} style={{ width: "100%", marginTop: 18, fontSize: 16, fontWeight: 800, color: "#fff", background: `linear-gradient(135deg,${P.p1},${P.p3})`, border: "none", borderRadius: 26, padding: "15px", cursor: "pointer", boxShadow: "0 0 30px rgba(219,39,119,.5)" }}>
-                {now.phase === "birthday" ? "Abrir mi regalo 🎁" : "Ver la sorpresa otra vez 🎆"}
+                Abrir mi regalo 🎁
               </button>
             )}
           </div>
