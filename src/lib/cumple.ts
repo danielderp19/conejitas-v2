@@ -32,9 +32,9 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     love: "Algo pequeño que se volvió gigante: así me pasó contigo. Fue importante, sí, pero no tanto como tu cumpleaños. Faltan 18 días 💜",
   },
   {
-    day: 3, emoji: "💗", year: "2004", title: "«Hoy es 3 de octubre»",
-    fact: "En Chicas pesadas (Mean Girls), Aaron Samuels le pregunta a Cady qué día es, y ella responde: «Es 3 de octubre». Desde entonces, cada 3 de octubre se celebra el Mean Girls Day y medio internet se viste de rosa.",
-    love: "Hoy el mundo usa rosa por una película. Yo lo uso por ti, todos los días. Muy famoso el 3 de octubre, pero el 20 lo supera por mucho. Faltan 17 días 🎀",
+    day: 3, emoji: "🐭", year: "1955", title: "«¿Quién es el líder del club?»",
+    fact: "El 3 de octubre de 1955 salió al aire por primera vez «El Club de Mickey Mouse» (The Mickey Mouse Club) en la televisión de Estados Unidos. Cada tarde, millones de niños se sentaban frente al televisor a cantar, bailar y soñar con los Mouseketeers y sus orejitas.",
+    love: "Ese club tenía orejitas, y yo tengo mi propia conejita de orejitas favorita. Muy famoso el 3 de octubre, pero el 20 lo supera por mucho. Faltan 17 días 🎀",
   },
   {
     day: 4, emoji: "🐰", year: "Octubre de 1902",
