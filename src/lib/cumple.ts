@@ -130,10 +130,12 @@ export const CUMPLE_DAYS: CumpleDay[] = [
 
 export const CUMPLE_LETTER: string[] = [
   "Cata,",
-  "Durante veinte días te conté cosas que pasaron en el mundo, cosas muy importantes, y en cada una te dije lo mismo: que no eran tan importantes como este día.",
-  "Porque el mundo tiene sus estrenos, sus inventos y sus fiestas. Pero yo tengo el 20 de octubre, el día en que llegó al mundo la persona que hace que todo lo demás valga la pena.",
-  "Gracias por dejarme ser parte de tu historia. Por tus risas, por tus ánimos buenos y por los otros, por dejarme acompañarte en todos ellos.",
-  "Que este año te devuelva todo el cariño que tú regalas. Te lo mereces todo, mi reina.",
+  "Durante veinte días te conté cosas que han pasado en el mundo, cosas que sucedieron y que alguien determinó que debían ser importantes. Pero créeme: si todas las personas te conocieran, sabrían que el día más importante es contigo.",
+  "Porque en el planeta hay estrenos, novedades, inventos, festividades y miles de cosas que existen como excusa para celebrar. Pero para mí llegó el 20 de octubre, la fecha más importante, porque es el día de mi persona más importante, una razón para que vivir valga la pena.",
+  "Dios te hizo a semejanza de lo divino, con un propósito increíble que quizá ni tú misma terminas de entender, y que vas creando y formando día a día. Con cada gesto le das luz al sueño de mantener viva la pureza en el corazón humano.",
+  "Eres las mejores sonrisas, los mejores ánimos, los mejores sueños y los mejores días del mundo. La persona más alumbrante que hay en todo lo que existe.",
+  "Gracias por hacernos afortunados a todos los que te amamos por tenerte en nuestra historia; por esa sonrisa justo cuando la necesitábamos, por esos momentos risueños cuando se perdía la esperanza, y por el cuidado que solo tú puedes dar.",
+  "Que este nuevo año de vida venga con Dios y con propósito, lleno de amor, y multiplicado por todo lo que eres tú.",
   "Feliz cumpleaños, mi princesa amada. 💜",
 ];
 
