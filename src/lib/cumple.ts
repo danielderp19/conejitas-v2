@@ -100,7 +100,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 15, emoji: "❤️", year: "1951", title: "Todos amaban a Lucy",
     fact: "El 15 de octubre de 1951 se estrenó «Te quiero, Lucy» (I Love Lucy), la comedia que le enseñó a la televisión cómo se hace reír a todo un país en la sala de la casa.",
     love: "El título ya lo dice todo. Y como a Lucy, a ti te quiero por tu manera de ser, tan tuya. Gran estreno, pero tu día es mejor. Faltan 5 días 💋",
-    song: { title: "You Light Up My Life", artist: "Debby Boone", year: "1977", note: "En octubre de 1977, «You Light Up My Life» de Debby Boone llegó al número 1 en Estados Unidos y se quedó ahí diez semanas seguidas, un récord para su época. Es una canción de agradecimiento a esa persona que le da luz a tus días.", dedication: "Te la dedico porque eso eres tú para mí: la persona que ilumina mis días, incluso los grises." },
+    song: { title: "Can't Help Falling in Love", artist: "Elvis Presley", year: "1961", note: "Esta no salió un 15 de octubre (Elvis la lanzó en 1961), pero hoy es perfecta para dedicarte. Es una de las canciones de amor más queridas de la historia y la han cantado cientos de artistas.", dedication: "Te la dedico porque a mí me pasó igual que a la canción: no pude evitar enamorarme de ti, Cata." },
   },
   {
     day: 16, emoji: "🐭", year: "1923", title: "Nació un ratón que cambió todo",
