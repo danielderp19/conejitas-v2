@@ -90,7 +90,6 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 13, emoji: "📱", year: "1983", title: "La primera llamada de celular",
     fact: "El 13 de octubre de 1983 se hizo en Chicago la primera llamada comercial desde un teléfono móvil, con un aparato que pesaba casi un kilo. Sin ese día, hoy no existirían los «buenos días, mi reina» por mensaje.",
     love: "Gracias a esa llamada puedo mandarte un audio desde cualquier lugar. Invento inmenso, pero la mejor llamada del año será la del 20. Faltan 7 días 📞",
-    song: { title: "Single Ladies (Put a Ring on It)", artist: "Beyoncé", year: "2008", note: "Beyoncé lanzó «Single Ladies», un himno de seguridad y de saber lo que uno vale.", dedication: "Te la dedico porque sabes lo que vales, y porque me encanta verte brillar con esa seguridad. Ponte tus mejores pasos, reina 💃" },
   },
   {
     day: 14, emoji: "🚀", year: "1947", title: "Romper la barrera del sonido",
