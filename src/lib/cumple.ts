@@ -206,9 +206,22 @@ export function readPreview(): string | null {
   }
 }
 
+let serverDate: string | null = null;
+
+export async function fetchServerDate(): Promise<void> {
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 3000);
+    const r = await fetch("/api/cumple-hoy", { cache: "no-store", signal: ctl.signal });
+    clearTimeout(t);
+    const j = await r.json();
+    if (typeof j?.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(j.date)) serverDate = j.date;
+  } catch { /* sin conexión: se usa la fecha del dispositivo */ }
+}
+
 export function getCumpleNow(): CumpleNow {
   const pv = readPreview();
-  const s = pv || localDateStr();
+  const s = pv || serverDate || localDateStr();
   const [, m, d] = s.split("-").map(Number);
   let phase: CumplePhase = "before";
   if (m === CUMPLE_MONTH) {
@@ -221,7 +234,7 @@ export function getCumpleNow(): CumpleNow {
 
 export const cumpleYear = () => {
   const pv = readPreview();
-  return (pv || localDateStr()).slice(0, 4);
+  return (pv || serverDate || localDateStr()).slice(0, 4);
 };
 
 export const SEEN_DAY_KEY = "conjita-cumple-seen-day";

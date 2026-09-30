@@ -255,8 +255,6 @@ export default function CumpleFinale({ onClose, preview }: { onClose: () => void
           <img src={photoUrl(ph.n)} alt="" style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "center 30%", display: "block", borderRadius: 2 }} />
         </div>
       ))}
-
-      {preview && <div style={{ position: "absolute", top: "calc(10px + env(safe-area-inset-top))", left: 12, zIndex: 5, fontSize: 10, fontWeight: 700, background: "rgba(251,191,36,.2)", color: "#fde68a", padding: "3px 9px", borderRadius: 10 }}>VISTA PREVIA</div>}
       <button onClick={onClose} aria-label="Cerrar" style={{ position: "absolute", top: "calc(8px + env(safe-area-inset-top))", right: 12, zIndex: 6, background: "rgba(255,255,255,.1)", border: "none", color: P.txt, width: 36, height: 36, borderRadius: 18, fontSize: 16, cursor: "pointer" }}>✕</button>
 
       {stage === "gift" && (

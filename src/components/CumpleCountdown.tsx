@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { MoodBunny } from "@/lib/moods";
 import { CONEJITA } from "@/lib/moodBunny";
-import { CUMPLE_DAYS, CUMPLE_NAME, getCumpleNow, cumpleYear } from "@/lib/cumple";
+import { CUMPLE_DAYS, CUMPLE_NAME, getCumpleNow } from "@/lib/cumple";
 
 const P = { bg: "#0d0a1a", border: "rgba(168,85,247,0.25)", p1: "#9333ea", p3: "#db2777", txt: "#f0e6ff", muted: "rgba(240,230,255,0.5)" };
 
@@ -13,7 +13,6 @@ export default function CumpleCountdown({ onClose, onFinale }: { onClose: () => 
   const [shake, setShake] = useState(0);
   const card = CUMPLE_DAYS[sel - 1];
   const isBday = sel === 20;
-  const year = cumpleYear();
 
   const pick = (d: number) => {
     if (d > unlockedTo) { setShake(d); setTimeout(() => setShake(0), 500); return; }
@@ -41,7 +40,6 @@ export default function CumpleCountdown({ onClose, onFinale }: { onClose: () => 
           <MoodBunny expr={now.phase === "birthday" ? "emocionada" : "amor"} size={78} />
           <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 64, lineHeight: 1, background: `linear-gradient(135deg,#fde68a,#f472b6,${P.p1})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{big}</div>
           <div style={{ fontSize: 13, color: P.muted, marginTop: 4 }}>{sub}</div>
-          {now.preview && <div style={{ display: "inline-block", marginTop: 8, fontSize: 10, fontWeight: 700, background: "rgba(251,191,36,.2)", color: "#fde68a", padding: "3px 9px", borderRadius: 10 }}>VISTA PREVIA · {year}</div>}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 8, margin: "18px 0" }}>

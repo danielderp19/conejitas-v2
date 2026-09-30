@@ -9,7 +9,7 @@ const SyncManager = dynamic(() => import("@/components/SyncManager"), { ssr: fal
 const StatsPanel = dynamic(() => import("@/components/StatsPanel"), { ssr: false });
 const CumpleCountdown = dynamic(() => import("@/components/CumpleCountdown"), { ssr: false });
 const CumpleFinale = dynamic(() => import("@/components/CumpleFinale"), { ssr: false });
-import { getCumpleNow, CUMPLE_DAYS, CUMPLE_NAME, SEEN_DAY_KEY, FINALE_SEEN_KEY, cumpleYear, type CumpleNow } from "@/lib/cumple";
+import { fetchServerDate, getCumpleNow, CUMPLE_DAYS, CUMPLE_NAME, SEEN_DAY_KEY, FINALE_SEEN_KEY, cumpleYear, type CumpleNow } from "@/lib/cumple";
 import {
   CheckDoneIcon, CheckEmptyIcon, ExpandIcon, DeleteIcon, RefreshIcon,
   SaveCloudIcon, MenuIcon, CloseIcon, SendIcon, SparkleIcon, ResetIcon,
@@ -676,6 +676,13 @@ export default function ConejitasDashboard() {
     setHydrated(true);
     const cumpleNow0 = getCumpleNow();
     setCumple(cumpleNow0);
+    fetchServerDate().then(() => {
+      const cn = getCumpleNow();
+      setCumple(cn);
+      if (cn.phase !== "birthday") setShowFinale(false);
+      if (cn.phase !== "active") setShowCumpleDaily(false);
+      if (cn.phase === "before") setShowCumple(false);
+    });
     // ── Onboarding romántico — solo una vez, prioridad sobre lo demás ──
     const onboardingSeen = !!localStorage.getItem("conjita-onboarding-v1");
     if (!onboardingSeen) {
@@ -1229,6 +1236,7 @@ REGLAS GENERALES:
         @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
         @keyframes sparkleSpin{0%{transform:rotate(0) scale(1);opacity:0.8}50%{transform:rotate(180deg) scale(1.25);opacity:1}100%{transform:rotate(360deg) scale(1);opacity:0.8}}
         @keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+        @keyframes ccBtnPulse{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,0.55)}50%{box-shadow:0 0 0 7px rgba(244,114,182,0)}}
         @keyframes tabGlow{0%{box-shadow:0 0 0 0 rgba(219,39,119,0.6)}100%{box-shadow:0 0 0 7px rgba(219,39,119,0)}}
         @keyframes toastBounce{0%{opacity:0;transform:translateX(-50%) translateY(24px) scale(0.9)}60%{opacity:1;transform:translateX(-50%) translateY(-6px) scale(1.02)}100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -1261,6 +1269,14 @@ REGLAS GENERALES:
             {saveStatus === "saved" && <div style={{ fontSize:10, color:"#86efac", display:"flex", alignItems:"center", gap:3, flexShrink:0 }}><SaveCloudIcon size={13}/>Guardado</div>}
           </div>
         </div>
+        {cumple && cumple.phase !== "before" && (
+          <button
+            onClick={() => setShowCumple(true)}
+            title={`Camino al cumple de ${CUMPLE_NAME}`}
+            aria-label={`Camino al cumple de ${CUMPLE_NAME}`}
+            style={{ background:"linear-gradient(135deg,#f59e0b,#db2777)", border:"none", borderRadius:10, width: desktop ? 36 : 38, height: desktop ? 36 : 38, cursor:"pointer", fontSize:19, lineHeight:1, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", animation:"ccBtnPulse 2s ease-in-out infinite", boxShadow:"0 0 0 0 rgba(244,114,182,0.6)" }}
+          >{cumple.phase === "birthday" ? "🎁" : "🎂"}</button>
+        )}
         {/* Botón de notificaciones */}
         <button
           onClick={toggleNotifications}
@@ -1296,14 +1312,6 @@ REGLAS GENERALES:
       )}
       {menuOpen && (
         <div style={{ position:"fixed", top: desktop ? 62 : "calc(64px + env(safe-area-inset-top))", right: desktop ? "calc(50% - 480px + 12px)" : 12, background:"rgba(13,10,26,0.98)", border:`1px solid ${P.border}`, borderRadius:14, padding:8, zIndex:200, minWidth:210, boxShadow:"0 12px 40px rgba(0,0,0,0.8)" }}>
-          {cumple && cumple.phase !== "before" && (
-            <button
-              onClick={() => { setShowCumple(true); setMenuOpen(false); }}
-              style={{ display:"flex", alignItems:"center", gap:8, width:"100%", background:"none", border:"none", borderBottom:`1px solid ${P.border}`, color:P.txt, padding:"10px 12px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:700 }}
-            >
-              🎂 Camino al cumple de {CUMPLE_NAME}
-            </button>
-          )}
           <div style={{ padding:"8px 12px 6px", fontSize:10, color:P.muted, fontWeight:700 }}>MEMORIA</div>
           <div style={{ padding:"4px 12px 10px", fontSize:11, color:P.txt, borderBottom:`1px solid ${P.border}` }}>
             💾 Tus tareas se guardan automáticamente.
