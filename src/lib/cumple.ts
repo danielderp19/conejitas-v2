@@ -46,7 +46,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 5, emoji: "💎", year: "1961", title: "Desayuno con diamantes",
     fact: "El 5 de octubre de 1961 se estrenó en Nueva York «Desayuno con diamantes» con Audrey Hepburn, y ese vestido negro se volvió el más famoso de la historia del cine.",
     love: "Audrey fue elegancia pura frente a una vitrina. Tú eres elegancia y ternura frente a cualquier cosa, incluso un lunes. Gran estreno, pero no tanto como tu día. Faltan 15 días ✨",
-    song: { title: "Love Me Do", artist: "The Beatles", year: "1962", note: "Un 5 de octubre de 1962 salió «Love Me Do», el primer sencillo de los Beatles. Todo un imperio musical empezó con una canción de amor sencillita.", dedication: "Te la dedico porque así empiezan las historias grandes: simple, sincero y con ganas de quedarse." },
+    song: { title: "I Honestly Love You", artist: "Olivia Newton-John", year: "1974", note: "El 5 de octubre de 1974, «I Honestly Love You» llegó al número 1 de la lista Billboard en Estados Unidos y le dio a Olivia Newton-John su primer número uno. Es una balada sobre atreverse a decir «te quiero» de verdad, sin adornos.", dedication: "Te la dedico porque quiero decírtelo así, sin adornos y con toda la sinceridad: te quiero de verdad, Cata." },
   },
   {
     day: 6, emoji: "🎬", year: "1927", title: "El cine aprendió a hablar",
