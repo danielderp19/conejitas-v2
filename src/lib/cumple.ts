@@ -160,8 +160,21 @@ export const CUMPLE_REASONS: string[] = [
   "Porque naciste un 20 de octubre, y eso ya es suficiente.",
 ];
 
-// Pon fotos en /public/cumple/ (por ejemplo "/cumple/1.jpg") y agrégalas aquí.
-export const FINALE_PHOTOS: string[] = [];
+// Fotos del final: viven en un Blob privado (cumple/foto-N.jpg) y la API solo las entrega desde el 20 de octubre.
+export const FINALE_PHOTOS: { n: number; caption: string }[] = [
+  { n: 1, caption: "Esa sonrisa 💛" },
+  { n: 5, caption: "Atrapando atardeceres 🌇" },
+  { n: 2, caption: "Con toda la actitud 😎" },
+  { n: 3, caption: "Mi cara favorita de todas 🤪" },
+  { n: 6, caption: "Desde chiquita, 2005 🥹" },
+  { n: 4, caption: "Tan tú ✨" },
+  { n: 7, caption: "Hasta tranquila me encantas 🌙" },
+];
+
+export function photoUrl(n: number): string {
+  const pv = readPreview();
+  return `/api/cumple-foto?n=${n}${pv ? `&k=${PREVIEW_TOKEN}` : ""}`;
+}
 
 // ── Fechas ─────────────────────────────────────────────────────
 
@@ -175,7 +188,7 @@ export interface CumpleNow {
 }
 
 const PREVIEW_KEY = "conjita-cumple-preview";
-const PREVIEW_TOKEN = "d45aea6b22";
+export const PREVIEW_TOKEN = "d45aea6b22";
 
 // ?cumple=2026-10-20 simula otra fecha (solo esa pestaña, para probar).
 export function readPreview(): string | null {

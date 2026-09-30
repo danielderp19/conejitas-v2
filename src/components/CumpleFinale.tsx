@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MoodBunny } from "@/lib/moods";
 import { CONEJITA } from "@/lib/moodBunny";
-import { CUMPLE_NAME, CUMPLE_LETTER, CUMPLE_REASONS, FINALE_PHOTOS } from "@/lib/cumple";
+import { CUMPLE_NAME, CUMPLE_LETTER, CUMPLE_REASONS, FINALE_PHOTOS, photoUrl } from "@/lib/cumple";
 
 const P = { bg: "#0d0a1a", p1: "#9333ea", p3: "#db2777", txt: "#f0e6ff", muted: "rgba(240,230,255,0.55)" };
 const COLORS = ["#c084fc", "#f472b6", "#fbbf24", "#f0abfc", "#fde68a", "#93c5fd", "#ffffff", "#fb7185"];
@@ -116,6 +116,7 @@ export default function CumpleFinale({ onClose, preview }: { onClose: () => void
 
   useEffect(() => {
     reduced.current = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    FINALE_PHOTOS.forEach(ph => { const im = new Image(); im.src = photoUrl(ph.n); });
     const c = cvs.current!;
     const ctx = c.getContext("2d")!;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -240,12 +241,20 @@ export default function CumpleFinale({ onClose, preview }: { onClose: () => void
         @keyframes cfFlash{0%{opacity:.95}100%{opacity:0}}
         @keyframes cfShake{0%,100%{transform:translate(0)}20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-4px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,4px)}}
         @keyframes cfLine{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+        @keyframes cfRise{0%{transform:translate(0,0) rotate(var(--r0));opacity:0}10%{opacity:.95}50%{transform:translate(var(--dx),-55vh) rotate(var(--r1))}90%{opacity:.95}100%{transform:translate(0,-118vh) rotate(var(--r0));opacity:0}}
         @keyframes cfPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
         @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
       `}</style>
 
       <svg width={0} height={0} style={{ position: "absolute" }} aria-hidden dangerouslySetInnerHTML={{ __html: CONEJITA.defsMarkup() }} />
       <canvas ref={cvs} onPointerDown={onCanvasTap} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", touchAction: "manipulation" }} />
+
+      {stage === "show" && !reduced.current && FINALE_PHOTOS.map((ph, i) => (
+        <div key={ph.n} style={{ position: "absolute", left: `${6 + ((i * 37) % 70)}%`, bottom: -140, width: 78, padding: "5px 5px 16px", background: "#fff", borderRadius: 4, boxShadow: "0 6px 22px rgba(0,0,0,.55)", pointerEvents: "none", opacity: 0, ["--r0" as string]: `${i % 2 ? 6 : -7}deg`, ["--r1" as string]: `${i % 2 ? -5 : 8}deg`, ["--dx" as string]: `${i % 2 ? 24 : -24}px`, animation: `cfRise ${11 + (i % 3) * 2}s ${2.2 + i * 1.9}s linear infinite` }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photoUrl(ph.n)} alt="" style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "center 30%", display: "block", borderRadius: 2 }} />
+        </div>
+      ))}
 
       {preview && <div style={{ position: "absolute", top: "calc(10px + env(safe-area-inset-top))", left: 12, zIndex: 5, fontSize: 10, fontWeight: 700, background: "rgba(251,191,36,.2)", color: "#fde68a", padding: "3px 9px", borderRadius: 10 }}>VISTA PREVIA</div>}
       <button onClick={onClose} aria-label="Cerrar" style={{ position: "absolute", top: "calc(8px + env(safe-area-inset-top))", right: 12, zIndex: 6, background: "rgba(255,255,255,.1)", border: "none", color: P.txt, width: 36, height: 36, borderRadius: 18, fontSize: 16, cursor: "pointer" }}>✕</button>
@@ -305,20 +314,26 @@ export default function CumpleFinale({ onClose, preview }: { onClose: () => void
             <div style={{ textAlign: "center", animation: "cfFloat 3s ease-in-out infinite" }}><MoodBunny expr="amor" size={90} /></div>
             <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 24, textAlign: "center", margin: "6px 0 18px" }}><span style={{ background: "linear-gradient(135deg,#fde68a,#f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Para ti, {CUMPLE_NAME}</span> 💌</div>
 
-            {FINALE_PHOTOS.length > 0 && (
-              <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "4px 2px 14px", marginBottom: 6 }}>
-                {FINALE_PHOTOS.map((src, i) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={src} src={src} alt="" style={{ height: 190, borderRadius: 16, border: "2px solid rgba(244,114,182,.5)", flexShrink: 0, transform: `rotate(${i % 2 ? 2 : -2}deg)`, boxShadow: "0 6px 24px rgba(0,0,0,.5)" }} />
-                ))}
-              </div>
-            )}
-
             <div style={{ background: "rgba(147,51,234,.14)", border: "1px solid rgba(168,85,247,.35)", borderRadius: 20, padding: "22px 20px", lineHeight: 1.75, fontSize: 15 }}>
               {CUMPLE_LETTER.map((ln, i) => (
                 <p key={i} style={{ margin: "0 0 12px", opacity: 0, animation: `cfLine .8s ${0.4 + i * 1.1}s ease forwards`, fontWeight: i === CUMPLE_LETTER.length - 1 ? 700 : 400 }}>{ln}</p>
               ))}
             </div>
+
+            {FINALE_PHOTOS.length > 0 && (
+              <>
+                <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 18, textAlign: "center", margin: "30px 0 16px" }}>Mis momentos favoritos de ti 📸</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "22px 14px", padding: "0 4px" }}>
+                  {FINALE_PHOTOS.map((ph, i) => (
+                    <div key={ph.n} style={{ background: "#fff", padding: "8px 8px 12px", borderRadius: 4, boxShadow: "0 8px 26px rgba(0,0,0,.55)", transform: `rotate(${[-2.5, 2, 1.5, -2, -1.5, 2.5, -1][i % 7]}deg)`, alignSelf: "start", marginTop: i % 2 ? 18 : 0, gridColumn: i === FINALE_PHOTOS.length - 1 && FINALE_PHOTOS.length % 2 ? "1 / -1" : undefined, justifySelf: i === FINALE_PHOTOS.length - 1 && FINALE_PHOTOS.length % 2 ? "center" : undefined, width: i === FINALE_PHOTOS.length - 1 && FINALE_PHOTOS.length % 2 ? "58%" : undefined, opacity: 0, animation: `cfLine .7s ${1 + i * 0.35}s ease forwards` }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={photoUrl(ph.n)} alt="" style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", objectPosition: "center 30%", display: "block", borderRadius: 2, background: "#e5e5e5" }} />
+                      <div style={{ fontFamily: "'Poppins',sans-serif", fontSize: 11.5, fontWeight: 600, color: "#3b2a4d", textAlign: "center", marginTop: 8 }}>{ph.caption}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
 
             <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 18, textAlign: "center", margin: "30px 0 14px" }}>20 razones para el 20 de octubre 👑</div>
             <div style={{ display: "grid", gap: 9 }}>
