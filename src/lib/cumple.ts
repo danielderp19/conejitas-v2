@@ -21,8 +21,8 @@ export interface CumpleDay {
 
 export const CUMPLE_DAYS: CumpleDay[] = [
   {
-    day: 1, emoji: "🏰", year: "1971", title: "Se abrió la magia",
-    fact: "Un 1 de octubre como hoy, pero de 1971, abrió sus puertas el Magic Kingdom de Walt Disney World, en Florida. Miles de personas cruzaron la entrada por primera vez para vivir un cuento de hadas de verdad.",
+    day: 1, emoji: "🏰", year: "1971", title: "Se abrió el parque de los sueños",
+    fact: "Un 1 de octubre como hoy, pero de 1971, abrió sus puertas el Magic Kingdom de Walt Disney World, en Florida. Miles de personas cruzaron la entrada por primera vez para vivir un sueño de verdad.",
     love: "Fue un día importante para la historia de los sueños… pero no tanto como el 20 de octubre, el día en que nació la reina de MI cuento. Faltan 19 días, Cata 👑",
     song: { title: "Something", artist: "The Beatles", year: "1969", note: "Ese día salió en Estados Unidos «Abbey Road», el último disco que grabaron juntos los cuatro Beatles, con «Something», una de las canciones de amor más bonitas de la historia.", dedication: "Te la dedico porque contigo me pasa exactamente eso: hay algo en ti, en tu forma de ser, que me atrapó y no me suelta." },
   },
@@ -105,13 +105,13 @@ export const CUMPLE_DAYS: CumpleDay[] = [
   {
     day: 16, emoji: "🐭", year: "1923", title: "Nació un ratón que cambió todo",
     fact: "El 16 de octubre de 1923 Walt y Roy Disney fundaron su estudio de animación, el mismo que años después crearía a Mickey Mouse, Blancanieves y tantos sueños más.",
-    love: "Empezó con un dibujo y una idea, y terminó siendo magia. Yo empecé contigo con un «hola» y terminé enamorado. Día grande, pero no tanto como el 20. Faltan 4 días ✨",
-    song: { title: "Crazy", artist: "Patsy Cline", year: "1961", note: "«Crazy» de Patsy Cline salió a la venta y desde entonces es una de las canciones más queridas de toda la música country.", dedication: "Te la dedico porque quien me vuelve un poco loco (de amor, claro) eres tú." },
+    love: "Empezó con un dibujo y una idea, y terminó siendo enorme. Yo empecé contigo con un «hola» y terminé enamorado. Día grande, pero no tanto como el 20. Faltan 4 días 💜",
+    song: { title: "Golden Hour", artist: "JVKE", year: "2022", note: "Esta no salió un 16 de octubre (JVKE la lanzó en 2022), pero es una de las canciones nuevas más bonitas de los últimos años. Habla de ese momento en que conoces a alguien y todo se siente más lindo y más lento.", dedication: "Te la dedico porque así se sintió conocerte: como si de repente todo tuviera mejor luz." },
   },
   {
-    day: 17, emoji: "🎃", year: "1998", title: "Bienvenida a Halloweentown",
-    fact: "El 17 de octubre de 1998 se estrenó en Disney Channel «Halloweentown», la película de la bruja adolescente Marnie y su abuela. Desde entonces vuelve cada octubre como tradición.",
-    love: "Es la magia de octubre en casa, y yo tengo mi propia magia de octubre: tú. Estreno de culto, pero el mejor octubre de todos es el que trae tu cumpleaños. Faltan 3 días 🧙‍♀️",
+    day: 17, emoji: "⏳", year: "1933", title: "El tiempo es relativo",
+    fact: "El 17 de octubre de 1933 Albert Einstein llegó a Estados Unidos y se instaló en Princeton, donde vivió hasta el final de su vida. Su teoría de la relatividad nos enseñó que el tiempo no pasa igual para todos, y su cara terminó en pósters, camisetas y películas.",
+    love: "Y tenía razón: cuando estoy contigo, una hora se siente como un minuto. Fecha importante, pero el 20 de octubre gana. Faltan 3 días ⏳",
   },
   {
     day: 18, emoji: "💡", year: "1931", title: "Se apagó el genio de la luz",
