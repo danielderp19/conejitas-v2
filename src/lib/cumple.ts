@@ -74,7 +74,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     title: "Día Mundial de la Salud Mental",
     fact: "Cada 10 de octubre se celebra el Día Mundial de la Salud Mental, para recordarnos que sentirse bien por dentro importa tanto como cualquier meta. Por eso existe el registro de ánimo en tu rinconcito.",
     love: "Que tengas días felices, tristes, cansados o de mil ánimos a la vez, y que sepas que en todos me tienes a mí. Un día importante, pero no tanto como el 20. Faltan 10 días — ¡ya estamos a la mitad! 💜",
-    song: { title: "Video Games", artist: "Lana Del Rey", year: "2011", note: "Lana Del Rey lanzó «Video Games» y se volvió la canción que le abrió las puertas al mundo. Es una historia de amor tranquilo, de tardes simples y de estar juntos.", dedication: "Te la dedico porque contigo hasta lo más simple, como una tarde cualquiera, se siente especial." },
+    song: { title: "A Dios le pido", artist: "Juanes", year: "2002", note: "Esta no salió un 10 de octubre (Juanes la lanzó en marzo de 2002), pero hoy quise dedicarte una canción colombiana. Es una de las más queridas de nuestro país: una canción para pedir cosas buenas para la gente que uno quiere.", dedication: "Te la dedico porque yo también pido lo mismo para ti: que estés siempre bien, que sonrías mucho y que la vida te devuelva todo lo bonito que das." },
   },
   {
     day: 11, emoji: "📺", year: "1975", title: "«¡En vivo desde Nueva York!»",
