@@ -1985,18 +1985,36 @@ REGLAS GENERALES:
       {/* ── Cumple de Cata: aviso diario ── */}
       {showCumpleDaily && cumple && cumple.phase === "active" && (() => {
         const cd = CUMPLE_DAYS[cumple.day - 1];
-        const close = () => { setShowCumpleDaily(false); if (!cumple.preview) localStorage.setItem(SEEN_DAY_KEY, localDateStr()); };
+        const first = !localStorage.getItem("conjita-cumple-intro");
+        const close = () => { setShowCumpleDaily(false); localStorage.setItem("conjita-cumple-intro", "1"); if (!cumple.preview) localStorage.setItem(SEEN_DAY_KEY, localDateStr()); };
         return (
           <div onClick={close} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.82)", zIndex:620, display:"flex", alignItems:"center", justifyContent:"center", padding:`calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))` }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background:"linear-gradient(180deg,#1a0f2e 0%,#0d0a1a 100%)", border:`1px solid ${P.borderHi}`, borderRadius:26, padding:"26px 20px 20px", width:"100%", maxWidth:380, textAlign:"center", animation:"slideIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow:"0 20px 70px rgba(219,39,119,0.4)" }}>
-              <div style={{ fontSize:44, lineHeight:1 }}>{cd.emoji}</div>
-              <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:22, marginTop:10, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
-                {cumple.daysLeft === 1 ? "¡Falta 1 día, Cata!" : `Faltan ${cumple.daysLeft} días, Cata`}
-              </div>
-              <div style={{ fontSize:13, color:"rgba(240,230,255,0.75)", marginTop:8, lineHeight:1.65 }}>
-                Hoy, {cumple.day} de octubre, tengo algo que contarte: <b style={{ color:P.txt }}>{cd.title}</b> 💌
-              </div>
-              <button onClick={() => { close(); setShowCumple(true); }} style={{ width:"100%", marginTop:18, background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:16, padding:"14px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer" }}>Leer el mensaje de hoy</button>
+              {first ? (
+                <>
+                  <div style={{ display:"flex", justifyContent:"center", marginBottom:6 }}><MascotBunnyIcon size={72}/></div>
+                  <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:22, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
+                    Mira, mi princesa amada
+                  </div>
+                  <div style={{ fontSize:14, color:"rgba(240,230,255,0.85)", marginTop:10, lineHeight:1.7 }}>
+                    Te tengo una sorpresa en el botón de arriba{" "}
+                    <span style={{ display:"inline-flex", verticalAlign:"middle", width:28, height:28, borderRadius:9, background:"linear-gradient(135deg,#f59e0b,#db2777)", alignItems:"center", justifyContent:"center", fontSize:16 }}>🎂</span>
+                    <br/>Desde hoy y hasta el 20 de octubre, cada día hay un mensaje nuevo esperándote. Y el 20… pasa algo muy especial 🎁
+                  </div>
+                  <button onClick={() => { close(); setShowCumple(true); }} style={{ width:"100%", marginTop:18, background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:16, padding:"14px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer" }}>Ver el mensaje de hoy 💌</button>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize:44, lineHeight:1 }}>{cd.emoji}</div>
+                  <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:22, marginTop:10, background:`linear-gradient(135deg,${P.p1},${P.p3})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1.25 }}>
+                    {cumple.daysLeft === 1 ? "¡Falta 1 día, Cata!" : `Faltan ${cumple.daysLeft} días, Cata`}
+                  </div>
+                  <div style={{ fontSize:13, color:"rgba(240,230,255,0.75)", marginTop:8, lineHeight:1.65 }}>
+                    Hoy, {cumple.day} de octubre, tengo algo que contarte: <b style={{ color:P.txt }}>{cd.title}</b> 💌
+                  </div>
+                  <button onClick={() => { close(); setShowCumple(true); }} style={{ width:"100%", marginTop:18, background:`linear-gradient(135deg,${P.p1},${P.p3})`, border:"none", borderRadius:16, padding:"14px", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer" }}>Leer el mensaje de hoy</button>
+                </>
+              )}
               <button onClick={close} style={{ width:"100%", marginTop:8, background:"none", border:"none", color:P.muted, fontSize:12, padding:"8px", cursor:"pointer" }}>Después, mi amor 💜</button>
             </div>
           </div>
