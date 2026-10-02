@@ -30,7 +30,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 2, emoji: "🐶", year: "1950", title: "Empezó la pandilla de Charlie Brown",
     fact: "Hoy, en 1950, se publicó por primera vez la tira cómica Peanuts, con Charlie Brown, Snoopy y toda la pandilla. Empezó en solo siete periódicos y terminó enamorando al mundo entero.",
     love: "Algo pequeño que se volvió gigante: así me pasó contigo. Fue importante, sí, pero no tanto como tu cumpleaños. Faltan 18 días 💜",
-    song: { title: "Comiéndote a besos", artist: "Rozalén", year: "2013", note: "Esta no salió un 2 de octubre (Rozalén la lanzó en 2013), pero es una de las canciones de amor más tiernas en español, de esas que se cantan con una sonrisa y con ganas de abrazar.", dedication: "Te la dedico porque contigo siempre me dan ganas de eso: de llenarte de besos y de cariño, Cata." },
+    song: { title: "Comiéndote a besos", artist: "Rozalén", year: "2013", note: "Esta no salió un 2 de octubre (Rozalén la lanzó en 2013), pero es una de las canciones de amor más tiernas en español, de esas que se cantan con una sonrisa y con ganas de abrazar.", dedication: "Te la dedico porque a tu lado el cariño me sale natural. Si pudiera, te llenaría de besos y de abrazos cada día, para que nunca dudes lo mucho que te quiero, mi Cata." },
   },
   {
     day: 3, emoji: "🐭", year: "1955", title: "«¿Quién es el líder del club?»",
