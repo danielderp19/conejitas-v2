@@ -30,7 +30,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 2, emoji: "🐶", year: "1950", title: "Empezó la pandilla de Charlie Brown",
     fact: "Hoy, en 1950, se publicó por primera vez la tira cómica Peanuts, con Charlie Brown, Snoopy y toda la pandilla. Empezó en solo siete periódicos y terminó enamorando al mundo entero.",
     love: "Algo pequeño que se volvió gigante: así me pasó contigo. Fue importante, sí, pero no tanto como tu cumpleaños. Faltan 18 días 💜",
-    song: { title: "Comiéndote a besos", artist: "Rozalén", year: "2013", note: "Esta no salió un 2 de octubre (Rozalén la lanzó en 2013), pero es una de las canciones de amor más tiernas en español, de esas que se cantan con una sonrisa y con ganas de abrazar.", dedication: "Te la dedico porque a tu lado el cariño me sale natural. Si pudiera, te llenaría de besos y de abrazos cada día, para que nunca dudes lo mucho que te quiero, mi Cata." },
+    song: { title: "Comiéndote a besos", artist: "Rozalén", year: "2013", note: "Esta no salió un 2 de octubre (Rozalén la lanzó en 2013), pero es una de las canciones de amor más tiernas en español, de esas que se cantan con una sonrisa y con ganas de abrazar.", dedication: "Te la dedico porque a tu lado el cariño me sale natural. Si pudiera, te llenaría de besos y de abrazos cada día, para que nunca dudes lo mucho que te amo, mi Cata." },
   },
   {
     day: 3, emoji: "🐭", year: "1955", title: "«¿Quién es el líder del club?»",
@@ -98,7 +98,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
   {
     day: 15, emoji: "❤️", year: "1951", title: "Todos amaban a Lucy",
     fact: "El 15 de octubre de 1951 se estrenó «Te quiero, Lucy» (I Love Lucy), la comedia que le enseñó a la televisión cómo se hace reír a todo un país en la sala de la casa.",
-    love: "El título ya lo dice todo. Y como a Lucy, a ti te quiero por tu manera de ser, tan tuya. Gran estreno, pero tu día es mejor. Faltan 5 días 💋",
+    love: "El título ya lo dice todo. Y como a Lucy, a ti te amo por tu manera de ser, tan tuya. Gran estreno, pero tu día es mejor. Faltan 5 días 💋",
     song: { title: "Can't Help Falling in Love", artist: "Elvis Presley", year: "1961", note: "Esta no salió un 15 de octubre (Elvis la lanzó en 1961), pero hoy es perfecta para dedicarte. Es una de las canciones de amor más queridas de la historia y la han cantado cientos de artistas.", dedication: "Te la dedico porque a mí me pasó igual que a la canción: no pude evitar enamorarme de ti, Cata." },
   },
   {
@@ -148,7 +148,7 @@ export const CUMPLE_REASONS: string[] = [
   "Porque haces bonito lo simple.",
   "Porque contigo hasta un lunes se siente diferente.",
   "Porque creces sin dejar de ser tú.",
-  "Porque tu forma de querer es de las que se sienten.",
+  "Porque tu forma de amar es de las que se sienten.",
   "Porque eres constante, aun cuando estás cansada.",
   "Porque tus sueños me contagian.",
   "Porque me haces querer ser mejor.",
