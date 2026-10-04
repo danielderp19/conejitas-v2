@@ -48,6 +48,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 5, emoji: "💎", year: "1961", title: "Desayuno con diamantes",
     fact: "El 5 de octubre de 1961 se estrenó en Nueva York «Desayuno con diamantes» con Audrey Hepburn, y ese vestido negro se volvió el más famoso de la historia del cine.",
     love: "Audrey fue elegancia pura frente a una vitrina. Tú eres elegancia y ternura frente a cualquier cosa, incluso un lunes. Gran estreno, pero no tanto como tu día. Faltan 15 días ✨",
+    song: { title: "Te quiero tanto", artist: "Kevin Kaarl", year: "2022", note: "Del cantautor mexicano Kevin Kaarl, salió en septiembre de 2022 en su disco «París, Texas». Es una de esas canciones que se sienten despacito, con el corazón.", dedication: "Te siento al cantar y al escuchar cualquier canción bonita que hable del amor, de lo que siento ayer y hoy. Esta es para ti, Cata." },
   },
   {
     day: 6, emoji: "🎬", year: "1927", title: "El cine aprendió a hablar",
