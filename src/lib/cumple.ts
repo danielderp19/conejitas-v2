@@ -42,6 +42,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     title: "Un conejo con chaqueta azul",
     fact: "Hoy es el Día Mundial de los Animales. Y fue en octubre de 1902 cuando Beatrix Potter publicó «El cuento de Pedro Conejo», el conejito travieso de chaqueta azul que se coló en el huerto del señor McGregor.",
     love: "Y aun con toda esa fama, ningún conejo del mundo me ha quitado el sueño como mi conejita. Importante fecha, pero tu cumpleaños es más. Faltan 16 días 🥕",
+    song: { title: "Lovesong", artist: "The Cure", year: "1989", note: "Robert Smith, el líder de The Cure, escribió esta canción como regalo de bodas para su esposa. Salió en 1989 en el disco «Disintegration» y se volvió una de las canciones de amor más hermosas del rock.", dedication: "Te la dedico porque, pase lo que pase, contigo me siento en casa. Eres mi lugar favorito en el mundo, Cata." },
   },
   {
     day: 5, emoji: "💎", year: "1961", title: "Desayuno con diamantes",
