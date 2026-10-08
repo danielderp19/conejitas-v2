@@ -65,6 +65,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 8, emoji: "🌹", year: "1968", title: "Romeo y Julieta llegó al cine",
     fact: "El 8 de octubre de 1968 se estrenó en Estados Unidos «Romeo y Julieta» de Franco Zeffirelli, con actores jóvenes de verdad, y su banda sonora hizo suspirar a toda una generación.",
     love: "Ellos se amaron con drama. Yo te amo con calma, con risas y contigo eligiéndome de vuelta. Bonito estreno, pero tu cumpleaños es el mejor de todos. Faltan 12 días 🌹",
+    song: { title: "Kiss Me", artist: "Sixpence None the Richer", year: "1997", note: "Una canción dulce y luminosa que se volvió mundialmente famosa en 1999 con la película «Ella es así» (She's All That). Suena a tarde de verano y a primer amor.", dedication: "Te la dedico porque contigo todo se siente como esas escenas de película que uno nunca quiere que se acaben." },
   },
   {
     day: 9, emoji: "🎵", year: "1940", title: "Nació quien imaginó un mundo mejor",
