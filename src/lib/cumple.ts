@@ -69,7 +69,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
   },
   {
     day: 9, emoji: "🎵", year: "1940", title: "Nació quien imaginó un mundo mejor",
-    fact: "Hoy, en 1940, nació John Lennon en Liverpool. Compuso «Imagine» y «All You Need Is Love», canciones que todavía nos hacen creer que el amor lo puede todo.",
+    fact: "Hoy, en 1940, nació John Lennon en Liverpool. Compuso «Imagine» y, junto a The Beatles, «All You Need Is Love», canciones que todavía nos hacen creer que el amor lo puede todo.",
     love: "Él tenía razón: todo lo que necesitas es amor. Yo solo necesito que tú sigas siendo tú. Importante nacimiento, pero ninguno más importante que el tuyo. Faltan 11 días 🎶",
   },
   {
