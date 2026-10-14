@@ -98,6 +98,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 14, emoji: "🚀", year: "1947", title: "Romper la barrera del sonido",
     fact: "El 14 de octubre de 1947 el piloto Chuck Yeager voló el Bell X-1 más rápido que el sonido y fue el primero en hacerlo. Su historia llegó al cine en «Elegidos para la gloria».",
     love: "Todo el mundo decía que era imposible, y alguien lo logró. Yo también sentí que encontrar a alguien como tú era casi imposible, y aquí estás. Gran hazaña, pero no tan grande como tu cumple. Faltan 6 días ✈️",
+    song: { title: "her", artist: "JVKE", year: "2024", note: "Una canción suave y romántica de JVKE, de agosto de 2024. De las que se escuchan despacito, pensando en una sola persona.", dedication: "Te la dedico porque cuando escucho esa palabra, «her», solo pienso en una persona. Y eres tú." },
   },
   {
     day: 15, emoji: "❤️", year: "1951", title: "Todos amaban a Lucy",
