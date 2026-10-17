@@ -116,6 +116,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 17, emoji: "⏳", year: "1933", title: "El tiempo es relativo",
     fact: "El 17 de octubre de 1933 Albert Einstein llegó a Estados Unidos y se instaló en Princeton, donde vivió hasta el final de su vida. Su teoría de la relatividad nos enseñó que el tiempo no pasa igual para todos, y su cara terminó en pósters, camisetas y películas.",
     love: "Y tenía razón: cuando estoy contigo, una hora se siente como un minuto. Fecha importante, pero el 20 de octubre gana. Faltan 3 días ⏳",
+    song: { title: "Un poquito", artist: "Diego Torres & Carlos Vives", year: "2018", note: "Un dueto de Diego Torres y Carlos Vives, de 2018, con ritmo tropical y de esos que levantan el ánimo apenas empiezan a sonar.", dedication: "Te la dedico porque contigo siempre quiero un poquito más: un poquito más de tiempo, de risas y de ti." },
   },
   {
     day: 18, emoji: "💡", year: "1931", title: "Se apagó el genio de la luz",
