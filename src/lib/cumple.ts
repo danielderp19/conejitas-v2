@@ -127,6 +127,7 @@ export const CUMPLE_DAYS: CumpleDay[] = [
     day: 19, emoji: "📖", year: "1953", title: "Un libro que no se podía quemar",
     fact: "El 19 de octubre de 1953 salió «Fahrenheit 451» de Ray Bradbury, la historia de un mundo donde los libros se queman. Se volvió película y clásico, un recordatorio de que las historias importan.",
     love: "Nuestra historia sí la escribimos para quedarse. Y mañana empieza un capítulo nuevo. Importante libro, pero mañana es un día más importante. Falta 1 día. UNO. Mañana, Cata 💜",
+    song: { title: "Tú y yo", artist: "La Misma Gente", year: "clásico de la salsa", note: "Un clásico de la salsa romántica colombiana, compuesto por Héctor Ocampo. De esas canciones que se bailan abrazados y que se saben todos en una fiesta.", dedication: "Te la dedico porque mañana es tu día, pero tú y yo llevamos tiempo celebrándolo." },
   },
   {
     day: 20, emoji: "🎭", year: "1973", title: "Se abrió el telón en Sídney",
