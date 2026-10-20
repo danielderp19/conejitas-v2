@@ -31,6 +31,18 @@ let songEnd = 0;
 type Pt = { x: number; y: number; vx: number; vy: number; life: number; max: number; c: string; sz: number; kind: 0 | 1; rot: number; vr: number };
 type Rk = { x: number; y: number; vx: number; vy: number; ty: number; c: string };
 
+const HEARTS = ["💜", "💗", "💖", "🩷", "💕", "💞"];
+function HeartsRain({ dense }: { dense?: boolean }) {
+  const n = dense ? 26 : 18;
+  return (
+    <div aria-hidden style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: dense ? 0 : 1 }}>
+      {Array.from({ length: n }).map((_, i) => (
+        <span key={i} style={{ position: "absolute", left: `${(i * 37 + 11) % 96}%`, bottom: -50, fontSize: 14 + ((i * 13) % 20), opacity: 0, ["--dx" as string]: `${(i % 2 ? 1 : -1) * (14 + ((i * 7) % 26))}px`, animation: `cfHeart ${8 + ((i * 5) % 8)}s ${(i * 0.7) % 7}s linear infinite` }}>{HEARTS[i % HEARTS.length]}</span>
+      ))}
+    </div>
+  );
+}
+
 export default function CumpleFinale({ onClose, preview }: { onClose: () => void; preview: boolean }) {
   const [stage, setStage] = useState<"gift" | "count" | "show" | "letter">("gift");
   const [count, setCount] = useState(3);
@@ -241,6 +253,7 @@ export default function CumpleFinale({ onClose, preview }: { onClose: () => void
         @keyframes cfFlash{0%{opacity:.95}100%{opacity:0}}
         @keyframes cfShake{0%,100%{transform:translate(0)}20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-4px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,4px)}}
         @keyframes cfLine{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+        @keyframes cfHeart{0%{transform:translate(0,0) scale(.6);opacity:0}12%{opacity:.85}50%{transform:translate(var(--dx),-55vh) scale(1)}88%{opacity:.7}100%{transform:translate(calc(var(--dx) * -1),-112vh) scale(1.15);opacity:0}}
         @keyframes cfRise{0%{transform:translate(0,0) rotate(var(--r0));opacity:0}10%{opacity:.95}50%{transform:translate(var(--dx),-55vh) rotate(var(--r1))}90%{opacity:.95}100%{transform:translate(0,-118vh) rotate(var(--r0));opacity:0}}
         @keyframes cfPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
         @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
@@ -249,6 +262,7 @@ export default function CumpleFinale({ onClose, preview }: { onClose: () => void
       <svg width={0} height={0} style={{ position: "absolute" }} aria-hidden dangerouslySetInnerHTML={{ __html: CONEJITA.defsMarkup() }} />
       <canvas ref={cvs} onPointerDown={onCanvasTap} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", touchAction: "manipulation" }} />
 
+      {(stage === "show" || stage === "letter") && !reduced.current && <HeartsRain dense={stage === "letter"} />}
       {stage === "show" && !reduced.current && FINALE_PHOTOS.map((ph, i) => (
         <div key={ph.n} style={{ position: "absolute", left: `${6 + ((i * 37) % 70)}%`, bottom: -140, width: 78, padding: "5px 5px 16px", background: "#fff", borderRadius: 4, boxShadow: "0 6px 22px rgba(0,0,0,.55)", pointerEvents: "none", opacity: 0, ["--r0" as string]: `${i % 2 ? 6 : -7}deg`, ["--r1" as string]: `${i % 2 ? -5 : 8}deg`, ["--dx" as string]: `${i % 2 ? 24 : -24}px`, animation: `cfRise ${11 + (i % 3) * 2}s ${2.2 + i * 1.9}s linear infinite` }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -261,7 +275,11 @@ export default function CumpleFinale({ onClose, preview }: { onClose: () => void
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center", gap: 14, pointerEvents: "none" }}>
           <div style={{ animation: "cfFloat 3s ease-in-out infinite" }}><MoodBunny expr="emocionada" size={110} /></div>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 800, background: `linear-gradient(135deg,#f0abfc,${P.p3})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{CUMPLE_NAME}, tengo algo para ti…</div>
-          <div style={{ fontSize: 13, color: P.muted, maxWidth: 300, lineHeight: 1.6 }}>Sube el volumen 🔊 y prepárate.<br />Este es el momento por el que llevamos 20 días contando.</div>
+          <div style={{ fontSize: 13, color: P.muted, maxWidth: 300, lineHeight: 1.6 }}>Este es el momento por el que llevamos 20 días contando.</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(251,191,36,.14)", border: "1px solid rgba(251,191,36,.5)", borderRadius: 16, padding: "12px 16px", maxWidth: 320, textAlign: "left", animation: "cfPulse 1.8s ease-in-out infinite" }}>
+            <span style={{ fontSize: 26, lineHeight: 1 }}>🔊</span>
+            <span style={{ fontSize: 13, lineHeight: 1.5, color: "#fde68a", fontWeight: 600 }}>Ponle sonido a tu celular: quita el modo silencio y sube el volumen antes de abrir tu regalo.</span>
+          </div>
           <button onClick={start} style={{ pointerEvents: "auto", marginTop: 10, fontSize: 18, fontWeight: 800, color: "#fff", background: `linear-gradient(135deg,${P.p1},${P.p3})`, border: "none", borderRadius: 30, padding: "16px 34px", cursor: "pointer", boxShadow: "0 0 40px rgba(219,39,119,.55)", animation: "cfPulse 1.6s ease-in-out infinite" }}>Abrir mi regalo 🎁</button>
         </div>
       )}
@@ -307,7 +325,7 @@ export default function CumpleFinale({ onClose, preview }: { onClose: () => void
       )}
 
       {stage === "letter" && (
-        <div style={{ position: "absolute", inset: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", background: "rgba(13,10,26,.72)", padding: "calc(56px + env(safe-area-inset-top)) 18px calc(40px + env(safe-area-inset-bottom))" }} onPointerDown={e => { if (e.target === e.currentTarget) launch(e.clientX, e.clientY); }}>
+        <div style={{ position: "absolute", inset: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", background: "rgba(13,10,26,.5)", padding: "calc(56px + env(safe-area-inset-top)) 18px calc(40px + env(safe-area-inset-bottom))" }} onPointerDown={e => { if (e.target === e.currentTarget) launch(e.clientX, e.clientY); }}>
           <div style={{ maxWidth: 480, margin: "0 auto" }}>
             <div style={{ textAlign: "center", animation: "cfFloat 3s ease-in-out infinite" }}><MoodBunny expr="amor" size={90} /></div>
             <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 24, textAlign: "center", margin: "6px 0 18px" }}><span style={{ background: "linear-gradient(135deg,#fde68a,#f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Para ti, {CUMPLE_NAME}</span> 💌</div>

@@ -1447,7 +1447,7 @@ REGLAS GENERALES:
                     {cumple.phase === "birthday" ? `¡Hoy es el cumple de ${CUMPLE_NAME}! 🎉` : cumple.phase === "after" ? "Camino al cumple: tus recuerdos" : cumple.daysLeft === 1 ? "¡Mañana es tu cumpleaños!" : `Faltan ${cumple.daysLeft} días para tu cumpleaños`}
                   </span>
                   <span style={{ display:"block", fontSize:11.5, color:P.muted, marginTop:2 }}>
-                    {cumple.phase === "birthday" ? "Toca para abrir tu sorpresa" : cumple.phase === "after" ? "Vuelve a leer los 20 mensajes" : "Toca para ver el mensaje de hoy 💌"}
+                    {cumple.phase === "birthday" ? "Toca para abrir tu sorpresa · ponle sonido 🔊" : cumple.phase === "after" ? "Vuelve a leer los 20 mensajes" : "Toca para ver el mensaje de hoy 💌"}
                   </span>
                 </span>
                 <span style={{ fontSize:18, color:P.muted }}>›</span>
