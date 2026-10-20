@@ -1,25 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { get } from "@vercel/blob";
+import crypto from "crypto";
 import { PREVIEW_TOKEN } from "@/lib/cumple";
+import { FOTOS_ENC } from "@/lib/cumpleFotos.enc";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Las fotos viven en un Blob privado y solo se entregan el 20 de octubre (hora de Bogotá).
+// Las fotos están cifradas en el repo y solo se descifran aquí, desde el 20 de octubre hasta el 20 de noviembre (hora de Bogotá).
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const n = Number(sp.get("n"));
-  if (!Number.isInteger(n) || n < 1 || n > 20) return new NextResponse("no", { status: 404 });
+  const data = FOTOS_ENC[n];
+  if (!data) return new NextResponse("no", { status: 404 });
 
   const bogota = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date());
-  const open = bogota.slice(5) === "10-20";
+  const y = bogota.slice(0, 4);
+  const open = bogota >= `${y}-10-20` && bogota <= `${y}-11-20`;
   if (!open && sp.get("k") !== PREVIEW_TOKEN) return new NextResponse("todavía no", { status: 403 });
 
+  const hex = process.env.CUMPLE_FOTO_KEY;
+  if (!hex) return new NextResponse("error", { status: 500 });
   try {
-    const r = await get(`cumple/foto-${n}.jpg`, { access: "private" });
-    if (!r || r.statusCode !== 200) return new NextResponse("no", { status: 404 });
-    return new NextResponse(r.stream, { headers: { "content-type": "image/jpeg", "cache-control": "private, max-age=3600" } });
-  } catch (e) {
-    return new NextResponse(sp.get("dbg") === "1" ? String(e instanceof Error ? e.message : e) : "error", { status: 500 });
+    const buf = Buffer.from(data, "base64");
+    const d = crypto.createDecipheriv("aes-256-gcm", Buffer.from(hex, "hex"), buf.subarray(0, 12));
+    d.setAuthTag(buf.subarray(12, 28));
+    const img = Buffer.concat([d.update(buf.subarray(28)), d.final()]);
+    return new NextResponse(img, { headers: { "content-type": "image/jpeg", "cache-control": "private, max-age=3600" } });
+  } catch {
+    return new NextResponse("error", { status: 500 });
   }
 }
