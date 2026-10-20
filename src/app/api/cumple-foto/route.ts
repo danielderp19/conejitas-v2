@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { list } from "@vercel/blob";
+import { get } from "@vercel/blob";
 import { PREVIEW_TOKEN } from "@/lib/cumple";
 
 export const runtime = "nodejs";
@@ -16,14 +16,10 @@ export async function GET(req: NextRequest) {
   if (!open && sp.get("k") !== PREVIEW_TOKEN) return new NextResponse("todavía no", { status: 403 });
 
   try {
-    const { blobs } = await list({ prefix: `cumple/foto-${n}.jpg` });
-    if (sp.get("dbg") === "1") return NextResponse.json({ count: blobs.length, hasToken: !!process.env.BLOB_READ_WRITE_TOKEN, urls: blobs.map(b => b.url.slice(0, 60)) });
-    if (!blobs.length) return new NextResponse("no", { status: 404 });
-    const token = process.env.BLOB_READ_WRITE_TOKEN || "";
-    const res = await fetch(blobs[0].url, { headers: token ? { authorization: `Bearer ${token}` } : undefined });
-    if (!res.ok) return new NextResponse(sp.get("dbg") === "2" ? `fetch ${res.status}` : "no", { status: 404 });
-    return new NextResponse(res.body, { headers: { "content-type": "image/jpeg", "cache-control": "private, max-age=3600" } });
-  } catch {
-    return new NextResponse("error", { status: 500 });
+    const r = await get(`cumple/foto-${n}.jpg`, { access: "private" });
+    if (!r || r.statusCode !== 200) return new NextResponse("no", { status: 404 });
+    return new NextResponse(r.stream, { headers: { "content-type": "image/jpeg", "cache-control": "private, max-age=3600" } });
+  } catch (e) {
+    return new NextResponse(sp.get("dbg") === "1" ? String(e instanceof Error ? e.message : e) : "error", { status: 500 });
   }
 }
