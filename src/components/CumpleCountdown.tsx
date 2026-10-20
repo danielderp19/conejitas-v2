@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { MoodBunny } from "@/lib/moods";
+import CumpleSaveButton from "@/components/CumpleSaveButton";
 import { CONEJITA } from "@/lib/moodBunny";
 import { CUMPLE_DAYS, CUMPLE_NAME, getCumpleNow } from "@/lib/cumple";
 
@@ -41,6 +42,17 @@ export default function CumpleCountdown({ onClose, onFinale }: { onClose: () => 
           <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 64, lineHeight: 1, background: `linear-gradient(135deg,#fde68a,#f472b6,${P.p1})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{big}</div>
           <div style={{ fontSize: 13, color: P.muted, marginTop: 4 }}>{sub}</div>
         </div>
+
+        {now.phase === "after" && now.canRelive && (
+          <div style={{ margin: "14px 0 0", padding: "16px 16px 14px", borderRadius: 20, textAlign: "center", background: "linear-gradient(135deg,rgba(251,191,36,.16),rgba(219,39,119,.22))", border: "1px solid rgba(244,114,182,.45)" }}>
+            <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 16 }}>Tu sorpresa sigue aquí 🎁</div>
+            <div style={{ fontSize: 12, color: P.muted, margin: "4px 0 12px" }}>La puedes revivir hasta el 20 de noviembre</div>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+              <button onClick={onFinale} style={{ fontSize: 14, fontWeight: 800, color: "#fff", background: `linear-gradient(135deg,${P.p1},${P.p3})`, border: "none", borderRadius: 24, padding: "12px 22px", cursor: "pointer" }}>🎆 Revivir la sorpresa</button>
+              <CumpleSaveButton />
+            </div>
+          </div>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 8, margin: "18px 0" }}>
           {CUMPLE_DAYS.map(cd => {
@@ -83,9 +95,9 @@ export default function CumpleCountdown({ onClose, onFinale }: { onClose: () => 
                 <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(card.song.title + " " + card.song.artist)}`} target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", textDecoration: "none", color: "#fff", fontSize: 13, fontWeight: 800, background: `linear-gradient(135deg,${P.p1},${P.p3})`, borderRadius: 14, padding: "11px" }}>▶ Escucharla</a>
               </div>
             )}
-            {isBday && now.phase !== "after" && (
+            {isBday && now.canRelive && (
               <button onClick={onFinale} style={{ width: "100%", marginTop: 18, fontSize: 16, fontWeight: 800, color: "#fff", background: `linear-gradient(135deg,${P.p1},${P.p3})`, border: "none", borderRadius: 26, padding: "15px", cursor: "pointer", boxShadow: "0 0 30px rgba(219,39,119,.5)" }}>
-                Abrir mi regalo 🎁
+                {now.phase === "birthday" ? "Abrir mi regalo 🎁" : "Revivir la sorpresa 🎆"}
               </button>
             )}
           </div>

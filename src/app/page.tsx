@@ -1275,7 +1275,7 @@ REGLAS GENERALES:
             title={`Camino al cumple de ${CUMPLE_NAME}`}
             aria-label={`Camino al cumple de ${CUMPLE_NAME}`}
             style={{ background:"linear-gradient(135deg,#f59e0b,#db2777)", border:"none", borderRadius:10, width: desktop ? 36 : 38, height: desktop ? 36 : 38, cursor:"pointer", fontSize:19, lineHeight:1, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", animation:"ccBtnPulse 2s ease-in-out infinite", boxShadow:"0 0 0 0 rgba(244,114,182,0.6)" }}
-          >{cumple.phase === "birthday" ? "🎁" : "🎂"}</button>
+          >{cumple.phase === "birthday" || (cumple.phase === "after" && cumple.canRelive) ? "🎁" : "🎂"}</button>
         )}
         {/* Botón de notificaciones */}
         <button
@@ -1438,16 +1438,16 @@ REGLAS GENERALES:
           <div style={{ display: desktop && trees.length > 0 ? "grid" : "block", gridTemplateColumns: desktop && trees.length > 0 ? "1fr 1fr" : "1fr", gap: desktop ? 16 : 0 }}>
             {cumple && cumple.phase !== "before" && (
               <button
-                onClick={() => setShowCumple(true)}
+                onClick={() => (cumple.phase === "after" && cumple.canRelive ? setShowFinale(true) : setShowCumple(true))}
                 style={{ gridColumn: desktop ? "1 / -1" : undefined, width:"100%", textAlign:"left", cursor:"pointer", color:P.txt, background:"linear-gradient(135deg,rgba(251,191,36,0.18),rgba(219,39,119,0.22))", border:"1px solid rgba(244,114,182,0.45)", borderRadius:16, padding:"14px 18px", marginBottom: desktop ? 0 : 14, display:"flex", alignItems:"center", gap:12, animation:"floatIn 0.55s cubic-bezier(0.34,1.56,0.64,1) both" }}
               >
-                <span style={{ fontSize:30, lineHeight:1 }}>{cumple.phase === "birthday" ? "🎁" : cumple.phase === "after" ? "💜" : "🎂"}</span>
+                <span style={{ fontSize:30, lineHeight:1 }}>{cumple.phase === "birthday" || (cumple.phase === "after" && cumple.canRelive) ? "🎁" : cumple.phase === "after" ? "💜" : "🎂"}</span>
                 <span style={{ flex:1 }}>
                   <span style={{ display:"block", fontFamily:"'Syne',sans-serif", fontSize:14, fontWeight:800 }}>
-                    {cumple.phase === "birthday" ? `¡Hoy es el cumple de ${CUMPLE_NAME}! 🎉` : cumple.phase === "after" ? "Camino al cumple: tus recuerdos" : cumple.daysLeft === 1 ? "¡Mañana es tu cumpleaños!" : `Faltan ${cumple.daysLeft} días para tu cumpleaños`}
+                    {cumple.phase === "birthday" ? `¡Hoy es el cumple de ${CUMPLE_NAME}! 🎉` : cumple.phase === "after" ? (cumple.canRelive ? "Revive tu sorpresa de cumpleaños 🎁" : "Camino al cumple: tus recuerdos") : cumple.daysLeft === 1 ? "¡Mañana es tu cumpleaños!" : `Faltan ${cumple.daysLeft} días para tu cumpleaños`}
                   </span>
                   <span style={{ display:"block", fontSize:11.5, color:P.muted, marginTop:2 }}>
-                    {cumple.phase === "birthday" ? "Toca para abrir tu sorpresa · ponle sonido 🔊" : cumple.phase === "after" ? "Vuelve a leer los 20 mensajes" : "Toca para ver el mensaje de hoy 💌"}
+                    {cumple.phase === "birthday" ? "Toca para abrir tu sorpresa · ponle sonido 🔊" : cumple.phase === "after" ? (cumple.canRelive ? "Disponible hasta el 20 de noviembre · también puedes guardarla en tu celular" : "Vuelve a leer los 20 mensajes") : "Toca para ver el mensaje de hoy 💌"}
                   </span>
                 </span>
                 <span style={{ fontSize:18, color:P.muted }}>›</span>

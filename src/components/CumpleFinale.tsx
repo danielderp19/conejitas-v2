@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MoodBunny } from "@/lib/moods";
+import CumpleSaveButton from "@/components/CumpleSaveButton";
 import { CONEJITA } from "@/lib/moodBunny";
 import { CUMPLE_NAME, CUMPLE_LETTER, CUMPLE_REASONS, FINALE_PHOTOS, photoUrl } from "@/lib/cumple";
 
@@ -363,6 +364,7 @@ export default function CumpleFinale({ onClose, preview }: { onClose: () => void
 
             <div style={{ textAlign: "center", marginTop: 28, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
               <button onClick={() => { volley(10); confetti(100); boom(true); navigator.vibrate?.([100, 50, 100]); }} style={{ fontSize: 14, fontWeight: 700, color: "#fff", background: `linear-gradient(135deg,${P.p1},${P.p3})`, border: "none", borderRadius: 24, padding: "12px 22px", cursor: "pointer" }}>🎆 Más fuegos artificiales</button>
+              <CumpleSaveButton />
               <button onClick={onClose} style={{ fontSize: 14, fontWeight: 700, color: P.txt, background: "rgba(255,255,255,.08)", border: "1px solid rgba(168,85,247,.3)", borderRadius: 24, padding: "12px 22px", cursor: "pointer" }}>Cerrar 💜</button>
             </div>
             <div style={{ textAlign: "center", fontSize: 12, color: P.muted, marginTop: 22 }}>Con todo mi amor, feliz cumpleaños 🎂</div>

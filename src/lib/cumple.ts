@@ -195,6 +195,7 @@ export interface CumpleNow {
   day: number; // día de octubre (1..31) si hay fase activa
   daysLeft: number;
   preview: boolean;
+  canRelive: boolean;
 }
 
 const PREVIEW_KEY = "conjita-cumple-preview";
@@ -237,7 +238,8 @@ export function getCumpleNow(): CumpleNow {
     else if (d === CUMPLE_DAY) phase = "birthday";
     else phase = "after";
   } else if (m > CUMPLE_MONTH) phase = "after";
-  return { phase, day: m === CUMPLE_MONTH ? d : 0, daysLeft: Math.max(0, CUMPLE_DAY - d), preview: !!pv };
+  const canRelive = phase === "birthday" || (m === CUMPLE_MONTH && d > CUMPLE_DAY) || (m === CUMPLE_MONTH + 1 && d <= CUMPLE_DAY);
+  return { phase, day: m === CUMPLE_MONTH ? d : 0, daysLeft: Math.max(0, CUMPLE_DAY - d), preview: !!pv, canRelive };
 }
 
 export const cumpleYear = () => {
