@@ -17,10 +17,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const { blobs } = await list({ prefix: `cumple/foto-${n}.jpg` });
+    if (sp.get("dbg") === "1") return NextResponse.json({ count: blobs.length, hasToken: !!process.env.BLOB_READ_WRITE_TOKEN, urls: blobs.map(b => b.url.slice(0, 60)) });
     if (!blobs.length) return new NextResponse("no", { status: 404 });
     const token = process.env.BLOB_READ_WRITE_TOKEN || "";
     const res = await fetch(blobs[0].url, { headers: token ? { authorization: `Bearer ${token}` } : undefined });
-    if (!res.ok) return new NextResponse("no", { status: 404 });
+    if (!res.ok) return new NextResponse(sp.get("dbg") === "2" ? `fetch ${res.status}` : "no", { status: 404 });
     return new NextResponse(res.body, { headers: { "content-type": "image/jpeg", "cache-control": "private, max-age=3600" } });
   } catch {
     return new NextResponse("error", { status: 500 });
